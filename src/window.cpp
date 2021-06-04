@@ -9,10 +9,10 @@ Window::Window() : QWidget()
     // Init flags
     m_albedoTexLoaded = false;
     m_normalMapLoaded = false;
-    m_metalMapLoaded = false;
-    m_glossMapLoaded = false;
-    m_ambientMapLoaded = false;
-    m_cubeMapLoaded = false;
+    //m_metalMapLoaded = false;
+    //m_glossMapLoaded = false;
+    //m_ambientMapLoaded = false;
+    //m_cubeMapLoaded = false;
 
     this->setWindowTitle("=][=");
     this->move(300,100);
@@ -315,7 +315,7 @@ Window::Window() : QWidget()
     m_boxTexLayout->addLayout(m_normalMapLayout);
 
     // Load Metal map button
-    m_buttonLoadMetalMap = new QPushButton("load metal map", this);
+/*    m_buttonLoadMetalMap = new QPushButton("load metal map", this);
     m_buttonLoadMetalMap->setFixedSize(150, 25);
     QObject::connect(m_buttonLoadMetalMap, SIGNAL(clicked()), this, SLOT(openMetalMapDialog()));
     m_boxTexLayout->addWidget(m_buttonLoadMetalMap);
@@ -360,7 +360,7 @@ Window::Window() : QWidget()
     m_toggleEnvMap->setEnabled(false);
     QObject::connect(m_toggleEnvMap, SIGNAL(clicked()), m_glViewer, SLOT(toggleEnvMap()));
     m_cubeMapLayout->addWidget(m_toggleEnvMap);
-    m_boxTexLayout->addLayout(m_cubeMapLayout);
+    m_boxTexLayout->addLayout(m_cubeMapLayout);*/
 
     m_groupBoxTex->setLayout(m_boxTexLayout);
     m_boxGlobalLayout->addWidget(m_groupBoxTex);
@@ -477,16 +477,16 @@ Window::~Window()
     delete m_buttonLoadNormalMap;
     delete m_toggleNormalMap;
     delete m_normalMapLayout;
-    delete m_buttonLoadMetalMap;
-    delete m_buttonLoadGlossMap;
-    delete m_togglePBRMap;
-    delete m_PBRMapLayout;
-    delete m_buttonLoadAmbientMap;
-    delete m_toggleAmbientMap;
-    delete m_ambientMapLayout;
-    delete m_buttonLoadCubeMap;
-    delete m_toggleEnvMap;
-    delete m_cubeMapLayout;
+    //delete m_buttonLoadMetalMap;
+    //delete m_buttonLoadGlossMap;
+    //delete m_togglePBRMap;
+    //delete m_PBRMapLayout;
+    //delete m_buttonLoadAmbientMap;
+    //delete m_toggleAmbientMap;
+    //delete m_ambientMapLayout;
+    //delete m_buttonLoadCubeMap;
+    //delete m_toggleEnvMap;
+    //delete m_cubeMapLayout;
     delete m_boxTexLayout;
     delete m_groupBoxTex;
     // Delete geometry tools
@@ -570,7 +570,7 @@ void Window::loadMeshHE()
 
 void Window::loadMeshSoup()
 {
-    QString file = QFileDialog::getOpenFileName(this, "open file", "../../3dmodels", "Mesh (*.obj *.stl)");
+    QString file = QFileDialog::getOpenFileName(this, "open file", "../../3dmodels", "Mesh (*.obj *.off *.stl)");
     if( !file.isEmpty() )
     {
         m_glViewer->loadTriMeshSoup(file);
@@ -801,9 +801,9 @@ void Window::toggleShowNormals()
         m_specPowLabel->setEnabled(false);
 
         m_toggleAlbedoTex->setEnabled(false);
-        m_togglePBRMap->setEnabled(false);
-        m_toggleEnvMap->setEnabled(false);
-        m_toggleAmbientMap->setEnabled(false);
+        //m_togglePBRMap->setEnabled(false);
+        //m_toggleEnvMap->setEnabled(false);
+        //m_toggleAmbientMap->setEnabled(false);
     }
     else
     {
@@ -823,12 +823,12 @@ void Window::toggleShowNormals()
 
         if(m_albedoTexLoaded)
             m_toggleAlbedoTex->setEnabled(true);
-        if(m_metalMapLoaded || m_glossMapLoaded)
-            m_togglePBRMap->setEnabled(true);
-        if(m_cubeMapLoaded)
-            m_toggleEnvMap->setEnabled(true);
-        if(m_ambientMapLoaded)
-            m_toggleAmbientMap->setEnabled(true);
+        //if(m_metalMapLoaded || m_glossMapLoaded)
+        //    m_togglePBRMap->setEnabled(true);
+        //if(m_cubeMapLoaded)
+        //    m_toggleEnvMap->setEnabled(true);
+        //if(m_ambientMapLoaded)
+        //    m_toggleAmbientMap->setEnabled(true);
     }
 }
 
@@ -869,7 +869,7 @@ void Window::openNormalMapDialog()
         m_normalMapLoaded = true;
     }
 }
-
+/*
 void Window::openMetalMapDialog()
 {
     QString file = QFileDialog::getOpenFileName(this, "open file", "../../3dmodels", "Image (*.png)");
@@ -948,7 +948,7 @@ void Window::openCubeMapDialog()
             m_specPowSpinBox->setValue(valueD);
     }
 }
-
+*/
 void Window::lapSmooth()
 {
     m_glViewer->lapSmooth( m_nbIterSpinBox->value(), m_factorSpinBox->value() );

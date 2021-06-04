@@ -284,7 +284,7 @@ void Viewer::toggleNormalMap()
     m_drawMesh->setNormalMapFlag( !m_drawMesh->getNormalMapFlag() );
     update();
 }
-
+/*
 void Viewer::togglePBRMap()
 {
     // Reverse state of PBR mapping flag
@@ -305,7 +305,7 @@ void Viewer::toggleEnvMap()
     m_drawMesh->setEnvMapFlag( !m_drawMesh->getEnvMapFlag() );
     update();
 }
-
+*/
 void Viewer::compNormals()
 {
     m_triMesh->computeNormals();

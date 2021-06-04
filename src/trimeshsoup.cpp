@@ -129,6 +129,11 @@ bool TriMeshSoup::readFile(std::string _filename)
         importOBJ(_filename);
         return true;
     }
+    if(_filename.substr(_filename.find_last_of(".") + 1) == "off")
+    {
+        importOFF(_filename);
+        return true;
+    }
     else if(_filename.substr(_filename.find_last_of(".") + 1) == "stl") 
     {
         importSTL(_filename);
@@ -136,7 +141,7 @@ bool TriMeshSoup::readFile(std::string _filename)
     }
     else
     {
-        std::cerr << " ERROR: [TriMeshSoup::readFile()] Invalid file extension: only .obj and .stl are supported" << std::endl;
+        std::cerr << " ERROR: [TriMeshSoup::readFile()] Invalid file extension: only .obj, .off, and .stl are supported" << std::endl;
     }
     return false;
 }
@@ -149,6 +154,11 @@ bool TriMeshSoup::writeFile(std::string _filename)
         exportOBJ(_filename);
         return true;
     }
+    if(_filename.substr(_filename.find_last_of(".") + 1) == "off")
+    {
+        exportOFF(_filename);
+        return true;
+    }
     else if(_filename.substr(_filename.find_last_of(".") + 1) == "stl") 
     {
         exportSTL(_filename);
@@ -156,7 +166,7 @@ bool TriMeshSoup::writeFile(std::string _filename)
     }
     else
     {
-        std::cerr << " ERROR: [TriMeshSoup::writeFile()] Invalid file extension: only .obj and .stl are supported" << std::endl;
+        std::cerr << " ERROR: [TriMeshSoup::writeFile()] Invalid file extension: only .obj, .off, and .stl are supported" << std::endl;
     }
     return false;
 }
@@ -491,6 +501,147 @@ void TriMeshSoup::exportOBJ(const std::string &_filename)
     }
 
     fclose(file);
+}
+
+
+bool TriMeshSoup::importOFF(const std::string &_filename)
+{
+    
+    // read ASCII
+
+    
+    // Clear old mesh 
+    m_vertices.clear();
+    m_indices.clear();
+
+    glm::vec3 vertex;
+
+    // open file
+    std::ifstream ifile(_filename.c_str() );
+
+    if (!ifile.is_open() || !ifile.good())
+    {
+        std::cerr << "[OFFReader] : cannot not open file "  << _filename  << std::endl;
+        return false;
+    }
+
+    // read header line
+    std::string header;
+    std::getline(ifile,header);
+
+    // read number of vertices, faces, and edges
+    unsigned int nV, nF, nE;
+    ifile >> nV;
+    ifile >> nF;
+    ifile >> nE; //unused
+
+
+    // for each vertex coord line
+    std::string line;
+    int i;
+    for (i = 0; i<nV && std::getline(ifile, line); ++i)
+    {
+        // get line
+        std::stringstream linestream(line);
+        // read vertex coords and add into array
+        if(linestream >> vertex.x >> vertex.y >> vertex.z)
+            m_vertices.push_back(vertex);
+    }
+
+
+    // read faces
+    // #N <v1> <v2> .. <v(n-1)> [color spec]
+    for (int j = 0 ; j<nF ; ++j)
+    {
+        // get line
+        std::getline(ifile, line);
+        std::stringstream linestream(line);
+        unsigned int v1 , v2, v3;
+
+        // read vertex number
+        if(linestream >> nV)
+        {
+            if(nV == 3 )
+            {
+                // read indices if the face is a triangle
+                if(linestream >> v1 >> v2 >> v3)
+                {
+                    m_indices.push_back(v1);
+                    m_indices.push_back(v2);
+                    m_indices.push_back(v3);
+                }
+            }
+        }
+
+    }
+
+    // close file  
+    ifile.close();
+
+    // Compute normals
+    if(m_normals.size() == 0) 
+    {
+        std::cout << "Normals not provided, compute them " << std::endl;
+        computeNormals();
+    }
+
+    // File was successfully parsed.
+    return true;
+
+}
+
+
+void TriMeshSoup::exportOFF(const std::string &_filename)
+{
+    // Open the file
+    FILE* file = fopen(_filename.c_str(), "w");
+    if( !file) 
+    {
+        std::cerr << " ERROR [TriMeshSoup::exportOFF()] Cannot open file to write" << _filename << std::endl;
+    }
+
+    unsigned int nb_triangles = m_indices.size()/3;
+    if( m_indices.size() % 3 != 0)
+    {
+        std::cerr << " ERROR [TriMeshSoup::exportOFF()] Number of vertices is not a multiple of 3" << std::endl;
+    }
+
+    unsigned int i;
+
+    // Write header
+    fprintf(file, "OFF \n");
+    fprintf(file, "%d %d %d \n", m_vertices.size(), nb_triangles, 0 );
+
+    // Write vertices
+    for (i = 0; i <m_vertices.size(); i++) 
+    {
+        fprintf(file, "%f %f %f\n", m_vertices[i].x, m_vertices[i].y, m_vertices[i].z);
+    }
+  
+    // Write facets (triangles)
+    for (i = 0; i <nb_triangles; i++) 
+    {
+        int vertId0 = m_indices[ i * 3 ]; // !! in wavefront files, vertex indices starts at 1
+        int vertId1 = m_indices[ i * 3 + 1 ];
+        int vertId2 = m_indices[ i * 3 + 2 ];
+
+        fprintf(file, "%d %d %d %d \n", 3, vertId0, vertId1, vertId2);
+    }
+
+    fclose(file);
+}
+
+
+bool TriMeshSoup::importPLY(const std::string &_filename)
+{
+    // TODO
+    return true;
+}
+
+
+void TriMeshSoup::exportPLY(const std::string &_filename)
+{
+    // TODO
 }
 
 

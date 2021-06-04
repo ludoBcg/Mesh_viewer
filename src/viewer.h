@@ -191,61 +191,61 @@ class Viewer : public QGLViewer
         * \fn setMetalMap
         * \brief get metal map file and send it to DrawableMesh
         */
-        inline void setMetalMap(QString _fileName)
-        {
-            if(! _fileName.isEmpty() )
-            {
-                // Load metal map
-                m_drawMesh->loadMetalMap( _fileName.toStdString() );
-            }
-            else
-                std::cerr << "ERROR: [Viewer::setMetalMap()] filename empty" << std::endl;
-        }
+        //inline void setMetalMap(QString _fileName)
+        //{
+        //    if(! _fileName.isEmpty() )
+        //    {
+        //        // Load metal map
+        //        m_drawMesh->loadMetalMap( _fileName.toStdString() );
+        //    }
+        //    else
+        //        std::cerr << "ERROR: [Viewer::setMetalMap()] filename empty" << std::endl;
+        //}
 
         /*!
         * \fn setGlossMap
         * \brief get gloss map file and send it to DrawableMesh
         */
-        inline void setGlossMap(QString _fileName)
-        {
-            if(! _fileName.isEmpty() )
-            {
-                // Load gloss map
-                m_drawMesh->loadGlossMap( _fileName.toStdString() );
-            }
-            else
-                std::cerr << "ERROR: [Viewer::setGlossMap()] filename empty" << std::endl;
-        }
+        //inline void setGlossMap(QString _fileName)
+        //{
+        //    if(! _fileName.isEmpty() )
+        //    {
+        //        // Load gloss map
+        //        m_drawMesh->loadGlossMap( _fileName.toStdString() );
+        //    }
+        //    else
+        //        std::cerr << "ERROR: [Viewer::setGlossMap()] filename empty" << std::endl;
+        //}
 
         /*!
         * \fn setAmbientMap
         * \brief get ambient map file and send it to DrawableMesh
         */
-        inline void setAmbientMap(QString _fileName)
-        {
-            if(! _fileName.isEmpty() )
-            {
-                // Load gloss map
-                m_drawMesh->loadAmbientMap( _fileName.toStdString() );
-            }
-            else
-                std::cerr << "ERROR: [Viewer::setAmbientMap()] filename empty" << std::endl;
-        }
+        //inline void setAmbientMap(QString _fileName)
+        //{
+        //    if(! _fileName.isEmpty() )
+        //    {
+        //        // Load gloss map
+        //        m_drawMesh->loadAmbientMap( _fileName.toStdString() );
+        //    }
+        //    else
+        //        std::cerr << "ERROR: [Viewer::setAmbientMap()] filename empty" << std::endl;
+        //}
 
         /*!
         * \fn setCubeMap
         * \brief get cube map folder and send it to DrawableMesh
         */
-        inline void setCubeMap(QString _dirname)
-        {
-            if(! _dirname.isEmpty() )
-            {
-                // Load albedo texture
-                m_drawMesh->loadCubeMap( _dirname.toStdString() );
-            }
-            else
-                std::cerr << "ERROR: [Viewer::setCubeMap()] dirname empty" << std::endl; 
-        }
+        //inline void setCubeMap(QString _dirname)
+        //{
+        //    if(! _dirname.isEmpty() )
+        //    {
+        //        // Load albedo texture
+        //        m_drawMesh->loadCubeMap( _dirname.toStdString() );
+        //    }
+        //    else
+        //        std::cerr << "ERROR: [Viewer::setCubeMap()] dirname empty" << std::endl; 
+        //}
 
         /*!
         * \fn lapSmooth
@@ -367,17 +367,17 @@ class Viewer : public QGLViewer
         * \fn togglePBRMap
         * \brief SLOT: activate/deactivate PBR mapping
         */
-        void togglePBRMap();
+        ///void togglePBRMap();
         /*!
         * \fn toggleAmbientMap
         * \brief SLOT: activate/deactivate ambient mapping
         */
-        void toggleAmbientMap();
+        //void toggleAmbientMap();
         /*!
         * \fn toggleEnvMap
         * \brief SLOT: activate/deactivate environment mapping
         */
-        void toggleEnvMap();
+        //void toggleEnvMap();
 
         /*!
         * \fn compNormals

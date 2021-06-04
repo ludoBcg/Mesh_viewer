@@ -3,6 +3,7 @@
 
 #include <map>
 
+
 #include "mesh.h"
 
 
@@ -137,6 +138,35 @@ class TriMeshSoup : public Mesh
         * \param _filename: name of file to write
         */
         void exportOBJ(const std::string &_filename);
+
+        /*!
+        * \fn importOFF
+        * \brief read OFF file
+        * \param _filename: name of file
+        */
+        bool importOFF(const std::string &_filename);
+
+        /*!
+        * \fn exportOFF
+        * \brief Writes the mesh into a file, using the OFF format.
+        * \param _filename: name of file to write
+        */
+        void exportOFF(const std::string &_filename);
+
+
+        /*!
+        * \fn importPLY
+        * \brief read PLY file
+        * \param _filename: name of file
+        */
+        bool importPLY(const std::string &_filename);
+
+        /*!
+        * \fn exportPLY
+        * \brief Writes the mesh into a file, using the PLY format.
+        * \param _filename: name of file to write
+        */
+        void exportPLY(const std::string &_filename);
 
         /*!
         * \fn importSTL

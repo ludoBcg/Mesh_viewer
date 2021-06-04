@@ -91,16 +91,16 @@ class Window : public QWidget
         QHBoxLayout* m_normalMapLayout;       /*!< Horizontal layout for normal map */
         QPushButton* m_buttonLoadNormalMap; /*!< Button to load normal map */
         QCheckBox* m_toggleNormalMap;       /*!< CheckBox to activate/deactivate normal mapping */
-        QPushButton* m_buttonLoadMetalMap;  /*!< Button to load metal map */
-        QHBoxLayout* m_PBRMapLayout;       /*!< Horizontal layout for PBR mapping */
-        QPushButton* m_buttonLoadGlossMap;  /*!< Button to load gloss map */
-        QCheckBox* m_togglePBRMap;          /*!< CheckBox to activate/deactivate PBR mapping */
-        QHBoxLayout* m_ambientMapLayout;       /*!< Horizontal layout for ambient map */
-        QPushButton* m_buttonLoadAmbientMap;/*!< Button to load ambient map */
-        QCheckBox* m_toggleAmbientMap;      /*!< CheckBox to activate/deactivate ambient mapping */
-        QHBoxLayout* m_cubeMapLayout;       /*!< Horizontal layout for cube map */
-        QPushButton* m_buttonLoadCubeMap;   /*!< Button to load cube map */
-        QCheckBox* m_toggleEnvMap;          /*!< CheckBox to activate/deactivate environment mapping */
+        //QPushButton* m_buttonLoadMetalMap;  /*!< Button to load metal map */
+        //QHBoxLayout* m_PBRMapLayout;       /*!< Horizontal layout for PBR mapping */
+        //QPushButton* m_buttonLoadGlossMap;  /*!< Button to load gloss map */
+        //QCheckBox* m_togglePBRMap;          /*!< CheckBox to activate/deactivate PBR mapping */
+        //QHBoxLayout* m_ambientMapLayout;       /*!< Horizontal layout for ambient map */
+        //QPushButton* m_buttonLoadAmbientMap;/*!< Button to load ambient map */
+        //QCheckBox* m_toggleAmbientMap;      /*!< CheckBox to activate/deactivate ambient mapping */
+        //QHBoxLayout* m_cubeMapLayout;       /*!< Horizontal layout for cube map */
+        //QPushButton* m_buttonLoadCubeMap;   /*!< Button to load cube map */
+        //QCheckBox* m_toggleEnvMap;          /*!< CheckBox to activate/deactivate environment mapping */
 
         QGroupBox* m_groupBoxGeom;          /*!< GroupBox for geometry tools */
         QVBoxLayout* m_boxGeomLayout;       /*!< Layout for geometry tools */
@@ -116,10 +116,10 @@ class Window : public QWidget
 
         bool m_albedoTexLoaded;             /*!< True is an albedo texture is loaded */
         bool m_normalMapLoaded;             /*!< True is a normal map is loaded */
-        bool m_metalMapLoaded;              /*!< True is a metal map is loaded */  
-        bool m_glossMapLoaded;              /*!< True is a gloss map is loaded */
-        bool m_ambientMapLoaded;            /*!< True is a ambient map is loaded */  
-        bool m_cubeMapLoaded;               /*!< True is a cube map is loaded */  
+        //bool m_metalMapLoaded;              /*!< True is a metal map is loaded */  
+        //bool m_glossMapLoaded;              /*!< True is a gloss map is loaded */
+        //bool m_ambientMapLoaded;            /*!< True is a ambient map is loaded */  
+        //bool m_cubeMapLoaded;               /*!< True is a cube map is loaded */  
 
         QColor m_ambientCol;                /*!< Current ambient color */
         QColor m_diffuseCol;                /*!< Current diffuse color */
@@ -268,31 +268,31 @@ class Window : public QWidget
         * \fn openMetalMapDialog
         * \brief SLOT: open dialog box to select metal map texture
         */
-        void openMetalMapDialog();
+        //void openMetalMapDialog();
 
         /*!
         * \fn openGlossMapDialog
         * \brief SLOT: open dialog box to select gloss map texture
         */
-        void openGlossMapDialog();
+        //void openGlossMapDialog();
 
         /*!
         * \fn toggleAmbMap
         * \brief SLOT: use ambient mapping instead of ambient default factor
         */
-        void toggleAmbMap();
+        //void toggleAmbMap();
 
         /*!
         * \fn openAmbMapDialog
         * \brief SLOT: open dialog box to select ambient map texture
         */
-        void openAmbMapDialog();
+        //void openAmbMapDialog();
 
         /*!
         * \fn openCubeMapDialog
         * \brief SLOT: open dialog box to select cube map texture set
         */
-        void openCubeMapDialog();
+        //void openCubeMapDialog();
 
         /*!
         * \fn lapSmooth
