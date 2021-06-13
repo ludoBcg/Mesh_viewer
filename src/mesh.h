@@ -31,6 +31,8 @@ class Mesh
         virtual void getTangents(std::vector<glm::vec3>& _tangents) = 0;
         virtual void getBitangents(std::vector<glm::vec3>& _bitangents) = 0;
 
+        virtual void getFaceNormals(std::vector<glm::vec3>& _facenormals) = 0;
+
         /*!
         * \fn getBBoxMin
         * \brief get min point of the bounding box
@@ -52,6 +54,11 @@ class Mesh
         virtual bool writeFile(std::string _filename) = 0;
 
         virtual void computeAABB() = 0;
+
+        virtual void duplicateVertices()
+        { 
+            std::cerr << "WARNING: [Mesh::duplicateVertices()] this virtual function should not be executed (it should only be executed by sub-classes overriding)" << std::endl; 
+        }
 
         virtual void computeNormals() = 0;
         virtual void computeTB() = 0;

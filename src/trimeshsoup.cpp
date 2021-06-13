@@ -5,6 +5,7 @@
 TriMeshSoup::TriMeshSoup()
 {
     m_TBComputed = false;
+    m_isVertDuplicated = false;
 
     m_bBoxMin = glm::vec3(0.0f, 0.0f, 0.0f);
     m_bBoxMax = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -14,6 +15,7 @@ TriMeshSoup::TriMeshSoup()
 TriMeshSoup::TriMeshSoup(bool _normals, bool _texCoords2D, bool _col)
 {
     m_TBComputed = false;
+    m_isVertDuplicated = false;
 
     m_bBoxMin = glm::vec3(0.0f, 0.0f, 0.0f);
     m_bBoxMax = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -33,7 +35,7 @@ void TriMeshSoup::getVertices(std::vector<glm::vec3>& _vertices)
 
     if(m_vertices.size() != 0)
     {
-        _vertices.assign(m_vertices.begin(), m_vertices.end());
+        _vertices.assign(m_vertices.begin(), m_vertices.end()); // new data storage
     }
     else
     {
@@ -122,6 +124,18 @@ void TriMeshSoup::getBitangents(std::vector<glm::vec3>& _bitangents)
 }
 
 
+void TriMeshSoup::getFaceNormals(std::vector<glm::vec3>& _facenormals)
+{
+    if(_facenormals.size() != 0)
+        _facenormals.clear();
+
+    if(m_facenormals.size() != 0)
+    {
+        _facenormals.assign(m_facenormals.begin(), m_facenormals.end());
+    }
+}
+
+
 bool TriMeshSoup::readFile(std::string _filename)
 {
     if(_filename.substr(_filename.find_last_of(".") + 1) == "obj")
@@ -206,11 +220,14 @@ void TriMeshSoup::computeNormals()
     m_normals.clear();
     m_normals.resize(m_vertices.size(), glm::vec3(0.0f, 0.0f, 0.0f));
 
+    m_facenormals.clear();
+    m_facenormals.resize(m_vertices.size(), glm::vec3(0.0f, 0.0f, 0.0f));
+
     // Compute per-vertex normals by averaging the unnormalized face normals
     std::int32_t vertexIndex0, vertexIndex1, vertexIndex2;
     glm::vec3 normal;
-    int numIndices = m_indices.size();
-    for (int i = 0; i < numIndices; i += 3) 
+
+    for (int i = 0; i < m_indices.size(); i += 3) 
     {
         vertexIndex0 = m_indices[i];
         vertexIndex1 = m_indices[i + 1];
@@ -219,13 +236,20 @@ void TriMeshSoup::computeNormals()
         m_normals[vertexIndex0] += normal;
         m_normals[vertexIndex1] += normal;
         m_normals[vertexIndex2] += normal;
+
+        // add face normals
+        glm::vec3 faceNormal = glm::normalize(normal);
+        m_facenormals[vertexIndex0] = faceNormal;
+        m_facenormals[vertexIndex1] = faceNormal;
+        m_facenormals[vertexIndex2] = faceNormal;
     }
 
-    int numNormals = m_normals.size();
-    for (int i = 0; i < numNormals; i++) 
+    for (unsigned int i = 0; i < m_normals.size(); i++) 
     {
         m_normals[i] = glm::normalize(m_normals[i]);
     }
+
+    std::cout << "INFO: [TriMeshSoup::computeNormals()] Normals computed" << std::endl;
 }
 
 
@@ -277,6 +301,83 @@ void TriMeshSoup::computeTB()
         std::cerr << "WARNING: [TriMeshSoup::computeTB()] texcoords not available" << std::endl; 
     }
 }
+
+
+
+void TriMeshSoup::duplicateVertices()
+{
+    m_isVertDuplicated = false;
+
+    // Check if data is available 
+    if(m_indices.size() == 0 || m_vertices.size() ==0 )
+    {
+        std::cerr << "WARNING: [TriMeshSoup::duplicateVertices()] Vertex data incomplete" << std::endl;
+        return;
+    }
+    bool hasNormals = (m_normals.size() != 0 );
+    bool hasColors = (m_colors.size() != 0 );
+    bool hasUVs = (m_texcoords.size() != 0 );
+
+
+    // Check consistency of vertex attributes
+    if( m_vertices.size() != m_normals.size() && hasNormals)
+    {
+        std::cerr << "WARNING: [TriMeshSoup::duplicateVertices()] arrays of vertex coords and normal coords have different sizes" << std::endl;
+        return;
+    }
+    if( m_vertices.size() != m_colors.size() && hasColors)
+    {
+        std::cerr << "WARNING: [TriMeshSoup::duplicateVertices()] arrays of vertex coords and colors have different sizes" << std::endl;
+        return;
+    }
+    if( m_vertices.size() != m_texcoords.size() && hasUVs)
+    {
+        std::cerr << "WARNING: [TriMeshSoup::duplicateVertices()] arrays of vertex coords and UV coords have different sizes" << std::endl;
+        return;
+    }
+
+
+    // Store vertex attributes in temporary arrays
+    std::vector<glm::vec3> temp_vertices = m_vertices;
+    std::vector<glm::vec3> temp_normals = m_normals;
+    std::vector<glm::vec3> temp_colors = m_colors;
+    std::vector<glm::vec2> temp_texcoords = m_texcoords;
+    // clear arrays
+    m_vertices.clear();
+    m_normals.clear();
+    m_colors.clear();
+    m_texcoords.clear();
+
+
+    // duplicate vertices with all their attributes for each adjacent triangle
+    for(unsigned int i=0; i<m_indices.size(); i++)
+    {
+        m_vertices.push_back(temp_vertices[ m_indices[i] ]);
+
+        if(hasNormals)
+            m_normals.push_back(temp_normals[ m_indices[i] ]);
+
+        if(hasColors)
+            m_colors.push_back(temp_colors[ m_indices[i] ]);
+
+        if(hasUVs)
+            m_texcoords.push_back(temp_texcoords[ m_indices[i] ]);
+
+        // update indices
+        m_indices[i] = i;
+    }
+
+    // clear temporary arrays
+    temp_vertices.clear();
+    temp_normals.clear();
+    temp_colors.clear();
+    temp_texcoords.clear();
+
+    std::cout << "INFO: [TriMeshSoup::duplicateVertices()] Vertices duplicated" << std::endl;
+
+    m_isVertDuplicated = true;
+}
+
 
 
 // Read an Mesh from an .obj file. This function can read texture

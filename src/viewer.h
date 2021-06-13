@@ -44,7 +44,7 @@ class Viewer : public QGLViewer
             if(!_fileName.isEmpty() )
             {
                 // Load mesh
-                m_triMesh = new TriMeshHE(true, false, false, false);
+                m_triMesh = new TriMeshHE(true, false, false, false); // @@ setup input options
                 m_triMesh->readFile( _fileName.toStdString() );
                 m_drawMesh->updateVAO(m_triMesh);
                 m_triMesh->computeAABB();
@@ -379,6 +379,11 @@ class Viewer : public QGLViewer
         */
         //void toggleEnvMap();
 
+        /*!
+        * \fn duplVertices
+        * \brief SLOT: duplicate vertices
+        */
+        void duplVertices();
         /*!
         * \fn compNormals
         * \brief SLOT: recompute geometric normals

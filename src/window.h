@@ -104,6 +104,7 @@ class Window : public QWidget
 
         QGroupBox* m_groupBoxGeom;          /*!< GroupBox for geometry tools */
         QVBoxLayout* m_boxGeomLayout;       /*!< Layout for geometry tools */
+        QPushButton* m_buttonDuplVertices;  /*!< Button to duplicate vertices */
         QPushButton* m_buttonCompNormals;   /*!< Button to recompute geometric normals */
         QPushButton* m_buttonCompTB;        /*!< Button to compute tangents and bitangents */
         QPushButton* m_buttonLapSmooth;     /*!< Button to compute Laplacian smoothing */

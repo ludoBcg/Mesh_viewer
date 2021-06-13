@@ -306,6 +306,13 @@ void Viewer::toggleEnvMap()
     update();
 }
 */
+void Viewer::duplVertices()
+{
+    m_triMesh->duplicateVertices();
+    m_drawMesh->updateVAO(m_triMesh);
+    update();
+}
+
 void Viewer::compNormals()
 {
     m_triMesh->computeNormals();

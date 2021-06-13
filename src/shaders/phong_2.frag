@@ -66,6 +66,9 @@ vec3 linear_to_gamma(in vec3 _color)
 // MAIN
 void main()
 {
+
+	
+	
 	vec3 l_vecN;
 	vec3 l_vecL;
 	vec3 l_vecV;

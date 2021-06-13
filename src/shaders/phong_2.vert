@@ -8,6 +8,7 @@ layout(location = 2) in vec3 a_color;
 layout(location = 3) in vec2 a_uv;
 layout(location = 4) in vec3 a_tangent;
 layout(location = 5) in vec3 a_bitangent;
+layout(location = 6) in vec3 a_facenormal;
 
 uniform mat4 u_mvp;
 uniform mat4 u_mv;
@@ -43,4 +44,5 @@ void main()
 	
 	vecT = normalize(mat3(u_mv) * a_tangent);
 	vecBT = normalize(mat3(u_mv) * a_bitangent);
+	
 }

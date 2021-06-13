@@ -64,6 +64,9 @@ class TriMeshSoup : public Mesh
         /*! \fn getBitangents */
         void getBitangents(std::vector<glm::vec3>& _bitangents);
 
+        /*! \fn getFaceNormals */
+        void getFaceNormals(std::vector<glm::vec3>& _facenormals);
+
         /*------------------------------------------------------------------------------------------------------------+
         |                                               OTHER METHODS                                                 |
         +-------------------------------------------------------------------------------------------------------------*/
@@ -103,6 +106,13 @@ class TriMeshSoup : public Mesh
         */
         void computeTB();
 
+        /*
+        * \fn duplicateVertices
+        * \brief Duplicates vertex attributes for each adjacent triangle.
+        */
+        void duplicateVertices();
+
+
     protected:
 
 
@@ -119,9 +129,15 @@ class TriMeshSoup : public Mesh
         std::vector<glm::vec3> m_tangents;      /*!< vertices tangent vectors array (3D coords) */
         std::vector<glm::vec3> m_bitangents;    /*!< vertices bitangent vectors array (3D coords) */
 
+        std::vector<glm::vec3> m_facenormals;   /*!< face normak vectors array (3D coords) */
+
+        bool m_isVertDuplicated;                /*!< flag if vertices have been duplicated */
+
+
         /*------------------------------------------------------------------------------------------------------------+
         |                                               OTHER METHODS                                                 |
         +-------------------------------------------------------------------------------------------------------------*/
+
 
         /*!
         * \fn importOBJ

@@ -16,7 +16,8 @@ enum AttributeLocation
     COLOR = 2,
     UV = 3,
     TANGENT = 4,
-    BITANGENT = 5
+    BITANGENT = 5,
+    FACENORMAL = 6
 };
 
 
@@ -114,6 +115,8 @@ class DrawableMesh
         inline void setShowNormalFlag(bool _showNormals) { m_showNormals = _showNormals; }
         /*! \fn setUseGammaCorrecFlag */
         inline void setUseGammaCorrecFlag(bool _useGammaCorrec) { m_useGammaCorrec = _useGammaCorrec; }
+        /*! \fn setUseFaceNormalsFlag */
+        inline void setUseFaceNormalsFlag(bool useFaceNormals) { m_useFaceNormals = useFaceNormals; }
 
         /*! \fn getAmbientFlag */
         inline bool getAmbientFlag() { return m_useAmbient; }
@@ -135,6 +138,8 @@ class DrawableMesh
         inline bool getShowNormalFlag() { return m_showNormals; }
         /*! \fn getUseGammaCorrecFlag */
         inline bool getUseGammaCorrecFlag() { return m_useGammaCorrec; }
+        /*! \fn getUseFaceNormalsFlag */
+        inline bool getUseFaceNormalsFlag() { return m_useFaceNormals; }
 
 
         /*------------------------------------------------------------------------------------------------------------+
@@ -208,7 +213,7 @@ class DrawableMesh
         * \brief load a set of cube maps (for environment mapping) from a directory
         * \param _dirname : directory of the cube maps
         */
-        inline void loadCubeMap(const std::string& _dirname) { m_cubeMap = loadCubemap(_dirname); }     // !! TODO: check m_specPow is consistent !!
+        //inline void loadCubeMap(const std::string& _dirname) { m_cubeMap = loadCubemap(_dirname); }     // !! TODO: check m_specPow is consistent !!
 
         /*!
         * \fn loadShaderProgram
@@ -249,6 +254,7 @@ class DrawableMesh
         GLuint m_bitangentVBO;      /*!< name of bitangent vector VBO */
         GLuint m_uvVBO;             /*!< name of UV coords VBO */
         GLuint m_indexVBO;          /*!< name of index VBO */
+        GLuint m_facenormalVBO;     /*!< name of face normal VBO */
 
         int m_numVertices;          /*!< number of vertices in the VBOs */
         int m_numIndices;           /*!< number of indices in the index VBO */
@@ -278,6 +284,7 @@ class DrawableMesh
         bool m_useEnvMap;           /*!< flag to use environment mapping or not */
         bool m_showNormals;         /*!< flag to display normals as colors or not */
         bool m_useGammaCorrec;      /*!< flag to apply gamma correction or not */
+        bool m_useFaceNormals;      /*!< flag to use face normals or not */
 
         bool m_vertexProvided;      /*!< flag to indicate if vertex coords are available or not */
         bool m_normalProvided;      /*!< flag to indicate if normals are available or not */
@@ -286,6 +293,7 @@ class DrawableMesh
         bool m_bitangentProvided;   /*!< flag to indicate if bitangnets are available or not */
         bool m_uvProvided;          /*!< flag to indicate if uv coords are available or not */
         bool m_indexProvided;       /*!< flag to indicate if indices are available or not */
+        bool m_facenormalProvided;   /*!< flag to indicate if face normals are available or not */
 
         bool m_shadedRenderOn;      /*!< flag to indicate if shaded rendering is on */
         bool m_wireframeRenderOn;   /*!< flag to indicate if wireframe rendering is on */
@@ -307,7 +315,7 @@ class DrawableMesh
         * \brief Load cubemap texture and let OpenGL generate a mipmap chain
         * \param _dirname : directory of cube map images
         */
-        GLuint loadCubemap(const std::string& _dirname);
+        //GLuint loadCubemap(const std::string& _dirname);
 
         /*!
         * \fn readShaderSource

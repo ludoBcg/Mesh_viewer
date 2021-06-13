@@ -70,6 +70,9 @@ class TriMeshHE : public Mesh
         /*! \fn getBitangents */
         void getBitangents(std::vector<glm::vec3>& _bitangents);
 
+        /*! \fn getFaceNormals */
+        void getFaceNormals(std::vector<glm::vec3>& _facenormals);
+
         /*------------------------------------------------------------------------------------------------------------+
         |                                               OTHER METHODS                                                 |
         +-------------------------------------------------------------------------------------------------------------*/

@@ -213,6 +213,29 @@ void TriMeshHE::getBitangents(std::vector<glm::vec3>& _bitangents)
 }
 
 
+void TriMeshHE::getFaceNormals(std::vector<glm::vec3>& _facenormals)
+{
+    if(_facenormals.size() != 0)
+        _facenormals.clear();
+
+    if(m_mesh.has_face_normals())
+    {
+        // for each triangle of the mesh...
+        for (OpMesh::FaceIter f_it = m_mesh.faces_begin(); f_it != m_mesh.faces_end(); ++f_it)
+        { 
+            OpMesh::FaceHandle f_h = f_it.handle();                                      // current face handle
+            OpMesh::Normal n1 = m_mesh.normal( f_h );                                    // current face normal
+            // for each vertex of the triangle
+            for (OpMesh::FaceVertexIter fv_it = m_mesh.fv_iter( *f_it ); fv_it.is_valid(); ++fv_it)
+            {   
+                // add the normal of the face
+                _facenormals.push_back(glm::vec3(n1[0], n1[1], n1[2]));
+            }
+        }
+    }
+}
+
+
 bool TriMeshHE::readFile(std::string _filename)
 {
     // read options
@@ -226,7 +249,7 @@ bool TriMeshHE::readFile(std::string _filename)
     if(m_mesh.has_vertex_colors())
         rOpt += OpenMesh::IO::Options::VertexColor;
     if(m_mesh.has_halfedge_texcoords2D())
-    rOpt += OpenMesh::IO::Options::FaceTexCoord;
+        rOpt += OpenMesh::IO::Options::FaceTexCoord;
 
     // read mesh from stdin
     if ( ! OpenMesh::IO::read_mesh(m_mesh, _filename, rOpt) )
@@ -322,7 +345,9 @@ void TriMeshHE::computeNormals()
     // let the mesh update the normals
     m_mesh.update_normals();
     // dispose the face normals, as we don't need them anymore
-    m_mesh.release_face_normals();
+//    m_mesh.release_face_normals(); // @@@ keep face normals
+
+    std::cout << "INFO: [TriMeshHE::computeNormals()] Normals computed" << std::endl;
 }
 
 

@@ -14,7 +14,7 @@ Window::Window() : QWidget()
     //m_ambientMapLoaded = false;
     //m_cubeMapLoaded = false;
 
-    this->setWindowTitle("=][=");
+    this->setWindowTitle("Mesh_viewer");
     this->move(300,100);
 
     /*******************************************************************************************/
@@ -372,6 +372,12 @@ Window::Window() : QWidget()
     // Geometry tools layout
     m_boxGeomLayout = new QVBoxLayout;
 
+    // Duplicate vertices button
+    m_buttonDuplVertices = new QPushButton("duplicate vertices", this);
+    m_buttonDuplVertices->setFixedSize(175, 25);
+    QObject::connect(m_buttonDuplVertices, SIGNAL(clicked()), m_glViewer, SLOT(duplVertices()));
+    m_boxGeomLayout->addWidget(m_buttonDuplVertices);
+
     // Recompute normals button
     m_buttonCompNormals = new QPushButton("recompute normals", this);
     m_buttonCompNormals->setFixedSize(175, 25);
@@ -490,6 +496,7 @@ Window::~Window()
     delete m_boxTexLayout;
     delete m_groupBoxTex;
     // Delete geometry tools
+    delete m_buttonDuplVertices;
     delete m_buttonCompNormals;
     delete m_buttonCompTB;
     delete m_buttonLapSmooth;
@@ -560,6 +567,7 @@ void Window::loadMeshHE()
     if( !file.isEmpty() )
     {
         m_glViewer->loadTriMeshHE(file);
+        m_buttonDuplVertices->setVisible(false);
         m_buttonLapSmooth->setVisible(true);
         m_nbIterSpinBox->setVisible(true);
         m_nbIterLabel->setVisible(true);
@@ -574,6 +582,7 @@ void Window::loadMeshSoup()
     if( !file.isEmpty() )
     {
         m_glViewer->loadTriMeshSoup(file);
+        m_buttonDuplVertices->setVisible(true);
         m_buttonLapSmooth->setVisible(false);
         m_nbIterSpinBox->setVisible(false);
         m_nbIterLabel->setVisible(false);

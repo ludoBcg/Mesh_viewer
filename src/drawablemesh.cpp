@@ -48,6 +48,7 @@ DrawableMesh::~DrawableMesh()
     glDeleteBuffers(1, &(m_tangentVBO));
     glDeleteBuffers(1, &(m_bitangentVBO));
     glDeleteBuffers(1, &(m_uvVBO));
+    glDeleteBuffers(1, &(m_facenormalVBO));
     glDeleteBuffers(1, &(m_indexVBO));
     glDeleteVertexArrays(1, &(m_meshVAO));
 }
@@ -78,6 +79,8 @@ void DrawableMesh::fillVAO(Mesh* _triMesh, bool _create)
     std::vector<glm::vec3> tangents;
     std::vector<glm::vec3> bitangents;
 
+    std::vector<glm::vec3> facenormals;
+
     _triMesh->getVertices(vertices);
     _triMesh->getNormals(normals);
     _triMesh->getIndices(indices);
@@ -87,6 +90,8 @@ void DrawableMesh::fillVAO(Mesh* _triMesh, bool _create)
     _triMesh->getTangents(tangents);
     _triMesh->getBitangents(bitangents);
 
+    _triMesh->getFaceNormals(facenormals);
+
     // update flags according to data provided
     vertices.size() ?  m_vertexProvided = true :  m_vertexProvided = false;
     normals.size() ?  m_normalProvided = true :  m_normalProvided = false;
@@ -95,7 +100,9 @@ void DrawableMesh::fillVAO(Mesh* _triMesh, bool _create)
     texcoords.size() ?  m_uvProvided = true :  m_uvProvided = false;
     tangents.size() ?  m_tangentProvided = true :  m_tangentProvided = false;
     bitangents.size() ?  m_bitangentProvided = true :  m_bitangentProvided = false;
+    facenormals.size() ?  m_facenormalProvided = true :  m_facenormalProvided = false;
 
+                
     if(!m_vertexProvided)
         std::cerr << "WARNING: [DrawableMesh::createVAO()] No vertex provided" << std::endl;
     if(!m_normalProvided)
@@ -186,6 +193,21 @@ void DrawableMesh::fillVAO(Mesh* _triMesh, bool _create)
         glBufferData(GL_ARRAY_BUFFER, bitangentsNBytes, nullptr, GL_STATIC_DRAW);
     }
 
+    // Generates and populates a VBO for face normals
+    if(_create)
+        glGenBuffers(1, &(m_facenormalVBO));
+    glBindBuffer(GL_ARRAY_BUFFER, m_facenormalVBO);
+    if(m_facenormalProvided)
+    {
+        size_t facenormalsNBytes = facenormals.size() * sizeof(facenormals[0]);
+        glBufferData(GL_ARRAY_BUFFER, facenormalsNBytes, facenormals.data(), GL_STATIC_DRAW);
+    }
+    else
+    {
+        size_t facenormalsNBytes = 1.0f * sizeof(facenormals[0]);
+        glBufferData(GL_ARRAY_BUFFER, facenormalsNBytes, nullptr, GL_STATIC_DRAW);
+    }
+
     // Creates a vertex array object (VAO) for drawing the mesh
     if(_create)
         glGenVertexArrays(1, &(m_meshVAO));
@@ -215,6 +237,10 @@ void DrawableMesh::fillVAO(Mesh* _triMesh, bool _create)
     glEnableVertexAttribArray(BITANGENT);
     glVertexAttribPointer(BITANGENT, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
+    glBindBuffer(GL_ARRAY_BUFFER, m_facenormalVBO);
+    glEnableVertexAttribArray(FACENORMAL);
+    glVertexAttribPointer(FACENORMAL, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexVBO);
     glBindVertexArray(m_defaultVAO); // unbinds the VAO
 
@@ -230,6 +256,7 @@ void DrawableMesh::fillVAO(Mesh* _triMesh, bool _create)
     texcoords.clear();
     tangents.clear();
     bitangents.clear();
+    facenormals.clear();
 }
 
 
@@ -332,6 +359,11 @@ void DrawableMesh::draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm:
             glUniform1i(glGetUniformLocation(m_program, "u_useGammaCorrec"), 1);
         else
             glUniform1i(glGetUniformLocation(m_program, "u_useGammaCorrec"), 0);
+
+        if(m_useFaceNormals)
+            glUniform1i(glGetUniformLocation(m_program, "u_useFaceNormals"), 1);
+        else
+            glUniform1i(glGetUniformLocation(m_program, "u_useFaceNormals"), 0);
         // ...
 
         // Draw!
@@ -407,51 +439,51 @@ GLuint DrawableMesh::load2DTexture(const std::string& _filename, bool _repeat)
 }
 
 
-GLuint DrawableMesh::loadCubemap(const std::string& _dirname)
-{
-    bool isValid = true;
-    const char *filenames[] = { "posx.png", "negx.png", "posy.png", "negy.png", "posz.png", "negz.png" };
-    const GLenum targets[] = {
-        GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-        GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-        GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
-    };
-    const unsigned num_sides = 6; 
-
-    std::vector<unsigned char> data[num_sides];
-    unsigned width;
-    unsigned height;
-    for (unsigned i = 0; i < num_sides; ++i) 
-    {
-        std::string filename = _dirname + "/" + filenames[i];
-        unsigned error = lodepng::decode(data[i], width, height, filename);
-        if (error != 0) 
-        {
-            std::cerr << "ERROR: [DrawableMesh::loadCubemap()] " << lodepng_error_text(error) << std::endl;
-            isValid = false;
-//            std::exit(EXIT_FAILURE);
-        }
-    }
-
-    GLuint texture;
-    if(isValid)
-    {
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        for (unsigned i = 0; i < num_sides; ++i) 
-        {
-            glTexImage2D(targets[i], 0, GL_SRGB8_ALPHA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(data[i][0]));
-        }
-        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-    }
-    return texture;
-
-}
+//GLuint DrawableMesh::loadCubemap(const std::string& _dirname)
+//{
+//    bool isValid = true;
+//    const char *filenames[] = { "posx.png", "negx.png", "posy.png", "negy.png", "posz.png", "negz.png" };
+//    const GLenum targets[] = {
+//        GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+//        GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+//        GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+//    };
+//    const unsigned num_sides = 6; 
+//
+//    std::vector<unsigned char> data[num_sides];
+//    unsigned width;
+//    unsigned height;
+//    for (unsigned i = 0; i < num_sides; ++i) 
+//    {
+//        std::string filename = _dirname + "/" + filenames[i];
+//        unsigned error = lodepng::decode(data[i], width, height, filename);
+//        if (error != 0) 
+//        {
+//            std::cerr << "ERROR: [DrawableMesh::loadCubemap()] " << lodepng_error_text(error) << std::endl;
+//            isValid = false;
+////            std::exit(EXIT_FAILURE);
+//        }
+//    }
+//
+//    GLuint texture;
+//    if(isValid)
+//    {
+//        glGenTextures(1, &texture);
+//        glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+//        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+//        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//        for (unsigned i = 0; i < num_sides; ++i) 
+//        {
+//            glTexImage2D(targets[i], 0, GL_SRGB8_ALPHA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(data[i][0]));
+//        }
+//        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+//        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+//    }
+//    return texture;
+//
+//}
 
 
 GLuint DrawableMesh::loadShaderProgram(const std::string& _vertShaderFilename, const std::string& _fragShaderFilename)
