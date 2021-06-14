@@ -22,6 +22,7 @@ DrawableMesh::DrawableMesh()
     setPBRFlag(false);
     setAmbMapFlag(false);
     setShowNormalFlag(false);
+    setFlatShadingFlag(false);
     setUseGammaCorrecFlag(true);
 
     m_vertexProvided = false;
@@ -104,11 +105,11 @@ void DrawableMesh::fillVAO(Mesh* _triMesh, bool _create)
 
                 
     if(!m_vertexProvided)
-        std::cerr << "WARNING: [DrawableMesh::createVAO()] No vertex provided" << std::endl;
+        std::cerr << "[WARNING] DrawableMesh::createVAO(): No vertex provided" << std::endl;
     if(!m_normalProvided)
-        std::cerr << "WARNING: [DrawableMesh::createVAO()] No normal provided" << std::endl;
+        std::cerr << "[WARNING] DrawableMesh::createVAO(): No normal provided" << std::endl;
     if(!m_indexProvided)
-        std::cerr << "WARNING: [DrawableMesh::createVAO()] No index provided" << std::endl;
+        std::cerr << "[WARNING] DrawableMesh::createVAO(): No index provided" << std::endl;
 
     // Generates and populates a VBO for vertex coords
     if(_create)
@@ -355,6 +356,11 @@ void DrawableMesh::draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm:
         else
             glUniform1i(glGetUniformLocation(m_program, "u_showNormals"), 0);
 
+        if(m_flatShading)
+            glUniform1i(glGetUniformLocation(m_program, "u_flatShading"), 1);
+        else
+            glUniform1i(glGetUniformLocation(m_program, "u_flatShading"), 0);
+
         if(m_useGammaCorrec)
             glUniform1i(glGetUniformLocation(m_program, "u_useGammaCorrec"), 1);
         else
@@ -413,7 +419,7 @@ GLuint DrawableMesh::load2DTexture(const std::string& _filename, bool _repeat)
     unsigned error = lodepng::decode(data, width, height, _filename);
     if (error != 0) 
     {
-        std::cerr << "ERROR : [DrawableMesh::load2DTexture()] " << lodepng_error_text(error) << std::endl;
+        std::cerr << "[ERROR] DrawableMesh::load2DTexture() " << lodepng_error_text(error) << std::endl;
         std::exit(EXIT_FAILURE);
     }
 
@@ -499,7 +505,7 @@ GLuint DrawableMesh::loadShaderProgram(const std::string& _vertShaderFilename, c
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &compiled);
     if (!compiled) 
     {
-        std::cerr << "Vertex shader compilation failed:" << std::endl;
+        std::cerr << "[ERROR] DrawableMesh::loadShaderProgram(): Vertex shader compilation failed:" << std::endl;
         showShaderInfoLog(vertexShader);
         glDeleteShader(vertexShader);
         return 0;
@@ -516,7 +522,7 @@ GLuint DrawableMesh::loadShaderProgram(const std::string& _vertShaderFilename, c
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compiled);
     if (!compiled) 
     {
-        std::cerr << "Fragment shader compilation failed:" << std::endl;
+        std::cerr << "[ERROR] DrawableMesh::loadShaderProgram(): Fragment shader compilation failed:" << std::endl;
         showShaderInfoLog(fragmentShader);
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
@@ -538,7 +544,7 @@ GLuint DrawableMesh::loadShaderProgram(const std::string& _vertShaderFilename, c
     glGetProgramiv(program, GL_LINK_STATUS, &linked);
     if (!linked) 
     {
-        std::cerr << "Linking failed:" << std::endl;
+        std::cerr << "[ERROR] DrawableMesh::loadShaderProgram(): Linking failed:" << std::endl;
         showProgramInfoLog(program);
         glDeleteProgram(program);
         glDeleteShader(vertexShader);

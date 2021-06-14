@@ -25,6 +25,8 @@ Viewer::Viewer() : QGLViewer()
 Viewer::~Viewer()
 {
     delete m_drawMesh;
+    delete m_triMesh;
+    std::cout << std::endl << "Bye!" << std::endl;
 }
 
 
@@ -44,6 +46,14 @@ void Viewer::init()
         std::exit(EXIT_FAILURE);
     }
 
+    std::cout << std::endl
+              << "Welcome to Mesh_viewer" << std::endl << std::endl 
+              << "Press H for help" << std::endl
+              << "OpenGL version: " << glGetString(GL_VERSION) << std::endl
+              << "Vendor: " << glGetString(GL_VENDOR) << std::endl << std::endl
+              << "Log:" << std::endl;
+              
+
     // Load default mesh 
 //    m_triMesh = new TriMeshHE(true, false, false, false);
     m_triMesh = new TriMeshSoup(true, false, false);
@@ -51,7 +61,7 @@ void Viewer::init()
     m_triMesh->computeAABB();
 
     m_drawMesh = new DrawableMesh;
-    m_drawMesh->setProgram("../../src/shaders/phong.vert", "../../src/shaders/phong.frag");
+    m_drawMesh->setProgram("../../src/shaders/phong_2.vert", "../../src/shaders/phong_2.frag");
     m_drawMesh->createVAO(m_triMesh);
 
     // Setup scene and camera parameters
@@ -196,7 +206,7 @@ this->setSceneBoundingBox(min, max);
         update();
     }
     else
-        std::cerr << "ERROR: [Viewer::updateScene()] bounding box is not computed" << std::endl;
+        std::cerr << "[ERROR] Viewer::updateScene(): bounding box is not computed" << std::endl;
 }
 
 
@@ -256,6 +266,13 @@ void Viewer::toggleShowNormals()
 {
     // Reverse state of normal vectors rendering flag
     m_drawMesh->setShowNormalFlag( !m_drawMesh->getShowNormalFlag() );
+    update();
+}
+
+void Viewer::toggleFlatShading()
+{
+    // Reverse state of flat shading flag
+    m_drawMesh->setFlatShadingFlag( !m_drawMesh->getFlatShadingFlag() );
     update();
 }
 

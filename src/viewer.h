@@ -43,15 +43,17 @@ class Viewer : public QGLViewer
         {
             if(!_fileName.isEmpty() )
             {
+                std::cout << std::endl << "Load " << _fileName.toStdString() <<std::endl;
                 // Load mesh
                 m_triMesh = new TriMeshHE(true, false, false, false); // @@ setup input options
                 m_triMesh->readFile( _fileName.toStdString() );
                 m_drawMesh->updateVAO(m_triMesh);
+                m_drawMesh->setFlatShadingFlag(false);
                 m_triMesh->computeAABB();
                 updateScene();
             }
             else
-                std::cerr << "ERROR: [Viewer::loadTriMeshHE()] filename empty" << std::endl;
+                std::cerr << "[ERROR] Viewer::loadTriMeshHE(): filename empty" << std::endl;
         }
 
         /*!
@@ -62,15 +64,17 @@ class Viewer : public QGLViewer
         {
             if(!_fileName.isEmpty() )
             {
+                std::cout << std::endl << "Load " << _fileName.toStdString() <<std::endl;
                 // Load mesh
                 m_triMesh = new TriMeshSoup(true, false, false);
                 m_triMesh->readFile( _fileName.toStdString() );
                 m_drawMesh->updateVAO(m_triMesh);
+                m_drawMesh->setFlatShadingFlag(false);
                 m_triMesh->computeAABB();
                 updateScene();
             }
             else
-                std::cerr << "ERROR: [Viewer::loadTriMeshSoup()] filename empty" << std::endl;
+                std::cerr << "[ERROR] Viewer::loadTriMeshSoup(): filename empty" << std::endl;
         }
 
         /*!
@@ -85,7 +89,7 @@ class Viewer : public QGLViewer
                 m_triMesh->writeFile( _fileName.toStdString() );
             }
             else
-                std::cerr << "ERROR: [Viewer::saveMesh()] filename empty" << std::endl;
+                std::cerr << "[ERROR] Viewer::saveMesh(): filename empty" << std::endl;
         }
 
         /*!
@@ -169,7 +173,7 @@ class Viewer : public QGLViewer
                 m_drawMesh->loadAlbedoTex( _fileName.toStdString() );
             }
             else
-                std::cerr << "ERROR: [Viewer::setAlbedoTex()] filename empty" << std::endl; 
+                std::cerr << "[ERROR] Viewer::setAlbedoTex(): filename empty" << std::endl; 
         }
 
         /*!
@@ -184,7 +188,7 @@ class Viewer : public QGLViewer
                 m_drawMesh->loadNormalMap( _fileName.toStdString() );
             }
             else
-                std::cerr << "ERROR: [Viewer::setNormalMap()] filename empty" << std::endl;
+                std::cerr << "[ERROR] Viewer::setNormalMap(): filename empty" << std::endl;
         }
 
         /*!
@@ -339,6 +343,11 @@ class Viewer : public QGLViewer
         * \brief SLOT: activate/deactivate rendering of normal vectors
         */
         void toggleShowNormals();
+        /*!
+        * \fn toggleFlatShading
+        * \brief SLOT: activate/deactivate flat shading
+        */
+        void toggleFlatShading();
 
         /*!
         * \fn changeSpecPow
@@ -363,6 +372,7 @@ class Viewer : public QGLViewer
         * \brief SLOT: activate/deactivate normal mapping
         */
         void toggleNormalMap();
+
         /*!
         * \fn togglePBRMap
         * \brief SLOT: activate/deactivate PBR mapping

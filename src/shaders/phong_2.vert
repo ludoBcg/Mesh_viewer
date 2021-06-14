@@ -10,6 +10,7 @@ layout(location = 4) in vec3 a_tangent;
 layout(location = 5) in vec3 a_bitangent;
 layout(location = 6) in vec3 a_facenormal;
 
+uniform int u_flatShading;
 uniform mat4 u_mvp;
 uniform mat4 u_mv;
 uniform vec3 u_lightPosition;
@@ -28,7 +29,11 @@ void main()
 	vec3 v_eye = vec3(u_mv * a_position);
 
 	// Calculate the view-space normal
-	vecN = normalize(mat3(u_mv) * a_normal);
+	if(u_flatShading == 1)
+		vecN = normalize(mat3(u_mv) * a_facenormal);
+	else
+		vecN = normalize(mat3(u_mv) * a_normal);
+
 	
 	// Calculate the view-space light direction
 	vec3 l_vecLight = vec3(mat3(u_mv) * u_lightPosition) ;

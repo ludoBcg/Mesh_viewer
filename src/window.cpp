@@ -268,6 +268,14 @@ Window::Window() : QWidget()
     QObject::connect(m_toggleShowNormals, SIGNAL(clicked()), this, SLOT(toggleShowNormals()));
     m_boxShadingLayout->addWidget(m_toggleShowNormals);
 
+    // Toggle flat shading button
+    m_toggleFlatShading = new QCheckBox;
+    m_toggleFlatShading->setText("flat shading");
+    m_toggleFlatShading->setChecked(false);
+    m_toggleFlatShading->setEnabled(false);
+    QObject::connect(m_toggleFlatShading, SIGNAL(clicked()), m_glViewer, SLOT(toggleFlatShading()));
+    m_boxShadingLayout->addWidget(m_toggleFlatShading);
+
     // Toggle gamma correction button
     m_toggleGammaCorrec = new QCheckBox;
     m_toggleGammaCorrec->setText("gamma correction");
@@ -382,6 +390,7 @@ Window::Window() : QWidget()
     m_buttonCompNormals = new QPushButton("recompute normals", this);
     m_buttonCompNormals->setFixedSize(175, 25);
     QObject::connect(m_buttonCompNormals, SIGNAL(clicked()), m_glViewer, SLOT(compNormals()));
+    QObject::connect(m_buttonCompNormals, SIGNAL(clicked()), this, SLOT(compNormals()));
     m_boxGeomLayout->addWidget(m_buttonCompNormals);
 
     // Compute tangents + bitangents button
@@ -473,6 +482,7 @@ Window::~Window()
     delete m_specPowSpinBox;
     delete m_specPowLayout;
     delete m_toggleShowNormals;
+    delete m_toggleFlatShading;
     delete m_toggleGammaCorrec;
     delete m_boxShadingLayout;
     delete m_groupBoxShading;
@@ -573,6 +583,8 @@ void Window::loadMeshHE()
         m_nbIterLabel->setVisible(true);
         m_factorSpinBox->setVisible(true);
         m_factorLabel->setVisible(true);
+        m_toggleFlatShading->setChecked(false);
+        m_toggleFlatShading->setEnabled(true);
     }
 }
 
@@ -588,6 +600,8 @@ void Window::loadMeshSoup()
         m_nbIterLabel->setVisible(false);
         m_factorSpinBox->setVisible(false);
         m_factorLabel->setVisible(false);
+        m_toggleFlatShading->setChecked(false);
+        m_toggleFlatShading->setEnabled(false);
     }
 }
 
@@ -958,6 +972,13 @@ void Window::openCubeMapDialog()
     }
 }
 */
+
+void Window::compNormals()
+{
+    m_toggleFlatShading->setEnabled(true);
+}
+
+
 void Window::lapSmooth()
 {
     m_glViewer->lapSmooth( m_nbIterSpinBox->value(), m_factorSpinBox->value() );

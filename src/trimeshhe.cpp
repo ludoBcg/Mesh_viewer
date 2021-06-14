@@ -10,9 +10,9 @@ TriMeshHE::TriMeshHE()
 
     // check we have vertex properties
     if (!m_mesh.has_vertex_normals() )
-        std::cerr << "ERROR: [TriMeshHE::TriMeshHE()] Standard vertex property 'Normals' not available!\n";
+        std::cerr << "[ERROR] TriMeshHE::TriMeshHE(): Standard vertex property 'Normals' not available!\n";
     if (!m_mesh.has_vertex_texcoords2D() )
-        std::cerr << "ERROR: [TriMeshHE::TriMeshHE()] Standard vertex property 'TexCoords2D' not available!\n";
+        std::cerr << "[ERROR] TriMeshHE::TriMeshHE(): Standard vertex property 'TexCoords2D' not available!\n";
 
     m_TBComputed = false;
 
@@ -36,13 +36,13 @@ TriMeshHE::TriMeshHE(bool _vertNormals, bool _vertTexCoords2D, bool _vertCol, bo
 
     // check we have vertex properties
     if (!m_mesh.has_vertex_normals() && _vertNormals)
-        std::cerr << "ERROR: [TriMeshHE::TriMeshHE()] Standard vertex property 'Normals' not available!\n";
+        std::cerr << "[ERROR] TriMeshHE::TriMeshHE(): Standard vertex property 'Normals' not available!\n";
     if (!m_mesh.has_vertex_texcoords2D() && _vertTexCoords2D)
-        std::cerr << "ERROR: [TriMeshHE::TriMeshHE()] Standard vertex property 'TexCoords2D' not available!\n";
+        std::cerr << "[ERROR] TriMeshHE::TriMeshHE(): Standard vertex property 'TexCoords2D' not available!\n";
     if (!m_mesh.has_vertex_colors() && _vertCol)
-        std::cerr << "ERROR: [TriMeshHE::TriMeshHE()] Standard vertex property 'Colors' not available!\n";
+        std::cerr << "[ERROR] TriMeshHE::TriMeshHE(): Standard vertex property 'Colors' not available!\n";
     if (!m_mesh.has_halfedge_texcoords2D() && _edgeTexCoords2D)
-        std::cerr << "ERROR: [TriMeshHE::TriMeshHE()] Standard halfedge property 'TexCoords2D' not available!\n";
+        std::cerr << "[ERROR] TriMeshHE::TriMeshHE(): Standard halfedge property 'TexCoords2D' not available!\n";
 
     m_TBComputed = false;
 
@@ -254,14 +254,14 @@ bool TriMeshHE::readFile(std::string _filename)
     // read mesh from stdin
     if ( ! OpenMesh::IO::read_mesh(m_mesh, _filename, rOpt) )
     {
-        std::cerr << "ERROR: [TriMeshHE::readFile()] Cannot read mesh from " << _filename << std::endl;
+        std::cerr << "[ERROR] TriMeshHE::readFile(): Cannot read mesh from " << _filename << std::endl;
         return false;
     }
 
     // If the file did not provide vertex normals, then calculate them
     if ( m_mesh.has_vertex_normals() && !rOpt.check( OpenMesh::IO::Options::VertexNormal ) )
     {
-        std::cout << "Normals not provided, compute them " << std::endl;
+        std::cout << "[INFO] TriMeshHE::readFile(): Normals not provided, compute them " << std::endl;
         computeNormals();
     }
     // If the file did not provide vertex texcoords, then release them
@@ -294,7 +294,7 @@ bool TriMeshHE::writeFile(std::string _filename)
     // read mesh from stdin
     if ( ! OpenMesh::IO::write_mesh(m_mesh, _filename, wOpt) )
     {
-        std::cerr << "ERROR: [TriMeshHE::writeFile()] Cannot write to from " << _filename << std::endl;
+        std::cerr << "[ERROR] TriMeshHE::writeFile(): Cannot write to from " << _filename << std::endl;
         return false;
     }
 
@@ -324,7 +324,7 @@ void TriMeshHE::computeAABB()
     }
     else
     {
-        std::cerr << "WARNING: [TriMeshHE::computeAABB] Empty vertices array" << std::endl;
+        std::cerr << "[WARNING] TriMeshHE::computeAABB: Empty vertices array" << std::endl;
         m_bBoxMin = glm::vec3(0.0f, 0.0f, 0.0f);
         m_bBoxMax = glm::vec3(0.0f, 0.0f, 0.0f);
     }
@@ -347,7 +347,7 @@ void TriMeshHE::computeNormals()
     // dispose the face normals, as we don't need them anymore
 //    m_mesh.release_face_normals(); // @@@ keep face normals
 
-    std::cout << "INFO: [TriMeshHE::computeNormals()] Normals computed" << std::endl;
+    std::cout << "[INFO] TriMeshHE::computeNormals():] Normals computed" << std::endl;
 }
 
 
@@ -406,7 +406,7 @@ void TriMeshHE::computeTB()
     }
     else
     {
-         std::cerr << "WARNING: [TriMeshHE::computeTB()] vertex UV not available" << std::endl;
+         std::cerr << "[WARNING] TriMeshHE::computeTB(): vertex UV not available" << std::endl;
     }
 }
 
@@ -415,7 +415,7 @@ void TriMeshHE::lapSmooth(unsigned int _nbIter, float _fact)
 {
     if ( _fact > 1.0f )
     {
-        std::cerr << "WARNING: [TriMeshHE::lapSmooth()] factor larger than 1" << std::endl;
+        std::cerr << "[WARNING] TriMeshHE::lapSmooth(): factor larger than 1" << std::endl;
     }
 
     // this vector stores the computed centers of gravity

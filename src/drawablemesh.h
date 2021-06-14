@@ -78,7 +78,7 @@ class DrawableMesh
         inline void setAlbedoTexFlag(bool _useAlbedoTex) 
         { 
             if(!m_uvProvided && _useAlbedoTex)
-                std::cerr << "WARNING: [DrawableMesh::setAlbedoTexFlag()] No UV coords available" << std::endl;
+                std::cerr << "[WARNING] DrawableMesh::setAlbedoTexFlag(): No UV coords available" << std::endl;
             m_useAlbedoTex = _useAlbedoTex; 
         }
         /*! \fn setEnvMapFlag */
@@ -89,11 +89,11 @@ class DrawableMesh
             if(_useNormalMap)
             {
                 if(!m_uvProvided)
-                    std::cerr << "WARNING: [DrawableMesh::setNormalMapFlag()] No UV coords available" << std::endl;
+                    std::cerr << "[WARNING] DrawableMesh::setNormalMapFlag(): No UV coords available" << std::endl;
                 if(!m_tangentProvided)
-                    std::cerr << "WARNING: [DrawableMesh::setNormalMapFlag()] No tangent coords available" << std::endl;
+                    std::cerr << "[WARNING] DrawableMesh::setNormalMapFlag(): No tangent coords available" << std::endl;
                 if(!m_bitangentProvided)
-                    std::cerr << "WARNING: [DrawableMesh::setNormalMapFlag()] No bitangent coords available" << std::endl;
+                    std::cerr << "[WARNING] DrawableMesh::setNormalMapFlag(): No bitangent coords available" << std::endl;
             }
             m_useNormalMap = _useNormalMap; 
         }
@@ -101,18 +101,20 @@ class DrawableMesh
         inline void setPBRFlag(bool _usePBR) 
         { 
             if(!m_uvProvided && _usePBR)
-                std::cerr << "WARNING: [DrawableMesh::setPBRFlag()] No UV coords available" << std::endl;
+                std::cerr << "[WARNING] DrawableMesh::setPBRFlag(): No UV coords available" << std::endl;
             m_usePBR = _usePBR; 
         }
         /*! \fn setAmbMapFlag */
         inline void setAmbMapFlag(bool _useAmbMap) 
         { 
             if(!m_uvProvided && _useAmbMap)
-                std::cerr << "WARNING: [DrawableMesh::setAmbMapFlag()] No UV coords available" << std::endl;
+                std::cerr << "[WARNING] DrawableMesh::setAmbMapFlag(): No UV coords available" << std::endl;
             m_useAmbMap = _useAmbMap; 
         }
         /*! \fn setShowNormalFlag */
         inline void setShowNormalFlag(bool _showNormals) { m_showNormals = _showNormals; }
+        /*! \fn setFlatShadingFlag */
+        inline void setFlatShadingFlag(bool _flatShading) { m_flatShading = _flatShading; }
         /*! \fn setUseGammaCorrecFlag */
         inline void setUseGammaCorrecFlag(bool _useGammaCorrec) { m_useGammaCorrec = _useGammaCorrec; }
         /*! \fn setUseFaceNormalsFlag */
@@ -136,6 +138,8 @@ class DrawableMesh
         inline bool getAmbMapFlag() { return m_useAmbMap; }
         /*! \fn getShowNormalFlag */
         inline bool getShowNormalFlag() { return m_showNormals; }
+        /*! \fn getFlatShadingFlag */
+        inline bool getFlatShadingFlag() { return m_flatShading; }
         /*! \fn getUseGammaCorrecFlag */
         inline bool getUseGammaCorrecFlag() { return m_useGammaCorrec; }
         /*! \fn getUseFaceNormalsFlag */
@@ -283,6 +287,7 @@ class DrawableMesh
         bool m_useAmbMap;           /*!< flag to use ambient map or not */
         bool m_useEnvMap;           /*!< flag to use environment mapping or not */
         bool m_showNormals;         /*!< flag to display normals as colors or not */
+        bool m_flatShading;         /*!< flag to use flat shading or not */
         bool m_useGammaCorrec;      /*!< flag to apply gamma correction or not */
         bool m_useFaceNormals;      /*!< flag to use face normals or not */
 

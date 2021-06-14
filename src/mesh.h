@@ -57,7 +57,7 @@ class Mesh
 
         virtual void duplicateVertices()
         { 
-            std::cerr << "WARNING: [Mesh::duplicateVertices()] this virtual function should not be executed (it should only be executed by sub-classes overriding)" << std::endl; 
+            std::cerr << "[WARNING] Mesh::duplicateVertices(): this virtual function should not be executed (it should only be executed by sub-classes overriding)" << std::endl; 
         }
 
         virtual void computeNormals() = 0;
@@ -65,7 +65,7 @@ class Mesh
 
         virtual void lapSmooth(unsigned int _nbIter = 1, float _fact = 1.0f )
         { 
-            std::cerr << "WARNING: [Mesh::lapSmooth()] this virtual function should not be executed (it should only be executed by sub-classes overriding)" << std::endl; 
+            std::cerr << "[WARNING] Mesh::lapSmooth(): this virtual function should not be executed (it should only be executed by sub-classes overriding)" << std::endl; 
         }
 
     protected:

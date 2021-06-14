@@ -39,7 +39,7 @@ void TriMeshSoup::getVertices(std::vector<glm::vec3>& _vertices)
     }
     else
     {
-        std::cerr << "WARNING: [TriMeshSoup::getVertices] Empty vertices array" << std::endl;
+        std::cerr << "[WARNING] TriMeshSoup::getVertices: Empty vertices array" << std::endl;
     }
 }
 
@@ -55,7 +55,7 @@ void TriMeshSoup::getNormals(std::vector<glm::vec3>& _normals)
     }
     else
     {
-        std::cerr << "WARNING: [TriMeshSoup::getNormals] Empty normals array" << std::endl;
+        std::cerr << "[WARNING] TriMeshSoup::getNormals: Empty normals array" << std::endl;
     }
 }
 
@@ -71,7 +71,7 @@ void TriMeshSoup::getIndices(std::vector<uint32_t>& _indices)
     }
     else
     {
-        std::cerr << "WARNING: [TriMeshSoup::getIndices] Empty indices array" << std::endl;
+        std::cerr << "[WARNING] TriMeshSoup::getIndices: Empty indices array" << std::endl;
     }
 }
 
@@ -155,7 +155,7 @@ bool TriMeshSoup::readFile(std::string _filename)
     }
     else
     {
-        std::cerr << " ERROR: [TriMeshSoup::readFile()] Invalid file extension: only .obj, .off, and .stl are supported" << std::endl;
+        std::cerr << "[ERROR] TriMeshSoup::readFile(): Invalid file extension: only .obj, .off, and .stl are supported" << std::endl;
     }
     return false;
 }
@@ -180,7 +180,7 @@ bool TriMeshSoup::writeFile(std::string _filename)
     }
     else
     {
-        std::cerr << " ERROR: [TriMeshSoup::writeFile()] Invalid file extension: only .obj, .off, and .stl are supported" << std::endl;
+        std::cerr << " [ERROR] TriMeshSoup::writeFile(): Invalid file extension: only .obj, .off, and .stl are supported" << std::endl;
     }
     return false;
 }
@@ -208,7 +208,7 @@ void TriMeshSoup::computeAABB()
     }
     else
     {
-        std::cerr << "WARNING: [TriMeshSoup::computeAABB] Empty vertices array" << std::endl;
+        std::cerr << "[WARNING] TriMeshSoup::computeAABB: Empty vertices array" << std::endl;
         m_bBoxMin = glm::vec3(0.0f, 0.0f, 0.0f);
         m_bBoxMax = glm::vec3(0.0f, 0.0f, 0.0f);
     }
@@ -217,39 +217,68 @@ void TriMeshSoup::computeAABB()
 
 void TriMeshSoup::computeNormals()
 {
-    m_normals.clear();
-    m_normals.resize(m_vertices.size(), glm::vec3(0.0f, 0.0f, 0.0f));
+    
+    if(m_isVertDuplicated)
+        std::cerr << "[WARNING] TriMeshSoup::computeNormals(): Vertices are already duplicated, vertex normal cannot be properly calculated" << std::endl;
+    else
+        std::cerr << "[INFO] TriMeshSoup::computeNormals(): Vertices will be duplicated to calculate face normal vertex attribute" << std::endl;
 
-    m_facenormals.clear();
-    m_facenormals.resize(m_vertices.size(), glm::vec3(0.0f, 0.0f, 0.0f));
-
-    // Compute per-vertex normals by averaging the unnormalized face normals
+    
     std::int32_t vertexIndex0, vertexIndex1, vertexIndex2;
     glm::vec3 normal;
 
-    for (int i = 0; i < m_indices.size(); i += 3) 
+    if(!m_isVertDuplicated)
     {
-        vertexIndex0 = m_indices[i];
-        vertexIndex1 = m_indices[i + 1];
-        vertexIndex2 = m_indices[i + 2];
-        normal = glm::cross(m_vertices[vertexIndex1] - m_vertices[vertexIndex0],  m_vertices[vertexIndex2] - m_vertices[vertexIndex0]);
-        m_normals[vertexIndex0] += normal;
-        m_normals[vertexIndex1] += normal;
-        m_normals[vertexIndex2] += normal;
+        m_normals.clear();
+        m_normals.resize(m_vertices.size(), glm::vec3(0.0f, 0.0f, 0.0f));
 
-        // add face normals
-        glm::vec3 faceNormal = glm::normalize(normal);
-        m_facenormals[vertexIndex0] = faceNormal;
-        m_facenormals[vertexIndex1] = faceNormal;
-        m_facenormals[vertexIndex2] = faceNormal;
+        // 1. compute per-vertex normals by averaging the unnormalized face normals
+        for (unsigned int i = 0; i < m_indices.size(); i += 3) 
+        {
+            vertexIndex0 = m_indices[i];
+            vertexIndex1 = m_indices[i + 1];
+            vertexIndex2 = m_indices[i + 2];
+            //compute current face normal
+            normal = glm::cross(m_vertices[vertexIndex1] - m_vertices[vertexIndex0],  m_vertices[vertexIndex2] - m_vertices[vertexIndex0]);
+            glm::vec3 faceNormal = glm::normalize(normal);
+            // add current face normal to adjacent vertices
+            m_normals[vertexIndex0] += faceNormal;
+            m_normals[vertexIndex1] += faceNormal;
+            m_normals[vertexIndex2] += faceNormal;
+        }
+        for (unsigned int i = 0; i < m_normals.size(); i++) 
+        {
+            // vertex normal is avg of adjacent faces' normals
+            m_normals[i] = glm::normalize(m_normals[i]);
+        }
+
+        // 2. duplicate vertices so we can compute face normals
+        duplicateVertices();
     }
-
-    for (unsigned int i = 0; i < m_normals.size(); i++) 
+    //else
     {
-        m_normals[i] = glm::normalize(m_normals[i]);
-    }
+        // 3. compute face normals for flat shading
 
-    std::cout << "INFO: [TriMeshSoup::computeNormals()] Normals computed" << std::endl;
+        m_facenormals.clear();
+        m_facenormals.resize(m_vertices.size(), glm::vec3(0.0f, 0.0f, 0.0f));
+
+        for (unsigned int i = 0; i < m_indices.size(); i += 3) 
+        {
+            vertexIndex0 = m_indices[i];
+            vertexIndex1 = m_indices[i + 1];
+            vertexIndex2 = m_indices[i + 2];
+            normal = glm::cross(m_vertices[vertexIndex1] - m_vertices[vertexIndex0],  m_vertices[vertexIndex2] - m_vertices[vertexIndex0]);
+
+            // add face normals
+            glm::vec3 faceNormal = glm::normalize(normal);
+            m_facenormals[vertexIndex0] = faceNormal;
+            m_facenormals[vertexIndex1] = faceNormal;
+            m_facenormals[vertexIndex2] = faceNormal;
+        }
+    }
+    
+
+    std::cout << "[INFO] TriMeshSoup::computeNormals(): Normals computed" << std::endl;
 }
 
 
@@ -257,7 +286,7 @@ void TriMeshSoup::computeTB()
 {
     if( m_normals.size() == 0)
     {
-        std::cerr << "WARNING: [TriMeshSoup::computeTB()] normals not available" << std::endl; 
+        std::cerr << "[WARNING] TriMeshSoup::computeTB(): normals not available" << std::endl; 
         computeNormals();
     }
 
@@ -298,7 +327,7 @@ void TriMeshSoup::computeTB()
     }
     else
     {
-        std::cerr << "WARNING: [TriMeshSoup::computeTB()] texcoords not available" << std::endl; 
+        std::cerr << "[WARNING] TriMeshSoup::computeTB(): texcoords not available" << std::endl; 
     }
 }
 
@@ -311,7 +340,7 @@ void TriMeshSoup::duplicateVertices()
     // Check if data is available 
     if(m_indices.size() == 0 || m_vertices.size() ==0 )
     {
-        std::cerr << "WARNING: [TriMeshSoup::duplicateVertices()] Vertex data incomplete" << std::endl;
+        std::cerr << "[WARNING] TriMeshSoup::duplicateVertices(): Vertex data incomplete" << std::endl;
         return;
     }
     bool hasNormals = (m_normals.size() != 0 );
@@ -322,17 +351,17 @@ void TriMeshSoup::duplicateVertices()
     // Check consistency of vertex attributes
     if( m_vertices.size() != m_normals.size() && hasNormals)
     {
-        std::cerr << "WARNING: [TriMeshSoup::duplicateVertices()] arrays of vertex coords and normal coords have different sizes" << std::endl;
+        std::cerr << "[WARNING] TriMeshSoup::duplicateVertices(): arrays of vertex coords and normal coords have different sizes" << std::endl;
         return;
     }
     if( m_vertices.size() != m_colors.size() && hasColors)
     {
-        std::cerr << "WARNING: [TriMeshSoup::duplicateVertices()] arrays of vertex coords and colors have different sizes" << std::endl;
+        std::cerr << "[WARNING] TriMeshSoup::duplicateVertices(): arrays of vertex coords and colors have different sizes" << std::endl;
         return;
     }
     if( m_vertices.size() != m_texcoords.size() && hasUVs)
     {
-        std::cerr << "WARNING: [TriMeshSoup::duplicateVertices()] arrays of vertex coords and UV coords have different sizes" << std::endl;
+        std::cerr << "[WARNING] TriMeshSoup::duplicateVertices(): arrays of vertex coords and UV coords have different sizes" << std::endl;
         return;
     }
 
@@ -373,7 +402,7 @@ void TriMeshSoup::duplicateVertices()
     temp_colors.clear();
     temp_texcoords.clear();
 
-    std::cout << "INFO: [TriMeshSoup::duplicateVertices()] Vertices duplicated" << std::endl;
+    std::cout << "[INFO] TriMeshSoup::duplicateVertices(): Vertices duplicated" << std::endl;
 
     m_isVertDuplicated = true;
 }
@@ -411,7 +440,7 @@ bool TriMeshSoup::importOBJ(const std::string &_filename)
     std::ifstream f(_filename.c_str());
     if(!f.is_open()) 
     {
-        std::cerr << "ERROR: [TriMeshSoup::importOBJ()] Could not open " << _filename << std::endl;
+        std::cerr << "[ERROR] TriMeshSoup::importOBJ(): Could not open " << _filename << std::endl;
         return false;
     }
 
@@ -534,7 +563,7 @@ bool TriMeshSoup::importOBJ(const std::string &_filename)
     // Compute normals (if OBJ-file did not contain normals)
     if(m_normals.size() == 0) 
     {
-        std::cout << "Normals not provided, compute them " << std::endl;
+        std::cout << "[INFO] TriMeshSoup::importOBJ(): Normals not provided, compute them " << std::endl;
         computeNormals();
     }
 
@@ -548,13 +577,13 @@ void TriMeshSoup::exportOBJ(const std::string &_filename)
     FILE* file = fopen(_filename.c_str(), "w");
     if( !file) 
     {
-        std::cerr << " ERROR [TriMeshSoup::wriexportOBJteOBJ()] Cannot open file to write" << _filename << std::endl;
+        std::cerr << " [ERROR] TriMeshSoup::exportOBJ(): Cannot open file to write" << _filename << std::endl;
     }
 
     unsigned int nb_triangles = m_indices.size()/3;
     if( m_indices.size() % 3 != 0)
     {
-        std::cerr << " ERROR [TriMeshSoup::wriexportOBJteOBJ()] Number of vertices is not a multiple of 3" << std::endl;
+        std::cerr << " [ERROR] TriMeshSoup::exportOBJ(): Number of vertices is not a multiple of 3" << std::endl;
     }
 
     unsigned int i;
@@ -622,7 +651,7 @@ bool TriMeshSoup::importOFF(const std::string &_filename)
 
     if (!ifile.is_open() || !ifile.good())
     {
-        std::cerr << "[OFFReader] : cannot not open file "  << _filename  << std::endl;
+        std::cerr << "[ERROR] TriMeshSoup::importOFF(): cannot open file "  << _filename  << std::endl;
         return false;
     }
 
@@ -682,7 +711,7 @@ bool TriMeshSoup::importOFF(const std::string &_filename)
     // Compute normals
     if(m_normals.size() == 0) 
     {
-        std::cout << "Normals not provided, compute them " << std::endl;
+        std::cout << "[INFO] TriMeshSoup::importOFF(): Normals not provided, compute them " << std::endl;
         computeNormals();
     }
 
@@ -698,13 +727,13 @@ void TriMeshSoup::exportOFF(const std::string &_filename)
     FILE* file = fopen(_filename.c_str(), "w");
     if( !file) 
     {
-        std::cerr << " ERROR [TriMeshSoup::exportOFF()] Cannot open file to write" << _filename << std::endl;
+        std::cerr << "[ERROR] TriMeshSoup::exportOFF(): Cannot open file to write" << _filename << std::endl;
     }
 
     unsigned int nb_triangles = m_indices.size()/3;
     if( m_indices.size() % 3 != 0)
     {
-        std::cerr << " ERROR [TriMeshSoup::exportOFF()] Number of vertices is not a multiple of 3" << std::endl;
+        std::cerr << "[ERROR] TriMeshSoup::exportOFF(): Number of vertices is not a multiple of 3" << std::endl;
     }
 
     unsigned int i;
@@ -838,7 +867,7 @@ bool TriMeshSoup::readSTL(const std::string &_filename, std::vector<float> * con
     }
     else 
     {
-        std::cerr << " ERROR [TriMeshSoup::readSTL()] Cannot open file " << _filename << std::endl;
+        std::cerr << "[ERROR] TriMeshSoup::readSTL(): Cannot open file " << _filename << std::endl;
         return false;
     }
     return true;
@@ -917,7 +946,7 @@ bool TriMeshSoup::importSTL(const std::string &_filename)
 void TriMeshSoup::exportSTL(const std::string &_filename)
 {
     if( m_vertices.empty() || m_indices.empty() )
-        std::cerr<<"ERROR: [TriMeshSoup::exportSTL()] empty data"<<std::endl;
+        std::cerr<<"[ERROR] TriMeshSoup::exportSTL(): empty data"<<std::endl;
 
     struct STL_TRIANGLE
     {
@@ -934,7 +963,7 @@ void TriMeshSoup::exportSTL(const std::string &_filename)
     FILE *file = std::fopen(_filename.c_str(), "wb+");
     if( !file) 
     {
-        std::cerr << " ERROR [TriMeshSoup::exportSTL()] Cannot open file to write" << _filename << std::endl;
+        std::cerr << "[ERROR] TriMeshSoup::exportSTL(): Cannot open file to write" << _filename << std::endl;
     }
 
     std::fwrite(&header[0], sizeof(header), 1, file);
