@@ -7,7 +7,7 @@
 Window::Window() : QWidget()
 {
     // Init flags
-    m_albedoTexLoaded = false;
+    m_texLoaded = false;
     m_normalMapLoaded = false;
     //m_metalMapLoaded = false;
     //m_glossMapLoaded = false;
@@ -260,6 +260,16 @@ Window::Window() : QWidget()
         m_specPowLayout->setAlignment(Qt::AlignRight);
         m_boxShadingLayout->addLayout(m_specPowLayout);
 
+    // Toggle use mesh colors button
+    m_toggleMeshCol = new QCheckBox;
+    m_toggleMeshCol->setText("use mesh colors");
+    m_toggleMeshCol->setChecked(false);
+    m_toggleMeshCol->setEnabled(true);
+    QObject::connect(m_toggleMeshCol, SIGNAL(clicked()), m_glViewer, SLOT(toggleMeshCol()));
+    QObject::connect(m_toggleMeshCol, SIGNAL(clicked()), this, SLOT(toggleMeshCol()));
+    m_boxShadingLayout->addWidget(m_toggleMeshCol);
+
+
     // Toggle show normals button
     m_toggleShowNormals = new QCheckBox;
     m_toggleShowNormals->setText("show normals");
@@ -293,20 +303,20 @@ Window::Window() : QWidget()
     // Texture mapping layout
     m_boxTexLayout = new QVBoxLayout;
 
-    // Load Albedo texture button
-    m_albedoTexLayout = new QHBoxLayout;
-    m_buttonLoadAlbedoTex = new QPushButton("load albedo texture", this);
-    m_buttonLoadAlbedoTex->setFixedSize(150, 25);
-    QObject::connect(m_buttonLoadAlbedoTex, SIGNAL(clicked()), this, SLOT(openAlbedoTexDialog()));
-    m_albedoTexLayout->addWidget(m_buttonLoadAlbedoTex);
-    m_toggleAlbedoTex = new QCheckBox;
-    m_toggleAlbedoTex->setText("use albedo texture");
-    m_toggleAlbedoTex->setChecked(false);
-    m_toggleAlbedoTex->setEnabled(false);
-    QObject::connect(m_toggleAlbedoTex, SIGNAL(clicked()), m_glViewer, SLOT(toggleAlbedoTex()));
-    QObject::connect(m_toggleAlbedoTex, SIGNAL(clicked()), this, SLOT(toggleTex()));
-    m_albedoTexLayout->addWidget(m_toggleAlbedoTex);
-    m_boxTexLayout->addLayout(m_albedoTexLayout);
+    // Load texture button
+    m_texLayout = new QHBoxLayout;
+    m_buttonLoadTex = new QPushButton("load texture", this);
+    m_buttonLoadTex->setFixedSize(150, 25);
+    QObject::connect(m_buttonLoadTex, SIGNAL(clicked()), this, SLOT(openTexDialog()));
+    m_texLayout->addWidget(m_buttonLoadTex);
+    m_toggleTex = new QCheckBox;
+    m_toggleTex->setText("use texture");
+    m_toggleTex->setChecked(false);
+    m_toggleTex->setEnabled(false);
+    QObject::connect(m_toggleTex, SIGNAL(clicked()), m_glViewer, SLOT(toggleTex()));
+    QObject::connect(m_toggleTex, SIGNAL(clicked()), this, SLOT(toggleTex()));
+    m_texLayout->addWidget(m_toggleTex);
+    m_boxTexLayout->addLayout(m_texLayout);
 
     // Load Normal map button
     m_normalMapLayout = new QHBoxLayout;
@@ -482,14 +492,15 @@ Window::~Window()
     delete m_specPowSpinBox;
     delete m_specPowLayout;
     delete m_toggleShowNormals;
+    delete m_toggleMeshCol;
     delete m_toggleFlatShading;
     delete m_toggleGammaCorrec;
     delete m_boxShadingLayout;
     delete m_groupBoxShading;
     // Delete texture mapping options
-    delete m_buttonLoadAlbedoTex;
-    delete m_toggleAlbedoTex; 
-    delete m_albedoTexLayout;
+    delete m_buttonLoadTex;
+    delete m_toggleTex; 
+    delete m_texLayout;
     delete m_buttonLoadNormalMap;
     delete m_toggleNormalMap;
     delete m_normalMapLayout;
@@ -758,7 +769,7 @@ void Window::selectSpecularColor()
 
 void Window::toggleAmbient()
 {
-    if( m_toggleAmbient->isChecked() && !m_toggleAlbedoTex->isChecked() )
+    if( m_toggleAmbient->isChecked() && !m_toggleTex->isChecked() )
     {
         m_buttonAmbientCol->setEnabled(true);
         m_ambientLabel->setEnabled(true);
@@ -772,7 +783,7 @@ void Window::toggleAmbient()
 
 void Window::toggleDiffuse()
 {
-    if( m_toggleDiffuse->isChecked() && !m_toggleAlbedoTex->isChecked() )
+    if( m_toggleDiffuse->isChecked() && !m_toggleTex->isChecked() )
     {
         m_buttonDiffuseCol->setEnabled(true);
         m_diffuseLabel->setEnabled(true);
@@ -823,7 +834,7 @@ void Window::toggleShowNormals()
         m_specPowSpinBox->setEnabled(false);
         m_specPowLabel->setEnabled(false);
 
-        m_toggleAlbedoTex->setEnabled(false);
+        m_toggleTex->setEnabled(false);
         //m_togglePBRMap->setEnabled(false);
         //m_toggleEnvMap->setEnabled(false);
         //m_toggleAmbientMap->setEnabled(false);
@@ -837,15 +848,15 @@ void Window::toggleShowNormals()
         m_lightColLabel->setEnabled(true);
         m_buttonLightCol->setEnabled(true);
 
-        if( !m_toggleAlbedoTex->isChecked() )
+        if( !m_toggleTex->isChecked() )
         {
             toggleAmbient();
             toggleDiffuse();
         }
         toggleSpecular();
 
-        if(m_albedoTexLoaded)
-            m_toggleAlbedoTex->setEnabled(true);
+        if(m_texLoaded)
+            m_toggleTex->setEnabled(true);
         //if(m_metalMapLoaded || m_glossMapLoaded)
         //    m_togglePBRMap->setEnabled(true);
         //if(m_cubeMapLoaded)
@@ -855,20 +866,9 @@ void Window::toggleShowNormals()
     }
 }
 
-void Window::openAlbedoTexDialog()
+void Window::toggleMeshCol()
 {
-    QString file = QFileDialog::getOpenFileName(this, "open file", "../../3dmodels", "Image (*.png)");
-    if( !file.isEmpty() )
-    {
-        m_glViewer->setAlbedoTex(file);
-        m_toggleAlbedoTex->setEnabled(true);
-        m_albedoTexLoaded = true;
-    }
-}
-
-void Window::toggleTex()
-{
-    if( m_toggleAlbedoTex->isChecked() )
+    if( m_toggleMeshCol->isChecked() )
     {
         m_buttonAmbientCol->setEnabled(false);
         m_ambientLabel->setEnabled(false);
@@ -877,8 +877,41 @@ void Window::toggleTex()
     }
     else
     {
-        toggleAmbient();
-        toggleDiffuse();
+        if( !m_toggleTex->isChecked() )
+        {
+            toggleAmbient();
+            toggleDiffuse();
+        }
+    }
+}
+
+void Window::openTexDialog()
+{
+    QString file = QFileDialog::getOpenFileName(this, "open file", "../../3dmodels", "Image (*.png)");
+    if( !file.isEmpty() )
+    {
+        m_glViewer->setTex(file);
+        m_toggleTex->setEnabled(true);
+        m_texLoaded = true;
+    }
+}
+
+void Window::toggleTex()
+{
+    if( m_toggleTex->isChecked() )
+    {
+        m_buttonAmbientCol->setEnabled(false);
+        m_ambientLabel->setEnabled(false);
+        m_buttonDiffuseCol->setEnabled(false);
+        m_diffuseLabel->setEnabled(false);
+    }
+    else
+    {
+        if( !m_toggleMeshCol->isChecked() )
+        {
+            toggleAmbient();
+            toggleDiffuse();
+        }
     }
 }
 

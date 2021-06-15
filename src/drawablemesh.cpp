@@ -16,7 +16,7 @@ DrawableMesh::DrawableMesh()
     setAmbientFlag(true);
     setDiffuseFlag(true);
     setSpecularFlag(true);
-    setAlbedoTexFlag(false);
+    setTexFlag(false);
     setEnvMapFlag(false);
     setNormalMapFlag(false);
     setPBRFlag(false);
@@ -24,6 +24,7 @@ DrawableMesh::DrawableMesh()
     setShowNormalFlag(false);
     setFlatShadingFlag(false);
     setUseGammaCorrecFlag(true);
+    setUseMeshColFlag(false);
 
     m_vertexProvided = false;
     m_normalProvided = false;
@@ -269,17 +270,17 @@ void DrawableMesh::draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm:
         glUseProgram(m_program);
 
         // Bind textures
-        if(m_useAlbedoTex)
+        if(m_useTex)
         {
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, m_albedoTex);
+            glBindTexture(GL_TEXTURE_2D, m_tex);
         }
         if(m_useNormalMap)
         {
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, m_normalMap);
         }
-        if(m_usePBR)
+        /*if(m_usePBR)
         {
             glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, m_metalMap);
@@ -295,7 +296,7 @@ void DrawableMesh::draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm:
         {
             glActiveTexture(GL_TEXTURE5);
             glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubeMap);
-        }
+        }*/
         // ...
 
         // Pass uniforms
@@ -310,12 +311,12 @@ void DrawableMesh::draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm:
         glUniform3fv(glGetUniformLocation(m_program, "u_specularColor"), 1, &m_specularColor[0]);
         glUniform1f(glGetUniformLocation(m_program, "u_specularPower"), m_specPow);
  
-        glUniform1i(glGetUniformLocation(m_program, "u_albedoTex"), 0);
+        glUniform1i(glGetUniformLocation(m_program, "u_tex"), 0);
         glUniform1i(glGetUniformLocation(m_program, "u_normalMap"), 1);
-        glUniform1i(glGetUniformLocation(m_program, "u_metalMap"), 2);
-        glUniform1i(glGetUniformLocation(m_program, "u_glossMap"), 3);
-        glUniform1i(glGetUniformLocation(m_program, "u_ambientMap"), 4);
-        glUniform1i(glGetUniformLocation(m_program, "u_cubemap"), 5);
+        //glUniform1i(glGetUniformLocation(m_program, "u_metalMap"), 2);
+        //glUniform1i(glGetUniformLocation(m_program, "u_glossMap"), 3);
+        //glUniform1i(glGetUniformLocation(m_program, "u_ambientMap"), 4);
+        //glUniform1i(glGetUniformLocation(m_program, "u_cubemap"), 5);
 
         if(m_useAmbient)
             glUniform1i(glGetUniformLocation(m_program, "u_useAmbient"), 1);
@@ -330,15 +331,15 @@ void DrawableMesh::draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm:
         else
             glUniform1i(glGetUniformLocation(m_program, "u_useSpecular"), 0);
 
-        if(m_useAlbedoTex)
-            glUniform1i(glGetUniformLocation(m_program, "u_useAlbedoTex"), 1);
+        if(m_useTex)
+            glUniform1i(glGetUniformLocation(m_program, "u_useTex"), 1);
         else
-            glUniform1i(glGetUniformLocation(m_program, "u_useAlbedoTex"), 0);
+            glUniform1i(glGetUniformLocation(m_program, "u_useTex"), 0);
         if(m_useNormalMap)
             glUniform1i(glGetUniformLocation(m_program, "u_useNormalMap"), 1);
         else
             glUniform1i(glGetUniformLocation(m_program, "u_useNormalMap"), 0);
-        if(m_usePBR)
+        /*if(m_usePBR)
             glUniform1i(glGetUniformLocation(m_program, "u_usePBR"), 1);
         else
             glUniform1i(glGetUniformLocation(m_program, "u_usePBR"), 0);
@@ -349,7 +350,7 @@ void DrawableMesh::draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm:
         if(m_useEnvMap)
             glUniform1i(glGetUniformLocation(m_program, "u_useEnvMap"), 1);
         else
-            glUniform1i(glGetUniformLocation(m_program, "u_useEnvMap"), 0);
+            glUniform1i(glGetUniformLocation(m_program, "u_useEnvMap"), 0);*/
 
         if(m_showNormals)
             glUniform1i(glGetUniformLocation(m_program, "u_showNormals"), 1);
@@ -370,6 +371,11 @@ void DrawableMesh::draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm:
             glUniform1i(glGetUniformLocation(m_program, "u_useFaceNormals"), 1);
         else
             glUniform1i(glGetUniformLocation(m_program, "u_useFaceNormals"), 0);
+
+        if(m_useMeshCol)
+            glUniform1i(glGetUniformLocation(m_program, "u_useMeshCol"), 1);
+        else
+            glUniform1i(glGetUniformLocation(m_program, "u_useMeshCol"), 0);
         // ...
 
         // Draw!

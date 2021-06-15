@@ -288,10 +288,10 @@ void Viewer::toggleGammaCorrec()
     update();
 }
 
-void Viewer::toggleAlbedoTex()
+void Viewer::toggleTex()
 {
-    // Reverse state of albedo texture mapping flag
-    m_drawMesh->setAlbedoTexFlag( !m_drawMesh->getAlbedoTexFlag() );
+    // Reverse state of texture mapping flag
+    m_drawMesh->setTexFlag( !m_drawMesh->getTexFlag() );
     update();
 }
 
@@ -299,6 +299,13 @@ void Viewer::toggleNormalMap()
 {
     // Reverse state of normal mapping flag
     m_drawMesh->setNormalMapFlag( !m_drawMesh->getNormalMapFlag() );
+    update();
+}
+
+void Viewer::toggleMeshCol()
+{
+    // Reverse state of normal mapping flag
+    m_drawMesh->setUseMeshColFlag( !m_drawMesh->getUseMeshColFlag() );
     update();
 }
 /*

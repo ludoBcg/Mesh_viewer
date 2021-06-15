@@ -45,7 +45,7 @@ class Viewer : public QGLViewer
             {
                 std::cout << std::endl << "Load " << _fileName.toStdString() <<std::endl;
                 // Load mesh
-                m_triMesh = new TriMeshHE(true, false, false, false); // @@ setup input options
+                m_triMesh = new TriMeshHE(true, false, true, false); // @@ setup input options
                 m_triMesh->readFile( _fileName.toStdString() );
                 m_drawMesh->updateVAO(m_triMesh);
                 m_drawMesh->setFlatShadingFlag(false);
@@ -162,18 +162,18 @@ class Viewer : public QGLViewer
         }
 
         /*!
-        * \fn setAlbedoTex
-        * \brief get albedo texture file and send it to DrawableMesh
+        * \fn setTex
+        * \brief get texture file and send it to DrawableMesh
         */
-        inline void setAlbedoTex(QString _fileName)
+        inline void setTex(QString _fileName)
         {
             if(!_fileName.isEmpty() )
             {
-                // Load albedo texture
-                m_drawMesh->loadAlbedoTex( _fileName.toStdString() );
+                // Load texture
+                m_drawMesh->loadTex( _fileName.toStdString() );
             }
             else
-                std::cerr << "[ERROR] Viewer::setAlbedoTex(): filename empty" << std::endl; 
+                std::cerr << "[ERROR] Viewer::setTex(): filename empty" << std::endl; 
         }
 
         /*!
@@ -244,7 +244,7 @@ class Viewer : public QGLViewer
         //{
         //    if(! _dirname.isEmpty() )
         //    {
-        //        // Load albedo texture
+        //        // Load texture
         //        m_drawMesh->loadCubeMap( _dirname.toStdString() );
         //    }
         //    else
@@ -363,15 +363,21 @@ class Viewer : public QGLViewer
         void toggleGammaCorrec();
 
         /*!
-        * \fn toggleAlbedoTex
-        * \brief SLOT: activate/deactivate albedo texture mapping
+        * \fn toggleTex
+        * \brief SLOT: activate/deactivate texture mapping
         */
-        void toggleAlbedoTex();
+        void toggleTex();
         /*!
         * \fn toggleNormalMap
         * \brief SLOT: activate/deactivate normal mapping
         */
         void toggleNormalMap();
+
+        /*!
+        * \fn toggleMeshCol
+        * \brief SLOT: activate/deactivate mesh color mapping
+        */
+        void toggleMeshCol();
 
         /*!
         * \fn togglePBRMap

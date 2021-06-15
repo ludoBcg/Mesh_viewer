@@ -81,14 +81,15 @@ class Window : public QWidget
         QDoubleSpinBox* m_specPowSpinBox;   /*!< SpinBox to change specular power */
         QLabel* m_specPowLabel;             /*!< Label for specular power */
         QCheckBox* m_toggleShowNormals;     /*!< CheckBox to activate/deactivate rendering of normal vectors */
+        QCheckBox* m_toggleMeshCol;         /*!< CheckBox to activate/deactivate mesh color rendering */
         QCheckBox* m_toggleFlatShading;     /*!< CheckBox to activate/deactivate flat shading */
         QCheckBox* m_toggleGammaCorrec;     /*!< CheckBox to activate/deactivate gamma correction */
 
         QGroupBox* m_groupBoxTex;           /*!< GroupBox for texture mapping options */
         QVBoxLayout* m_boxTexLayout;        /*!< Layout for texture mapping options */
-        QHBoxLayout* m_albedoTexLayout;       /*!< Horizontal layout for albedo texture */
-        QPushButton* m_buttonLoadAlbedoTex; /*!< Button to load albedo texture */
-        QCheckBox* m_toggleAlbedoTex;       /*!< CheckBox to activate/deactivate albedo texture mapping */
+        QHBoxLayout* m_texLayout;           /*!< Horizontal layout for texture */
+        QPushButton* m_buttonLoadTex;       /*!< Button to load texture */
+        QCheckBox* m_toggleTex;             /*!< CheckBox to activate/deactivate texture mapping */
         QHBoxLayout* m_normalMapLayout;       /*!< Horizontal layout for normal map */
         QPushButton* m_buttonLoadNormalMap; /*!< Button to load normal map */
         QCheckBox* m_toggleNormalMap;       /*!< CheckBox to activate/deactivate normal mapping */
@@ -116,7 +117,7 @@ class Window : public QWidget
         QLabel* m_factorLabel;              /*!< Label for smoothing factor */
 
 
-        bool m_albedoTexLoaded;             /*!< True if an albedo texture is loaded */
+        bool m_texLoaded;                   /*!< True if a texture is loaded */
         bool m_normalMapLoaded;             /*!< True if a normal map is loaded */
         //bool m_metalMapLoaded;              /*!< True is a metal map is loaded */  
         //bool m_glossMapLoaded;              /*!< True is a gloss map is loaded */
@@ -249,10 +250,16 @@ class Window : public QWidget
         void toggleShowNormals();
 
         /*!
-        * \fn openTexDialog
-        * \brief SLOT: open dialog box to select albedo map texture
+        * \fn toggleMeshCol
+        * \brief SLOT: enable/disable mesh colors rendering according to m_toggleMeshCol state
         */
-        void openAlbedoTexDialog();
+        void toggleMeshCol();
+
+        /*!
+        * \fn openTexDialog
+        * \brief SLOT: open dialog box to select map texture
+        */
+        void openTexDialog();
 
         /*!
         * \fn toggleTex

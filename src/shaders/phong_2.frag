@@ -9,23 +9,18 @@ uniform vec3 u_diffuseColor;
 uniform vec3 u_specularColor;
 uniform float u_specularPower;
 
-uniform sampler2D u_albedoTex;
+uniform sampler2D u_tex;
 uniform sampler2D u_normalMap;
-uniform sampler2D u_metalMap;
-uniform sampler2D u_glossMap;
-uniform sampler2D u_ambientMap;
 uniform samplerCube u_cubemap;
 
 uniform int u_useAmbient;
 uniform int u_useDiffuse;
 uniform int u_useSpecular;
-uniform int u_useAlbedoTex;
+uniform int u_useTex;
 uniform int u_useNormalMap;
-uniform int u_usePBR;
-uniform int u_useAmbMap;
-uniform int u_useEnvMap;
 uniform int u_showNormals;
 uniform int u_useGammaCorrec;
+uniform int u_useMeshCol;
 	
 // INPUT	
 in vec3 vecN;
@@ -35,6 +30,7 @@ in vec3 vecT;
 in vec3 vecBT;
 in vec3 vert_pos;
 in vec3 vert_uv;
+in vec3 col;
 
 // OUTPUT
 out vec4 frag_color;
@@ -103,11 +99,19 @@ void main()
 	}
 	else
 	{
-		// GET TEXTURE COLOR
-		vec3 tex_col;
-		if(u_useAlbedoTex == 1)
+		vec3 diff_col = u_diffuseColor;
+		
+		
+		// GET MESH COLOR
+		if(u_useMeshCol == 1)
 		{
-			tex_col = texture(u_albedoTex, vert_uv.xy).rgb;
+			diff_col = col;
+		}
+		
+		// GET TEXTURE COLOR
+		if(u_useTex == 1)
+		{
+			diff_col = texture(u_tex, vert_uv.xy).rgb;
 		}
 		
 		
@@ -120,14 +124,7 @@ void main()
 		float diffuse = diffuse(l_vecN, l_vecL);
 		if(u_useDiffuse == 1)
 		{
-			if(u_useAlbedoTex == 1)
-			{
-				color.rgb += tex_col * u_lightColor * diffuse;
-			}
-			else
-			{
-				color.rgb += u_diffuseColor * u_lightColor * diffuse;
-			}
+			color.rgb += diff_col * u_lightColor * diffuse;
 		}
 
 		
@@ -143,9 +140,9 @@ void main()
 		//AMBIENT
 		if(u_useAmbient == 1)
 		{
-			if(u_useAlbedoTex == 1)
+			if(u_useTex == 1 || u_useMeshCol == 1)
 			{
-				color.rgb += tex_col * 0.05f;
+				color.rgb += diff_col * 0.05f;
 			}
 			else
 			{

@@ -74,12 +74,12 @@ class DrawableMesh
         inline void setDiffuseFlag(bool _useDiffuse) { m_useDiffuse = _useDiffuse; }
         /*! \fn setSpecularFlag */
         inline void setSpecularFlag(bool _useSpecular) { m_useSpecular = _useSpecular; }
-        /*! \fn setAlbedoTexFlag */
-        inline void setAlbedoTexFlag(bool _useAlbedoTex) 
+        /*! \fn setTexFlag */
+        inline void setTexFlag(bool _useTex) 
         { 
-            if(!m_uvProvided && _useAlbedoTex)
-                std::cerr << "[WARNING] DrawableMesh::setAlbedoTexFlag(): No UV coords available" << std::endl;
-            m_useAlbedoTex = _useAlbedoTex; 
+            if(!m_uvProvided && _useTex)
+                std::cerr << "[WARNING] DrawableMesh::setTexFlag(): No UV coords available" << std::endl;
+            m_useTex = _useTex; 
         }
         /*! \fn setEnvMapFlag */
         inline void setEnvMapFlag(bool _useEnvMap) { m_useEnvMap = _useEnvMap; }
@@ -119,6 +119,8 @@ class DrawableMesh
         inline void setUseGammaCorrecFlag(bool _useGammaCorrec) { m_useGammaCorrec = _useGammaCorrec; }
         /*! \fn setUseFaceNormalsFlag */
         inline void setUseFaceNormalsFlag(bool useFaceNormals) { m_useFaceNormals = useFaceNormals; }
+        /*! \fn setUseMeshColFlag */
+        inline void setUseMeshColFlag(bool useMeshCol) { m_useMeshCol = useMeshCol; }
 
         /*! \fn getAmbientFlag */
         inline bool getAmbientFlag() { return m_useAmbient; }
@@ -126,8 +128,8 @@ class DrawableMesh
         inline bool getDiffuseFlag() { return m_useDiffuse; }
         /*! \fn getSpecularFlag */
         inline bool getSpecularFlag() { return m_useSpecular; }
-        /*! \fn getAlbedoTexFlag */
-        inline bool getAlbedoTexFlag() { return m_useAlbedoTex; }
+        /*! \fn getTexFlag */
+        inline bool getTexFlag() { return m_useTex; }
         /*! \fn getEnvMapFlag */
         inline bool getEnvMapFlag() { return m_useEnvMap; }
         /*! \fn getNormalMapFlag */
@@ -144,6 +146,8 @@ class DrawableMesh
         inline bool getUseGammaCorrecFlag() { return m_useGammaCorrec; }
         /*! \fn getUseFaceNormalsFlag */
         inline bool getUseFaceNormalsFlag() { return m_useFaceNormals; }
+        /*! \fn getUseMeshColFlag */
+        inline bool getUseMeshColFlag() { return m_useMeshCol; }
 
 
         /*------------------------------------------------------------------------------------------------------------+
@@ -183,11 +187,11 @@ class DrawableMesh
         void draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm::vec3 _lightCol);
 
         /*!
-        * \fn loadAlbedoTex
-        * \brief load the albedo texture from a file
+        * \fn loadTex
+        * \brief load the texture from a file
         * \param _filename : name of texture image
         */
-        inline void loadAlbedoTex(const std::string& _filename) { m_albedoTex = load2DTexture(_filename, true); }
+        inline void loadTex(const std::string& _filename) { m_tex = load2DTexture(_filename, true); }
         /*!
         * \fn loadNormalMap
         * \brief load the normal map texture from a file
@@ -263,7 +267,7 @@ class DrawableMesh
         int m_numVertices;          /*!< number of vertices in the VBOs */
         int m_numIndices;           /*!< number of indices in the index VBO */
 
-        GLuint m_albedoTex;         /*!< name of albedo map texture */
+        GLuint m_tex;               /*!< name of texture */
         GLuint m_normalMap;         /*!< name of normal map texture */
         GLuint m_metalMap;          /*!< name of metal map texture */
         GLuint m_glossMap;          /*!< name of gloss map texture */
@@ -281,7 +285,7 @@ class DrawableMesh
         bool m_useAmbient;          /*!< flag to use ambient shading or not */
         bool m_useDiffuse;          /*!< flag to use diffuse shading or not */
         bool m_useSpecular;         /*!< flag to use specular shading or not */
-        bool m_useAlbedoTex;        /*!< flag to use texture mapping or not (i.e. albedo map) */
+        bool m_useTex;              /*!< flag to use texture mapping or not  */
         bool m_useNormalMap;        /*!< flag to use normal mapping or not */
         bool m_usePBR;              /*!< flag to use PBR textures or not */
         bool m_useAmbMap;           /*!< flag to use ambient map or not */
@@ -290,6 +294,7 @@ class DrawableMesh
         bool m_flatShading;         /*!< flag to use flat shading or not */
         bool m_useGammaCorrec;      /*!< flag to apply gamma correction or not */
         bool m_useFaceNormals;      /*!< flag to use face normals or not */
+        bool m_useMeshCol;          /*!< flag to use mesh color or not */
 
         bool m_vertexProvided;      /*!< flag to indicate if vertex coords are available or not */
         bool m_normalProvided;      /*!< flag to indicate if normals are available or not */

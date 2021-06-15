@@ -22,6 +22,7 @@ out vec3 vecT;
 out vec3 vecBT;
 out vec3 vert_pos;
 out vec3 vert_uv;
+out vec3 col;
 
 
 void main()
@@ -49,5 +50,7 @@ void main()
 	
 	vecT = normalize(mat3(u_mv) * a_tangent);
 	vecBT = normalize(mat3(u_mv) * a_bitangent);
+	
+	col = a_color;
 	
 }
