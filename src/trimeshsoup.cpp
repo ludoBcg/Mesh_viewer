@@ -1,6 +1,8 @@
+
+#include <algorithm>
+#include <functional>
+
 #include "trimeshsoup.h"
-
-
 
 TriMeshSoup::TriMeshSoup()
 {
@@ -83,7 +85,7 @@ void TriMeshSoup::getColors(std::vector<glm::vec3>& _colors)
 
     if(m_colors.size() != 0)
     {
-        _colors.assign(m_colors.begin(), m_colors.end());
+        _colors.assign(m_colors.begin(), m_colors.end()); 
     }
 }
 
@@ -215,6 +217,7 @@ void TriMeshSoup::computeAABB()
 }
 
 
+
 void TriMeshSoup::computeNormals()
 {
     
@@ -238,9 +241,12 @@ void TriMeshSoup::computeNormals()
             vertexIndex0 = m_indices[i];
             vertexIndex1 = m_indices[i + 1];
             vertexIndex2 = m_indices[i + 2];
+
             //compute current face normal
-            normal = glm::cross(m_vertices[vertexIndex1] - m_vertices[vertexIndex0],  m_vertices[vertexIndex2] - m_vertices[vertexIndex0]);
-            glm::vec3 faceNormal = glm::normalize(normal);
+            glm::vec3 faceNormal = glm::cross(m_vertices[vertexIndex1] - m_vertices[vertexIndex0],  m_vertices[vertexIndex2] - m_vertices[vertexIndex0]);
+            if( faceNormal != glm::vec3(0.0f) )
+                faceNormal = glm::normalize(faceNormal);
+
             // add current face normal to adjacent vertices
             m_normals[vertexIndex0] += faceNormal;
             m_normals[vertexIndex1] += faceNormal;
@@ -253,9 +259,9 @@ void TriMeshSoup::computeNormals()
         }
 
         // 2. duplicate vertices so we can compute face normals
-        duplicateVertices();
+        //duplicateVertices(); // @@
     }
-    //else
+    else
     {
         // 3. compute face normals for flat shading
 
@@ -267,10 +273,11 @@ void TriMeshSoup::computeNormals()
             vertexIndex0 = m_indices[i];
             vertexIndex1 = m_indices[i + 1];
             vertexIndex2 = m_indices[i + 2];
-            normal = glm::cross(m_vertices[vertexIndex1] - m_vertices[vertexIndex0],  m_vertices[vertexIndex2] - m_vertices[vertexIndex0]);
+            glm::vec3 faceNormal = glm::cross(m_vertices[vertexIndex1] - m_vertices[vertexIndex0],  m_vertices[vertexIndex2] - m_vertices[vertexIndex0]);
+            if( faceNormal != glm::vec3(0.0f) )
+                faceNormal = glm::normalize(faceNormal);
 
             // add face normals
-            glm::vec3 faceNormal = glm::normalize(normal);
             m_facenormals[vertexIndex0] = faceNormal;
             m_facenormals[vertexIndex1] = faceNormal;
             m_facenormals[vertexIndex2] = faceNormal;
@@ -639,12 +646,12 @@ bool TriMeshSoup::importOFF(const std::string &_filename)
     
     // read ASCII
 
+    bool isCOFF = false;
     
     // Clear old mesh 
-    m_vertices.clear();
-    m_indices.clear();
+    clear();
 
-    glm::vec3 vertex;
+    glm::vec3 vertex, color;
 
     // open file
     std::ifstream ifile(_filename.c_str() );
@@ -658,40 +665,60 @@ bool TriMeshSoup::importOFF(const std::string &_filename)
     // read header line
     std::string header;
     std::getline(ifile,header);
+    
+    if(header == "COFF")
+    {
+        isCOFF = true;
+    }
+    else if(header != "OFF")
+    {
+        std::cerr << "[ERROR] TriMeshSoup::importOFF(): wrong header, should be OFF or COFF. "  << _filename  << std::endl;
+    }
 
-    // read number of vertices, faces, and edges
-    unsigned int nV, nF, nE;
-    ifile >> nV;
-    ifile >> nF;
-    ifile >> nE; //unused
+    // read number of vertices, faces, edges, and vertices per face
+    unsigned int nV, nF, nE, nVF;
+
+    // read nb of vertices and facets
+    std::getline(ifile,header);
+    std::stringstream linestream(header);
+    linestream >> nV >> nF >> nE; //nE unused
 
 
     // for each vertex coord line
     std::string line;
-    int i;
-    for (i = 0; i<nV && std::getline(ifile, line); ++i)
+    for (unsigned int i = 0; i<nV && std::getline(ifile, line); i++)
     {
         // get line
         std::stringstream linestream(line);
+
         // read vertex coords and add into array
         if(linestream >> vertex.x >> vertex.y >> vertex.z)
             m_vertices.push_back(vertex);
+
+        // read color
+        if(isCOFF)
+        {
+            // read vertex color, normlaze it ([0;255] -> [0;1]), and add into array
+            if(linestream >> color.x >> color.y >> color.z)
+                m_colors.push_back(color / 256.0f );
+        }
     }
 
 
+
     // read faces
-    // #N <v1> <v2> .. <v(n-1)> [color spec]
-    for (int j = 0 ; j<nF ; ++j)
+    // #N <v1> <v2> .. <v(n-1)>
+    for (int unsigned j = 0 ; j<nF  && std::getline(ifile, line); j++)
     {
         // get line
-        std::getline(ifile, line);
+        //std::getline(ifile, line);
         std::stringstream linestream(line);
         unsigned int v1 , v2, v3;
 
         // read vertex number
-        if(linestream >> nV)
+        if(linestream >> nVF)
         {
-            if(nV == 3 )
+            if(nVF == 3 )
             {
                 // read indices if the face is a triangle
                 if(linestream >> v1 >> v2 >> v3)
@@ -736,22 +763,33 @@ void TriMeshSoup::exportOFF(const std::string &_filename)
         std::cerr << "[ERROR] TriMeshSoup::exportOFF(): Number of vertices is not a multiple of 3" << std::endl;
     }
 
-    unsigned int i;
+    bool hasColors = ( m_colors.size() == m_vertices.size() );
 
     // Write header
-    fprintf(file, "OFF \n");
-    fprintf(file, "%d %d %d \n", m_vertices.size(), nb_triangles, 0 );
+    if(hasColors)
+    {
+        // colors: [0;1] -> [0;255]
+        std::transform(m_colors.begin(), m_colors.end(), m_colors.begin(), [](glm::vec3 &_c){ return _c * 256.0f; });
+        fprintf(file, "COFF\n");
+    }
+    else
+        fprintf(file, "OFF\n");
+
+    fprintf(file, "%d %d %d\n", m_vertices.size(), nb_triangles, 0 );
 
     // Write vertices
-    for (i = 0; i <m_vertices.size(); i++) 
+    for (unsigned int i = 0; i <m_vertices.size(); i++) 
     {
-        fprintf(file, "%f %f %f\n", m_vertices[i].x, m_vertices[i].y, m_vertices[i].z);
+        if(hasColors)
+            fprintf(file, "%f %f %f %d %d %d\n", m_vertices[i].x, m_vertices[i].y, m_vertices[i].z,  (int)m_colors[i].x, (int)m_colors[i].y, (int)m_colors[i].z);
+        else
+            fprintf(file, "%f %f %f\n", m_vertices[i].x, m_vertices[i].y, m_vertices[i].z);
     }
   
     // Write facets (triangles)
-    for (i = 0; i <nb_triangles; i++) 
+    for (unsigned int i = 0; i <nb_triangles; i++) 
     {
-        int vertId0 = m_indices[ i * 3 ]; // !! in wavefront files, vertex indices starts at 1
+        int vertId0 = m_indices[ i * 3 ];
         int vertId1 = m_indices[ i * 3 + 1 ];
         int vertId2 = m_indices[ i * 3 + 2 ];
 

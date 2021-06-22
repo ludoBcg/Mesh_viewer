@@ -280,23 +280,6 @@ void DrawableMesh::draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm:
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, m_normalMap);
         }
-        /*if(m_usePBR)
-        {
-            glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, m_metalMap);
-            glActiveTexture(GL_TEXTURE3);
-            glBindTexture(GL_TEXTURE_2D, m_glossMap);
-        }
-        if(m_useAmbMap)
-        {
-            glActiveTexture(GL_TEXTURE4);
-            glBindTexture(GL_TEXTURE_2D, m_ambientMap);
-        }
-        if(m_useEnvMap)
-        {
-            glActiveTexture(GL_TEXTURE5);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubeMap);
-        }*/
         // ...
 
         // Pass uniforms
@@ -313,10 +296,7 @@ void DrawableMesh::draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm:
  
         glUniform1i(glGetUniformLocation(m_program, "u_tex"), 0);
         glUniform1i(glGetUniformLocation(m_program, "u_normalMap"), 1);
-        //glUniform1i(glGetUniformLocation(m_program, "u_metalMap"), 2);
-        //glUniform1i(glGetUniformLocation(m_program, "u_glossMap"), 3);
-        //glUniform1i(glGetUniformLocation(m_program, "u_ambientMap"), 4);
-        //glUniform1i(glGetUniformLocation(m_program, "u_cubemap"), 5);
+
 
         if(m_useAmbient)
             glUniform1i(glGetUniformLocation(m_program, "u_useAmbient"), 1);
@@ -339,18 +319,7 @@ void DrawableMesh::draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm:
             glUniform1i(glGetUniformLocation(m_program, "u_useNormalMap"), 1);
         else
             glUniform1i(glGetUniformLocation(m_program, "u_useNormalMap"), 0);
-        /*if(m_usePBR)
-            glUniform1i(glGetUniformLocation(m_program, "u_usePBR"), 1);
-        else
-            glUniform1i(glGetUniformLocation(m_program, "u_usePBR"), 0);
-         if(m_useAmbMap)
-            glUniform1i(glGetUniformLocation(m_program, "u_useAmbMap"), 1);
-        else
-            glUniform1i(glGetUniformLocation(m_program, "u_useAmbMap"), 0);
-        if(m_useEnvMap)
-            glUniform1i(glGetUniformLocation(m_program, "u_useEnvMap"), 1);
-        else
-            glUniform1i(glGetUniformLocation(m_program, "u_useEnvMap"), 0);*/
+
 
         if(m_showNormals)
             glUniform1i(glGetUniformLocation(m_program, "u_showNormals"), 1);
@@ -451,51 +420,6 @@ GLuint DrawableMesh::load2DTexture(const std::string& _filename, bool _repeat)
 }
 
 
-//GLuint DrawableMesh::loadCubemap(const std::string& _dirname)
-//{
-//    bool isValid = true;
-//    const char *filenames[] = { "posx.png", "negx.png", "posy.png", "negy.png", "posz.png", "negz.png" };
-//    const GLenum targets[] = {
-//        GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-//        GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-//        GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
-//    };
-//    const unsigned num_sides = 6; 
-//
-//    std::vector<unsigned char> data[num_sides];
-//    unsigned width;
-//    unsigned height;
-//    for (unsigned i = 0; i < num_sides; ++i) 
-//    {
-//        std::string filename = _dirname + "/" + filenames[i];
-//        unsigned error = lodepng::decode(data[i], width, height, filename);
-//        if (error != 0) 
-//        {
-//            std::cerr << "ERROR: [DrawableMesh::loadCubemap()] " << lodepng_error_text(error) << std::endl;
-//            isValid = false;
-////            std::exit(EXIT_FAILURE);
-//        }
-//    }
-//
-//    GLuint texture;
-//    if(isValid)
-//    {
-//        glGenTextures(1, &texture);
-//        glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
-//        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-//        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//        for (unsigned i = 0; i < num_sides; ++i) 
-//        {
-//            glTexImage2D(targets[i], 0, GL_SRGB8_ALPHA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(data[i][0]));
-//        }
-//        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-//        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-//    }
-//    return texture;
-//
-//}
 
 
 GLuint DrawableMesh::loadShaderProgram(const std::string& _vertShaderFilename, const std::string& _fragShaderFilename)

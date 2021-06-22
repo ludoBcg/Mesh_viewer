@@ -216,12 +216,6 @@ class DrawableMesh
         * \param _filename : name of texture image
         */
         inline void loadAmbientMap(const std::string& _filename) { m_ambientMap = load2DTexture(_filename, true); }
-        /*!
-        * \fn loadCubeMap
-        * \brief load a set of cube maps (for environment mapping) from a directory
-        * \param _dirname : directory of the cube maps
-        */
-        //inline void loadCubeMap(const std::string& _dirname) { m_cubeMap = loadCubemap(_dirname); }     // !! TODO: check m_specPow is consistent !!
 
         /*!
         * \fn loadShaderProgram
@@ -319,13 +313,6 @@ class DrawableMesh
         * \param _repeat : repeat (true) or clamptoedge (false)
         */
         GLuint load2DTexture(const std::string& _filename, bool _repeat = false);
-
-        /*!
-        * \fn loadCubemap
-        * \brief Load cubemap texture and let OpenGL generate a mipmap chain
-        * \param _dirname : directory of cube map images
-        */
-        //GLuint loadCubemap(const std::string& _dirname);
 
         /*!
         * \fn readShaderSource

@@ -274,36 +274,6 @@ class Window : public QWidget
         void openNormalMapDialog();
 
         /*!
-        * \fn openMetalMapDialog
-        * \brief SLOT: open dialog box to select metal map texture
-        */
-        //void openMetalMapDialog();
-
-        /*!
-        * \fn openGlossMapDialog
-        * \brief SLOT: open dialog box to select gloss map texture
-        */
-        //void openGlossMapDialog();
-
-        /*!
-        * \fn toggleAmbMap
-        * \brief SLOT: use ambient mapping instead of ambient default factor
-        */
-        //void toggleAmbMap();
-
-        /*!
-        * \fn openAmbMapDialog
-        * \brief SLOT: open dialog box to select ambient map texture
-        */
-        //void openAmbMapDialog();
-
-        /*!
-        * \fn openCubeMapDialog
-        * \brief SLOT: open dialog box to select cube map texture set
-        */
-        //void openCubeMapDialog();
-
-        /*!
         * \fn compNormals
         * \brief SLOT: duplicate vertices and compute normals
         */

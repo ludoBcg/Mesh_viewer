@@ -131,7 +131,7 @@ void TriMeshHE::getColors(std::vector<glm::vec3>& _colors)
             {                
                 OpMesh::VertexHandle v_h = fv_it.handle();                                      // current vertex handle
                 OpMesh::Color c1 = m_mesh.color( v_h );                                         // current vertex color
-                _colors.push_back(glm::vec3(c1[0], c1[1], c1[2]));
+                _colors.push_back(glm::vec3(c1[0], c1[1], c1[2]) / 256.0f);                     // normalize color ([0;255] -> [0;1])
             }
         }
     }

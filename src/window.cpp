@@ -9,10 +9,7 @@ Window::Window() : QWidget()
     // Init flags
     m_texLoaded = false;
     m_normalMapLoaded = false;
-    //m_metalMapLoaded = false;
-    //m_glossMapLoaded = false;
-    //m_ambientMapLoaded = false;
-    //m_cubeMapLoaded = false;
+
 
     this->setWindowTitle("Mesh_viewer");
     this->move(300,100);
@@ -925,86 +922,7 @@ void Window::openNormalMapDialog()
         m_normalMapLoaded = true;
     }
 }
-/*
-void Window::openMetalMapDialog()
-{
-    QString file = QFileDialog::getOpenFileName(this, "open file", "../../3dmodels", "Image (*.png)");
-    if( !file.isEmpty() )
-    {
-        m_glViewer->setMetalMap(file);
-        m_togglePBRMap->setEnabled(true);
-        m_metalMapLoaded = true;
-    }
-}
 
-void Window::openGlossMapDialog()
-{
-    QString file = QFileDialog::getOpenFileName(this, "open file", "../../3dmodels", "Image (*.png)");
-    if( !file.isEmpty() )
-    {
-        m_glViewer->setGlossMap(file);
-        m_togglePBRMap->setEnabled(true);
-        m_glossMapLoaded = true;
-    }
-}
-
-void Window::openAmbMapDialog()
-{
-    QString file = QFileDialog::getOpenFileName(this, "open file", "../../3dmodels", "Image (*.png)");
-    if( !file.isEmpty() )
-    {
-        m_glViewer->setAmbientMap(file);
-        m_toggleAmbientMap->setEnabled(true);
-        m_ambientMapLoaded = true;
-    }
-}
-
-void Window::toggleAmbMap()
-{
-    if( m_toggleAmbientMap->isChecked() )
-    {
-        m_buttonAmbientCol->setEnabled(false);
-        m_ambientLabel->setEnabled(false);
-    }
-    else
-    {
-        toggleAmbient();
-    }
-}
-
-void Window::openCubeMapDialog()
-{
-    // Select directory instead of files
-    QString folder = QFileDialog::getExistingDirectory(this, "Open  folder", "../../3dmodels/cubemaps", QFileDialog::ShowDirsOnly );
-    if( !folder.isEmpty() )
-    {
-        m_glViewer->setCubeMap(folder);
-        m_toggleEnvMap->setEnabled(true);
-        m_cubeMapLoaded = true;
-
-        // Adapt specular power to prefiltered cubemap
-        std::string dirname = folder.toStdString();
-        std::string value = dirname.substr(dirname.find_last_of("/") + 1);
-
-        double valueD = -1.0f;
-        try
-        {
-            valueD = std::stod(value);
-        }
-        catch(const std::invalid_argument&)
-        {
-            std::cerr << "WARNING: [Window::openCubeMapDialog()] No prefiltered value in cube map directory name, specular power is not modified " << std::endl;
-        }
-        catch(const std::out_of_range&)
-        {
-            std::cerr << "WARNING: [Window::openCubeMapDialog()] Prefiltered value in cube map directory name is out of range, specular power is not modified " << std::endl;
-        }
-
-        if(valueD > 0.0f)
-            m_specPowSpinBox->setValue(valueD);
-    }
-}
-*/
 
 void Window::compNormals()
 {
