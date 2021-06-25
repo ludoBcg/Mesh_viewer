@@ -150,6 +150,11 @@ bool TriMeshSoup::readFile(std::string _filename)
         importOFF(_filename);
         return true;
     }
+    if(_filename.substr(_filename.find_last_of(".") + 1) == "ply")
+    {
+        importPLY(_filename);
+        return true;
+    }
     else if(_filename.substr(_filename.find_last_of(".") + 1) == "stl") 
     {
         importSTL(_filename);
@@ -157,7 +162,7 @@ bool TriMeshSoup::readFile(std::string _filename)
     }
     else
     {
-        std::cerr << "[ERROR] TriMeshSoup::readFile(): Invalid file extension: only .obj, .off, and .stl are supported" << std::endl;
+        std::cerr << "[ERROR] TriMeshSoup::readFile(): Invalid file extension: only .obj, .off, .ply, and .stl are supported" << std::endl;
     }
     return false;
 }
@@ -800,9 +805,225 @@ void TriMeshSoup::exportOFF(const std::string &_filename)
 }
 
 
+// http://paulbourke.net/dataformats/ply/
 bool TriMeshSoup::importPLY(const std::string &_filename)
 {
-    // TODO
+    // read ASCII
+
+
+    // Clear old mesh 
+    clear();
+
+    int nbVert, nbFaces;
+
+    // open file
+    std::ifstream ifile(_filename.c_str() );
+
+    if (!ifile.is_open() || !ifile.good())
+    {
+        std::cerr << "[ERROR] TriMeshSoup::importPLY(): cannot open file "  << _filename  << std::endl;
+        return false;
+    }
+
+    // read header
+
+    // ply
+    std::string header, line;
+    std::getline(ifile,header);
+    if(header != "ply")
+        std::cerr << "[ERROR] TriMeshSoup::importPLY(): wrong header, should start with ply "  << std::endl;
+
+    
+    std::string keyword, structure, type1, type2, valueS;
+    float valueF;
+    int valueI;
+    std::vector<std::string> vertProperties;
+    std::vector<std::string> vertPropertiesTypes;
+
+    // read format
+    std::stringstream linestream(header);
+    linestream >> keyword; 
+    // format ascii 1.0
+    if(keyword == "format")
+    {
+        linestream >> type1 >> valueF; 
+        if(type1 != "ascii" || valueF != 1.0)
+            std::cerr << "[ERROR] TriMeshSoup::importPLY(): only file format is ascii 1.0" << std::endl;
+    }
+
+
+    bool vertProp = false;
+    bool faceProp = false;
+    int cptVertProp = 0;
+
+    //read header line by line until "end_header"
+    while(keyword != "end_header")
+    {
+        std::getline(ifile,header);
+        std::stringstream linestream(header);
+        linestream >> keyword;
+
+        // ignore comments
+        if(keyword != "comment")
+        {
+            // element description
+            if(keyword == "element")
+            {
+                linestream >> structure;
+                if(structure == "vertex")
+                {
+                    // element vertex nbvertices
+                    vertProp = true;
+                    faceProp = false;
+                    cptVertProp = 0;
+
+                    linestream >> nbVert;
+                }
+                else if(structure == "face")
+                {
+                    // element face nbfaces
+                    vertProp = false;
+                    faceProp = true;
+
+                    linestream >> nbFaces;
+                }
+                else
+                {
+                    vertProp = false;
+                    faceProp = false;
+                    std::cerr << "[ERROR] TriMeshSoup::importPLY(): wrong header, only elements supported are vertex and face " << std::endl;
+                }
+            }
+            else if (keyword == "property")
+            {
+                if(vertProp)
+                {
+                    // property float x/y/z
+                    // vertex properties
+                    linestream >> type1 >> valueS;
+                    vertProperties.push_back(valueS);
+                    vertPropertiesTypes.push_back(type1);
+                }
+                else if(faceProp)
+                {
+                    // property list uchar int vertex_indices
+                    // face properties
+                    linestream >> structure >> type1 >> type2 >> valueS;
+                    if(structure != "list")
+                        std::cerr << "[ERROR] TriMeshSoup::importPLY(): wrong header, only face structure supported is list " << std::endl;
+                    if(valueS != "vertex_index ")
+                        std::cerr << "[ERROR] TriMeshSoup::importPLY(): wrong header, only face structure supported is list of vertex indices " << std::endl;
+                }
+            }
+
+        }
+    }
+
+    
+    bool hasNormal = false;
+    bool hasFlag = false;
+    bool hasColor = false;
+    bool hasAlpha = false;
+    glm::vec3 vertex, normal, color;
+    int flag, alpha; //unused
+    int valence, id1, id2, id3;
+
+    // check for vertex coords presence
+    std::vector<std::string>::iterator it1 = find (vertProperties.begin(), vertProperties.end(), "x");
+    std::vector<std::string>::iterator it2 = find (vertProperties.begin(), vertProperties.end(), "y");
+    std::vector<std::string>::iterator it3 = find (vertProperties.begin(), vertProperties.end(), "z");
+    if( it1 == vertProperties.end() || it2 == vertProperties.end() ||  it3 == vertProperties.end() )
+    {
+        std::cerr << "[ERROR] TriMeshSoup::importPLY(): vertex coordinates not provided " << std::endl;
+        return false;
+    }
+
+    // check for vertex normal presence
+    it1 = find (vertProperties.begin(), vertProperties.end(), "nx");
+    it2 = find (vertProperties.begin(), vertProperties.end(), "ny");
+    it3 = find (vertProperties.begin(), vertProperties.end(), "nz");
+    if( it1 != vertProperties.end() && it2 != vertProperties.end() &&  it3 != vertProperties.end() )
+        hasNormal = true;
+
+    it1 = find (vertProperties.begin(), vertProperties.end(), "flags");
+    if( it1 != vertProperties.end() )
+        hasFlag = true;
+
+    // check for vertex color presence
+    it1 = find (vertProperties.begin(), vertProperties.end(), "red");
+    it2 = find (vertProperties.begin(), vertProperties.end(), "green");
+    it3 = find (vertProperties.begin(), vertProperties.end(), "blue");
+    if( it1 != vertProperties.end() && it2 != vertProperties.end() &&  it3 != vertProperties.end() )
+        hasColor = true;
+
+    it1 = find (vertProperties.begin(), vertProperties.end(), "alpha");
+    if( it1 != vertProperties.end() )
+        hasAlpha = true;
+
+    
+    // read vertices
+    for (unsigned int i = 0; i<nbVert && std::getline(ifile, line); i++)
+    {
+        // get line
+        std::stringstream linestream(line);
+
+        // read vertex coords and add into array
+        if(linestream >> vertex.x >> vertex.y >> vertex.z)
+            m_vertices.push_back(vertex);
+
+        // read color
+        if(hasNormal)
+        {
+            // read vertex normal, and add into array
+            if(linestream >> normal.x >> normal.y >> normal.z)
+                m_normals.push_back(normal);
+        }
+
+        // read flag
+        if(hasFlag)
+            linestream >> flag;
+
+        // read color
+        if(hasColor)
+        {
+            // read vertex color, normlaze it ([0;255] -> [0;1]), and add into array
+            if(linestream >> color.x >> color.y >> color.z)
+                m_colors.push_back(color / 256.0f );
+        }
+
+        // read alpha
+        if(hasAlpha)
+            linestream >> alpha;
+    }
+
+    // read faces
+    for (unsigned int i = 0; i<nbFaces && std::getline(ifile, line); i++)
+    {
+        // get line
+        std::stringstream linestream(line);
+
+        //read valence
+        linestream >> valence;
+
+        if(valence != 3)
+        {
+            std::cerr << "[ERROR] TriMeshSoup::importPLY(): only triangles faces suported " << std::endl;
+            return false;
+        }
+        // read vertices' indices
+        if(linestream >> id1 >> id2 >> id3)
+        {
+            m_indices.push_back(id1);
+            m_indices.push_back(id2);
+            m_indices.push_back(id3);
+        }
+    }
+
+
+    // check if size of lists are consistent
+    if(m_vertices.size() != nbVert || m_indices.size() != nbFaces*3 ) 
+        std::cerr << "[ERROR] TriMeshSoup::importPLY(): insonsistent data " << std::endl;
+
     return true;
 }
 

@@ -329,53 +329,7 @@ Window::Window() : QWidget()
     m_normalMapLayout->addWidget(m_toggleNormalMap);
     m_boxTexLayout->addLayout(m_normalMapLayout);
 
-    // Load Metal map button
-/*    m_buttonLoadMetalMap = new QPushButton("load metal map", this);
-    m_buttonLoadMetalMap->setFixedSize(150, 25);
-    QObject::connect(m_buttonLoadMetalMap, SIGNAL(clicked()), this, SLOT(openMetalMapDialog()));
-    m_boxTexLayout->addWidget(m_buttonLoadMetalMap);
-    // Load Gloss map button
-    m_PBRMapLayout = new QHBoxLayout;
-    m_buttonLoadGlossMap = new QPushButton("load gloss map", this);
-    m_buttonLoadGlossMap->setFixedSize(150, 25);
-    QObject::connect(m_buttonLoadGlossMap, SIGNAL(clicked()), this, SLOT(openGlossMapDialog()));
-    m_PBRMapLayout->addWidget(m_buttonLoadGlossMap);
-    m_togglePBRMap = new QCheckBox;
-    m_togglePBRMap->setText("use PBR maps");
-    m_togglePBRMap->setChecked(false);
-    m_togglePBRMap->setEnabled(false);
-    QObject::connect(m_togglePBRMap, SIGNAL(clicked()), m_glViewer, SLOT(togglePBRMap()));
-    m_PBRMapLayout->addWidget(m_togglePBRMap);
-    m_boxTexLayout->addLayout(m_PBRMapLayout);
-
-    // Load Ambient map button
-    m_ambientMapLayout = new QHBoxLayout;
-    m_buttonLoadAmbientMap = new QPushButton("load ambient occlusion map", this);
-    m_buttonLoadAmbientMap->setFixedSize(150, 25);
-    QObject::connect(m_buttonLoadAmbientMap, SIGNAL(clicked()), this, SLOT(openAmbMapDialog()));
-    m_ambientMapLayout->addWidget(m_buttonLoadAmbientMap);
-    m_toggleAmbientMap = new QCheckBox;
-    m_toggleAmbientMap->setText("use ambient occlusion");
-    m_toggleAmbientMap->setChecked(false);
-    m_toggleAmbientMap->setEnabled(false);
-    QObject::connect(m_toggleAmbientMap, SIGNAL(clicked()), m_glViewer, SLOT(toggleAmbientMap()));
-    QObject::connect(m_toggleAmbientMap, SIGNAL(clicked()), this, SLOT(toggleAmbMap()));
-    m_ambientMapLayout->addWidget(m_toggleAmbientMap);
-    m_boxTexLayout->addLayout(m_ambientMapLayout);
-
-    // Load Cube map button
-    m_cubeMapLayout = new QHBoxLayout;
-    m_buttonLoadCubeMap = new QPushButton("load cube map", this);
-    m_buttonLoadCubeMap->setFixedSize(150, 25);
-    QObject::connect(m_buttonLoadCubeMap, SIGNAL(clicked()), this, SLOT(openCubeMapDialog()));
-    m_cubeMapLayout->addWidget(m_buttonLoadCubeMap);
-    m_toggleEnvMap = new QCheckBox;
-    m_toggleEnvMap->setText("use environment mapping");
-    m_toggleEnvMap->setChecked(false);
-    m_toggleEnvMap->setEnabled(false);
-    QObject::connect(m_toggleEnvMap, SIGNAL(clicked()), m_glViewer, SLOT(toggleEnvMap()));
-    m_cubeMapLayout->addWidget(m_toggleEnvMap);
-    m_boxTexLayout->addLayout(m_cubeMapLayout);*/
+    
 
     m_groupBoxTex->setLayout(m_boxTexLayout);
     m_boxGlobalLayout->addWidget(m_groupBoxTex);
@@ -501,16 +455,6 @@ Window::~Window()
     delete m_buttonLoadNormalMap;
     delete m_toggleNormalMap;
     delete m_normalMapLayout;
-    //delete m_buttonLoadMetalMap;
-    //delete m_buttonLoadGlossMap;
-    //delete m_togglePBRMap;
-    //delete m_PBRMapLayout;
-    //delete m_buttonLoadAmbientMap;
-    //delete m_toggleAmbientMap;
-    //delete m_ambientMapLayout;
-    //delete m_buttonLoadCubeMap;
-    //delete m_toggleEnvMap;
-    //delete m_cubeMapLayout;
     delete m_boxTexLayout;
     delete m_groupBoxTex;
     // Delete geometry tools
@@ -581,7 +525,7 @@ void Window::rejectDialog()
 
 void Window::loadMeshHE()
 {
-    QString file = QFileDialog::getOpenFileName(this, "open file", "../../3dmodels", "Mesh (*.obj *.off)");
+    QString file = QFileDialog::getOpenFileName(this, "open file", "../../3dmodels", "Mesh (*.obj *.off *.ply *.stl)");
     if( !file.isEmpty() )
     {
         m_glViewer->loadTriMeshHE(file);
@@ -598,7 +542,7 @@ void Window::loadMeshHE()
 
 void Window::loadMeshSoup()
 {
-    QString file = QFileDialog::getOpenFileName(this, "open file", "../../3dmodels", "Mesh (*.obj *.off *.stl)");
+    QString file = QFileDialog::getOpenFileName(this, "open file", "../../3dmodels", "Mesh (*.obj *.off *.ply *.stl)");
     if( !file.isEmpty() )
     {
         m_glViewer->loadTriMeshSoup(file);
@@ -832,9 +776,7 @@ void Window::toggleShowNormals()
         m_specPowLabel->setEnabled(false);
 
         m_toggleTex->setEnabled(false);
-        //m_togglePBRMap->setEnabled(false);
-        //m_toggleEnvMap->setEnabled(false);
-        //m_toggleAmbientMap->setEnabled(false);
+
     }
     else
     {
@@ -854,12 +796,7 @@ void Window::toggleShowNormals()
 
         if(m_texLoaded)
             m_toggleTex->setEnabled(true);
-        //if(m_metalMapLoaded || m_glossMapLoaded)
-        //    m_togglePBRMap->setEnabled(true);
-        //if(m_cubeMapLoaded)
-        //    m_toggleEnvMap->setEnabled(true);
-        //if(m_ambientMapLoaded)
-        //    m_toggleAmbientMap->setEnabled(true);
+
     }
 }
 

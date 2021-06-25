@@ -92,17 +92,7 @@ class Window : public QWidget
         QCheckBox* m_toggleTex;             /*!< CheckBox to activate/deactivate texture mapping */
         QHBoxLayout* m_normalMapLayout;       /*!< Horizontal layout for normal map */
         QPushButton* m_buttonLoadNormalMap; /*!< Button to load normal map */
-        QCheckBox* m_toggleNormalMap;       /*!< CheckBox to activate/deactivate normal mapping */
-        //QPushButton* m_buttonLoadMetalMap;  /*!< Button to load metal map */
-        //QHBoxLayout* m_PBRMapLayout;       /*!< Horizontal layout for PBR mapping */
-        //QPushButton* m_buttonLoadGlossMap;  /*!< Button to load gloss map */
-        //QCheckBox* m_togglePBRMap;          /*!< CheckBox to activate/deactivate PBR mapping */
-        //QHBoxLayout* m_ambientMapLayout;       /*!< Horizontal layout for ambient map */
-        //QPushButton* m_buttonLoadAmbientMap;/*!< Button to load ambient map */
-        //QCheckBox* m_toggleAmbientMap;      /*!< CheckBox to activate/deactivate ambient mapping */
-        //QHBoxLayout* m_cubeMapLayout;       /*!< Horizontal layout for cube map */
-        //QPushButton* m_buttonLoadCubeMap;   /*!< Button to load cube map */
-        //QCheckBox* m_toggleEnvMap;          /*!< CheckBox to activate/deactivate environment mapping */
+        QCheckBox* m_toggleNormalMap;       /*!< CheckBox to activate/deactivate normal mapping */ 
 
         QGroupBox* m_groupBoxGeom;          /*!< GroupBox for geometry tools */
         QVBoxLayout* m_boxGeomLayout;       /*!< Layout for geometry tools */
@@ -116,13 +106,8 @@ class Window : public QWidget
         QDoubleSpinBox* m_factorSpinBox;    /*!< SpinBox to change smoothing factor */
         QLabel* m_factorLabel;              /*!< Label for smoothing factor */
 
-
         bool m_texLoaded;                   /*!< True if a texture is loaded */
         bool m_normalMapLoaded;             /*!< True if a normal map is loaded */
-        //bool m_metalMapLoaded;              /*!< True is a metal map is loaded */  
-        //bool m_glossMapLoaded;              /*!< True is a gloss map is loaded */
-        //bool m_ambientMapLoaded;            /*!< True is a ambient map is loaded */  
-        //bool m_cubeMapLoaded;               /*!< True is a cube map is loaded */  
 
         QColor m_ambientCol;                /*!< Current ambient color */
         QColor m_diffuseCol;                /*!< Current diffuse color */

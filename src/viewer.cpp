@@ -153,12 +153,6 @@ void Viewer::mouseMoveEvent(QMouseEvent *e)
 void Viewer::resizeGL(int width, int height)
 {
     QGLViewer::resizeGL(width, height);
-    //if(m_volLoaded == true)
-    //{
-    //    m_rayCastVolume.initFBOs(this->width(), this->height(), m_fastRayCast);
-    //}
-
-    //m_renderer.createQuadVAO(&m_volImgctx);
 }
 
 
@@ -308,28 +302,7 @@ void Viewer::toggleMeshCol()
     m_drawMesh->setUseMeshColFlag( !m_drawMesh->getUseMeshColFlag() );
     update();
 }
-/*
-void Viewer::togglePBRMap()
-{
-    // Reverse state of PBR mapping flag
-    m_drawMesh->setPBRFlag( !m_drawMesh->getPBRFlag() );
-    update();
-}
 
-void Viewer::toggleAmbientMap()
-{
-    // Reverse state of ambient mapping flag
-    m_drawMesh->setAmbMapFlag( !m_drawMesh->getAmbMapFlag() );
-    update();
-}
-
-void Viewer::toggleEnvMap()
-{
-    // Reverse state of environment mapping flag
-    m_drawMesh->setEnvMapFlag( !m_drawMesh->getEnvMapFlag() );
-    update();
-}
-*/
 void Viewer::duplVertices()
 {
     m_triMesh->duplicateVertices();
