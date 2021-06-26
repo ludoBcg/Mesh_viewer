@@ -11,7 +11,6 @@ uniform float u_specularPower;
 
 uniform sampler2D u_tex;
 uniform sampler2D u_normalMap;
-uniform samplerCube u_cubemap;
 
 uniform int u_useAmbient;
 uniform int u_useDiffuse;
@@ -31,6 +30,7 @@ in vec3 vecBT;
 in vec3 vert_pos;
 in vec3 vert_uv;
 in vec3 col;
+in vec3 modelN;
 
 // OUTPUT
 out vec4 frag_color;
@@ -47,7 +47,7 @@ float specular_normalized(in vec3 _N, in vec3 _H, in float _specularPower)
 	return specular;
 }
 
-float diffuse(in vec3 _N, in vec3 _L)
+float compDiff(in vec3 _N, in vec3 _L)
 {
 	// Calculate the diffuse (Lambertian) reflection term
     return max(0.0, dot(_N, _L));
@@ -95,7 +95,7 @@ void main()
 	if(u_showNormals == 1)
 	{
 		// -- Render normals --
-		color = vec4(0.5 * l_vecN + 0.5, 1.0);
+		color = vec4(0.5 * /*l_vecN*/modelN + 0.5, 1.0);
 	}
 	else
 	{
@@ -121,7 +121,7 @@ void main()
 		vec3 l_vecH = normalize(l_vecL + l_vecV);
 	
 		//DIFFUSE
-		float diffuse = diffuse(l_vecN, l_vecL);
+		float diffuse = compDiff(l_vecN, l_vecL);
 		if(u_useDiffuse == 1)
 		{
 			color.rgb += diff_col * u_lightColor * diffuse;

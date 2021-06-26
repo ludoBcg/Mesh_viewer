@@ -32,6 +32,7 @@ class Window : public QWidget
     private:
 
         /********************************************* Main Window ********************************************/
+
         QVBoxLayout* m_globalLayout;        /*!< Global vertical layout of the window */
 
         QHBoxLayout* m_toolbarLayout;       /*!< Horizontal layout of the toolbar */
@@ -44,6 +45,7 @@ class Window : public QWidget
 
 
         /********************************************* Dialog Box *********************************************/
+
         QDialog* m_dialogBox;               /*!< Dialog Box */
         QVBoxLayout* m_boxGlobalLayout;     /*!< Global layout of the dialog box */
 
@@ -61,6 +63,8 @@ class Window : public QWidget
         QCheckBox* m_toggleShowLines;       /*!< CheckBox to show/hide edges */
         QLabel* m_wireLabel;                /*!< Label for wireframe color */
         QPushButton* m_buttonWireColor;     /*!< Button for wireframe color */
+        QHBoxLayout* m_wireShadingLayout;   /*!< Horizontal layout for wireframe shading */
+        QCheckBox* m_toggleShadingLines;    /*!< CheckBox to activate/deactivate wireframe shading */
 
         QGroupBox* m_groupBoxShading;       /*!< GroupBox for shading options */
         QVBoxLayout* m_boxShadingLayout;    /*!< Layout for shading options */
@@ -90,7 +94,7 @@ class Window : public QWidget
         QHBoxLayout* m_texLayout;           /*!< Horizontal layout for texture */
         QPushButton* m_buttonLoadTex;       /*!< Button to load texture */
         QCheckBox* m_toggleTex;             /*!< CheckBox to activate/deactivate texture mapping */
-        QHBoxLayout* m_normalMapLayout;       /*!< Horizontal layout for normal map */
+        QHBoxLayout* m_normalMapLayout;     /*!< Horizontal layout for normal map */
         QPushButton* m_buttonLoadNormalMap; /*!< Button to load normal map */
         QCheckBox* m_toggleNormalMap;       /*!< CheckBox to activate/deactivate normal mapping */ 
 

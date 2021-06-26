@@ -5,9 +5,9 @@ DrawableMesh::DrawableMesh()
 {
     /* TODO */
     //m_defaultVAO = 0;
-    m_ambientColor = glm::vec3(0.0f, 0.0f, 0.1f);
-    m_diffuseColor = glm::vec3(0.95f, 0.5f, 0.25f);
-    m_specularColor = glm::vec3(0.0f, 0.8f, 0.0f);
+    m_ambientColor = glm::vec3(0.04f, 0.04f, 0.06f);
+    m_diffuseColor = glm::vec3(0.82f, 0.66f, 0.43f);
+    m_specularColor = glm::vec3(0.9f, 0.9f, 0.9f);
 
     m_wireColor = glm::vec3(0.5f, 0.5f, 0.5f);
 
@@ -17,10 +17,7 @@ DrawableMesh::DrawableMesh()
     setDiffuseFlag(true);
     setSpecularFlag(true);
     setTexFlag(false);
-    setEnvMapFlag(false);
     setNormalMapFlag(false);
-    setPBRFlag(false);
-    setAmbMapFlag(false);
     setShowNormalFlag(false);
     setFlatShadingFlag(false);
     setUseGammaCorrecFlag(true);
@@ -36,9 +33,11 @@ DrawableMesh::DrawableMesh()
 
     m_shadedRenderOn = true;
     m_wireframeRenderOn = false;
+    m_wireframeShadingOn = true;
 
     // Load wireframe program
-    m_programWF = loadShaderProgram("D:/Documents/dev/test_project/src/shaders/wireframe.vert", "D:/Documents/dev/test_project/src/shaders/wireframe.frag");
+    m_programWF = loadShaderProgram("../../src/shaders/wireframe.vert", "../../src/shaders/wireframe.frag");
+
 }
 
 
@@ -374,6 +373,11 @@ void DrawableMesh::draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm:
         glUniformMatrix4fv(glGetUniformLocation(m_programWF, "u_mvp"), 1, GL_FALSE, &_mvp[0][0]);
         glUniform3fv(glGetUniformLocation(m_programWF, "u_lightPosition"), 1, &_lightPos[0]);
         glUniform3fv(glGetUniformLocation(m_programWF, "u_diffuseColor"), 1, &m_wireColor[0]);
+
+        if(m_wireframeShadingOn)
+            glUniform1i(glGetUniformLocation(m_programWF, "u_shading"), 1);
+        else
+            glUniform1i(glGetUniformLocation(m_programWF, "u_shading"), 0);
 
         // Draw!
         glBindVertexArray(m_meshVAO);

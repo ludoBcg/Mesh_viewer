@@ -23,6 +23,7 @@ out vec3 vecBT;
 out vec3 vert_pos;
 out vec3 vert_uv;
 out vec3 col;
+out vec3 modelN;
 
 
 void main()
@@ -31,9 +32,15 @@ void main()
 
 	// Calculate the view-space normal
 	if(u_flatShading == 1)
+	{
+		modelN = normalize(a_facenormal);
 		vecN = normalize(mat3(u_mv) * a_facenormal);
+	}
 	else
+	{
+		modelN = normalize(a_normal);
 		vecN = normalize(mat3(u_mv) * a_normal);
+	}
 
 	
 	// Calculate the view-space light direction

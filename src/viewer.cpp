@@ -80,13 +80,13 @@ void Viewer::draw()
 
     glEnable(GL_DEPTH_TEST); // ensures that polygons overlap correctly
 
-
     // get modelview matrix
     GLdouble MWMat[16];
     this->camera()->getModelViewMatrix(MWMat);
     // get projection matrix
     GLdouble PMat[16];
     this->camera()->getProjectionMatrix(PMat);
+
 
     glm::mat4 mv = lqglToGlmMat4(MWMat);
     glm::mat4 projection = lqglToGlmMat4(PMat);
@@ -96,7 +96,6 @@ void Viewer::draw()
     glm::vec3 cam_pos(this->camera()->position().x, this->camera()->position().y, this->camera()->position().z);
 
     m_lightPos = cam_pos;
-
     m_drawMesh->draw(mv, mvp, m_lightPos, m_lightCol);
 
 }
@@ -232,6 +231,12 @@ void Viewer::toggleRenderSurf()
 void Viewer::toggleRenderLines() 
 { 
     m_drawMesh->toggleWireframeRenderFlag(); 
+    update(); 
+}
+
+void Viewer::toggleShadingLines() 
+{ 
+    m_drawMesh->toggleWireframeShadingFlag(); 
     update(); 
 }
 

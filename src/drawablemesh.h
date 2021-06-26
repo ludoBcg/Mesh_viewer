@@ -81,8 +81,6 @@ class DrawableMesh
                 std::cerr << "[WARNING] DrawableMesh::setTexFlag(): No UV coords available" << std::endl;
             m_useTex = _useTex; 
         }
-        /*! \fn setEnvMapFlag */
-        inline void setEnvMapFlag(bool _useEnvMap) { m_useEnvMap = _useEnvMap; }
         /*! \fn setNormalMapFlag */
         inline void setNormalMapFlag(bool _useNormalMap) 
         {
@@ -96,20 +94,6 @@ class DrawableMesh
                     std::cerr << "[WARNING] DrawableMesh::setNormalMapFlag(): No bitangent coords available" << std::endl;
             }
             m_useNormalMap = _useNormalMap; 
-        }
-        /*! \fn setPBRFlag */
-        inline void setPBRFlag(bool _usePBR) 
-        { 
-            if(!m_uvProvided && _usePBR)
-                std::cerr << "[WARNING] DrawableMesh::setPBRFlag(): No UV coords available" << std::endl;
-            m_usePBR = _usePBR; 
-        }
-        /*! \fn setAmbMapFlag */
-        inline void setAmbMapFlag(bool _useAmbMap) 
-        { 
-            if(!m_uvProvided && _useAmbMap)
-                std::cerr << "[WARNING] DrawableMesh::setAmbMapFlag(): No UV coords available" << std::endl;
-            m_useAmbMap = _useAmbMap; 
         }
         /*! \fn setShowNormalFlag */
         inline void setShowNormalFlag(bool _showNormals) { m_showNormals = _showNormals; }
@@ -130,14 +114,8 @@ class DrawableMesh
         inline bool getSpecularFlag() { return m_useSpecular; }
         /*! \fn getTexFlag */
         inline bool getTexFlag() { return m_useTex; }
-        /*! \fn getEnvMapFlag */
-        inline bool getEnvMapFlag() { return m_useEnvMap; }
         /*! \fn getNormalMapFlag */
         inline bool getNormalMapFlag() { return m_useNormalMap; }
-        /*! \fn getPBRFlag */
-        inline bool getPBRFlag() { return m_usePBR; }
-        /*! \fn getAmbMapFlag */
-        inline bool getAmbMapFlag() { return m_useAmbMap; }
         /*! \fn getShowNormalFlag */
         inline bool getShowNormalFlag() { return m_showNormals; }
         /*! \fn getFlatShadingFlag */
@@ -237,6 +215,14 @@ class DrawableMesh
         */
         inline void toggleWireframeRenderFlag() { m_wireframeRenderOn = !m_wireframeRenderOn; }
 
+
+        /*! 
+        * \fn toggleWireframeShadingFlag 
+        * \brief reverse wireframe shading flag
+        */
+        inline void toggleWireframeShadingFlag() { m_wireframeShadingOn = !m_wireframeShadingOn; }
+        
+
     protected:
 
         /*------------------------------------------------------------------------------------------------------------+
@@ -281,9 +267,6 @@ class DrawableMesh
         bool m_useSpecular;         /*!< flag to use specular shading or not */
         bool m_useTex;              /*!< flag to use texture mapping or not  */
         bool m_useNormalMap;        /*!< flag to use normal mapping or not */
-        bool m_usePBR;              /*!< flag to use PBR textures or not */
-        bool m_useAmbMap;           /*!< flag to use ambient map or not */
-        bool m_useEnvMap;           /*!< flag to use environment mapping or not */
         bool m_showNormals;         /*!< flag to display normals as colors or not */
         bool m_flatShading;         /*!< flag to use flat shading or not */
         bool m_useGammaCorrec;      /*!< flag to apply gamma correction or not */
@@ -301,6 +284,7 @@ class DrawableMesh
 
         bool m_shadedRenderOn;      /*!< flag to indicate if shaded rendering is on */
         bool m_wireframeRenderOn;   /*!< flag to indicate if wireframe rendering is on */
+        bool m_wireframeShadingOn;  /*!< flag to indicate if wireframe shading is on */
 
         /*------------------------------------------------------------------------------------------------------------+
         |                                               OTHER METHODS                                                 |

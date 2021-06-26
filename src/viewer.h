@@ -265,6 +265,11 @@ class Viewer : public QGLViewer
         */
         void toggleRenderLines();
         /*!
+        * \fn toggleShadingLines
+        * \brief SLOT: activate/deactivate wireframe shading
+        */
+        void toggleShadingLines();
+        /*!
         * \fn toggleAmbient
         * \brief SLOT: activate/deactivate ambient shading
         */

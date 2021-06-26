@@ -162,6 +162,17 @@ Window::Window() : QWidget()
     m_wireLayout->addWidget(m_buttonWireColor);
     m_boxSceneLayout->addLayout(m_wireLayout);
 
+    // Edges shading
+    m_wireShadingLayout = new QHBoxLayout;
+    m_toggleShadingLines = new QCheckBox;
+    m_toggleShadingLines->setText("wireframe shading");
+    m_toggleShadingLines->setChecked(true);
+    m_toggleShadingLines->setEnabled(false);
+    QObject::connect(m_toggleShadingLines, SIGNAL(clicked()), m_glViewer, SLOT(toggleShadingLines()));
+    m_wireShadingLayout->addWidget(m_toggleShadingLines);
+    m_wireShadingLayout->setAlignment(Qt::AlignRight);
+    m_boxSceneLayout->addLayout(m_wireShadingLayout);
+
     m_groupBoxScene->setLayout(m_boxSceneLayout);
     m_boxGlobalLayout->addWidget(m_groupBoxScene);
 
@@ -185,7 +196,7 @@ Window::Window() : QWidget()
         m_ambientLabel = new QLabel("ambient color");
         m_ambientLayout->addWidget(m_ambientLabel);
         m_buttonAmbientCol = new QPushButton(this);
-        m_ambientCol = QColor(0, 0, 25);
+        m_ambientCol = QColor(10, 10, 15);
         styleSheet = QString("background: #" + QString(m_ambientCol.red() < 16? "0" : "") + QString::number(m_ambientCol.red(),16)
                                                 + QString(m_ambientCol.green() < 16? "0" : "") + QString::number(m_ambientCol.green(),16)
                                                 + QString(m_ambientCol.blue() < 16? "0" : "") + QString::number(m_ambientCol.blue(),16) + ";");
@@ -208,7 +219,7 @@ Window::Window() : QWidget()
         m_diffuseLabel = new QLabel("diffuse color");
         m_diffuseLayout->addWidget(m_diffuseLabel);
         m_buttonDiffuseCol = new QPushButton(this);
-        m_diffuseCol = QColor(242, 128, 64);
+        m_diffuseCol = QColor(210, 170, 110);
         styleSheet = QString("background: #" + QString(m_diffuseCol.red() < 16? "0" : "") + QString::number(m_diffuseCol.red(),16)
                                              + QString(m_diffuseCol.green() < 16? "0" : "") + QString::number(m_diffuseCol.green(),16)
                                              + QString(m_diffuseCol.blue() < 16? "0" : "") + QString::number(m_diffuseCol.blue(),16) + ";");
@@ -231,7 +242,7 @@ Window::Window() : QWidget()
         m_specularLabel = new QLabel("specular color");
         m_specularLayout->addWidget(m_specularLabel);
         m_buttonSpecularCol = new QPushButton(this);
-        m_specularCol = QColor(0, 204, 0);
+        m_specularCol = QColor(230, 230, 230);
         styleSheet = QString("background: #" + QString(m_specularCol.red() < 16? "0" : "") + QString::number(m_specularCol.red(),16)
                                              + QString(m_specularCol.green() < 16? "0" : "") + QString::number(m_specularCol.green(),16)
                                              + QString(m_specularCol.blue() < 16? "0" : "") + QString::number(m_specularCol.blue(),16) + ";");
@@ -422,8 +433,10 @@ Window::~Window()
     delete m_toggleShowSurf;
     delete m_toggleShowLines;
     delete m_wireLabel;
-    delete m_wireLayout;
     delete m_buttonWireColor;
+    delete m_wireLayout;
+    delete m_toggleShadingLines;
+    delete m_wireShadingLayout;
     delete m_boxSceneLayout;
     delete m_groupBoxScene;
     // Delete shading options
@@ -559,7 +572,7 @@ void Window::loadMeshSoup()
 
 void Window::saveMesh()
 {
-    QString file = QFileDialog::getSaveFileName(this, "save file", "../../results", "Mesh (*.obj *.off *.stl)");
+    QString file = QFileDialog::getSaveFileName(this, "save file", "../../results", "Mesh (*.obj *.off *.ply *.stl)");
     if( !file.isEmpty() )
         m_glViewer->saveMesh(file);
 }
@@ -629,11 +642,13 @@ void Window::toggleLines()
     {
         m_buttonWireColor->setEnabled(true);
         m_wireLabel->setEnabled(true);
+        m_toggleShadingLines->setEnabled(true);
     }
     else
     {
         m_buttonWireColor->setEnabled(false);
         m_wireLabel->setEnabled(false);
+        m_toggleShadingLines->setEnabled(false);
     }
 }
 
@@ -772,6 +787,8 @@ void Window::toggleShowNormals()
         m_buttonSpecularCol->setEnabled(false);
         m_specularLabel->setEnabled(false);
 
+        m_toggleMeshCol->setEnabled(false);
+
         m_specPowSpinBox->setEnabled(false);
         m_specPowLabel->setEnabled(false);
 
@@ -783,6 +800,8 @@ void Window::toggleShowNormals()
         m_toggleAmbient->setEnabled(true);
         m_toggleDiffuse->setEnabled(true);
         m_toggleSpecular->setEnabled(true);
+
+        m_toggleMeshCol->setEnabled(true);
 
         m_lightColLabel->setEnabled(true);
         m_buttonLightCol->setEnabled(true);
