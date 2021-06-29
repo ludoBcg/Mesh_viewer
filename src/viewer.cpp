@@ -57,7 +57,7 @@ void Viewer::init()
     // Load default mesh 
 //    m_triMesh = new TriMeshHE(true, false, false, false);
     m_triMesh = new TriMeshSoup(true, false, false);
-    m_triMesh->readFile("../../3dmodels/teapot.obj");
+    m_triMesh->readFile("../../models/misc/teapot.obj");
     m_triMesh->computeAABB();
 
     m_drawMesh = new DrawableMesh;
@@ -162,7 +162,6 @@ void Viewer::keyPressEvent(QKeyEvent *e)
         std::cout<<"pressed F"<<std::endl;
     }
     QGLViewer::keyPressEvent(e);
-
 }
 
 

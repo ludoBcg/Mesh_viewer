@@ -121,6 +121,15 @@ class TriMeshHE : public Mesh
         */
         void lapSmooth(unsigned int _nbIter = 1, float _fact = 1.0f );
 
+        double compMeanCurv(OpMesh::VertexHandle *_xi);
+        double compAreaMixed(OpMesh::VertexHandle *_xi);
+        double compAreaVoronoi(OpMesh::FaceHandle *_f);
+        double compAreaVoronoi(OpMesh::VertexHandle *_xi, OpMesh::VertexHandle *_xj, OpMesh::VertexHandle *_xjm, OpMesh::VertexHandle *_xjp);
+        double compSumCot(OpMesh::VertexHandle *_xi, OpMesh::VertexHandle *_xj, OpMesh::VertexHandle *_xjm, OpMesh::VertexHandle *_xjp);
+        double compAreaTriangle(OpMesh::FaceHandle *_f);
+        bool isTriangleObtuse(OpMesh::FaceHandle *_f);
+        bool isAngleObtuse(OpMesh::FaceHandle *_f, OpMesh::VertexHandle *_xi);
+        void meanCurv();
     protected:
 
 

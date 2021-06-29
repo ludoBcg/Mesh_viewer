@@ -12,6 +12,7 @@
 #include <QLabel>
 #include <QGroupBox>
 #include <QToolTip>
+#include <QDropEvent>
 
 
 class Viewer;
@@ -133,6 +134,8 @@ class Window : public QWidget
         * \param _mainWinGeom: geometry of the main window
         */
         void positionDialog(QRect *_mainWinGeom);
+
+
 
     public slots:
 

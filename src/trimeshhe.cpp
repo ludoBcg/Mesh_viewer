@@ -1,3 +1,5 @@
+#include <QColor>
+
 #include "trimeshhe.h"
 
 
@@ -271,8 +273,11 @@ bool TriMeshHE::readFile(std::string _filename)
     if ( m_mesh.has_halfedge_texcoords2D() && !rOpt.check( OpenMesh::IO::Options::FaceTexCoord ) )
         m_mesh.release_halfedge_texcoords2D();
     // If the file did not provide vertex colors, then release them
-    if ( m_mesh.has_vertex_colors() && !rOpt.check( OpenMesh::IO::Options::VertexColor ) )
-        m_mesh.release_vertex_colors();
+//    if ( m_mesh.has_vertex_colors() && !rOpt.check( OpenMesh::IO::Options::VertexColor ) )
+//        m_mesh.release_vertex_colors();
+
+
+    meanCurv();
 
     return true;
 }
@@ -470,4 +475,300 @@ void TriMeshHE::lapSmooth(unsigned int _nbIter, float _fact)
     }
 
     computeNormals();
+}
+
+
+/************************************************************************************************************************/
+void TriMeshHE::meanCurv()
+{
+    OpMesh::VertexIter v_it, v_end(m_mesh.vertices_end());
+
+    std::vector<double> values;
+
+    double maxCurv = 0.0f;
+    for (v_it = m_mesh.vertices_begin(); v_it != v_end; ++v_it)
+    {
+        double curv = compMeanCurv( &v_it.handle() ) ;
+ 
+        // get max curvature
+        if(curv > maxCurv)
+            maxCurv = curv;
+
+        values.push_back(curv);
+
+    }
+
+    unsigned int i = 0;
+    for (v_it = m_mesh.vertices_begin(), i=0; v_it != v_end; ++v_it, ++i)
+    {
+        double H = 0.0f;
+        if(values[i] > 0.0f)
+        {
+            double curvNormalized = values[i] / maxCurv;
+            H = 120 - curvNormalized * 120;
+        }
+        // The value of s, v, and a must all be in the range 0-255; the value of h must be in the range 0-359.
+        // HSV color (h = 120 degrees(red to green), s = 100 percent, v = 100 percent )
+        QColor rgb = QColor::fromHsv(  (int)H, 255, 255, 255);
+        OpMesh::Color col( rgb.red() , rgb.green(), rgb.blue() );
+        m_mesh.set_color(*v_it, col );
+
+    }
+}
+
+
+double TriMeshHE::compMeanCurv(OpMesh::VertexHandle *_xi)
+{
+    OpMesh::VertexVertexIter vv_it, next_it, prev_it;
+
+    glm::vec3 K(0.0f);
+    // for each neighbor vertex ...
+    for (vv_it = m_mesh.vv_iter( *_xi ); vv_it.is_valid(); ++vv_it)
+    {
+        // previous neighbor
+        prev_it = vv_it;
+        --prev_it;
+        // next neighbor
+        next_it = vv_it;
+        ++next_it;
+
+        OpMesh::Point xi = m_mesh.point( *_xi );
+        OpMesh::Point xj = m_mesh.point( *vv_it );
+        glm::vec3 x_i(xi[0], xi[1], xi[2]);
+        glm::vec3 x_j(xj[0], xj[1], xj[2]);
+
+
+        K += (float)compSumCot(_xi, &(vv_it.handle()), &(prev_it.handle()), &(next_it.handle()) ) * (x_i - x_j) ;
+    }
+
+    float A = (float)compAreaMixed(_xi);
+    glm::vec3 K2;
+    if(A > 0.0001f) // @@ epsilon to fix
+        K2 = K / (2.0f * A );
+    else
+        return 0.0f;
+
+
+if(0.5f * glm::length(K2) >500)
+{
+    std::cout<<" [DEBUG]  TriMeshHE::compMeanCurv() : handle = "<< _xi->idx() <<std::endl;
+    std::cout<<" [DEBUG]  TriMeshHE::compMeanCurv() : A = "<< A <<std::endl;
+}
+
+    return 0.5f * glm::length(K2);
+}
+
+double TriMeshHE::compAreaMixed(OpMesh::VertexHandle *_xi)
+{
+    double sumA = 0.0f;
+
+    // for each neighbor triangle ...
+    OpMesh::VertexFaceIter vf_it;
+    for (vf_it = m_mesh.vf_iter( *_xi ); vf_it.is_valid(); ++vf_it)
+    {
+        // get handle to triangle
+        OpMesh::FaceHandle f_h = vf_it.handle();
+
+        if( !isTriangleObtuse(&f_h) )
+        {
+            double AV = compAreaVoronoi(&f_h);
+            if(AV > 0.0f){
+                sumA += AV;
+            if(_xi->idx() == 12517)
+                std::cout<<"AV = " << compAreaVoronoi(&f_h) <<std::endl;}
+        }
+        else if( isAngleObtuse(&f_h, _xi) )
+        {
+            double AT = compAreaTriangle(&f_h);
+            if(AT > 0.0f){
+                sumA += AT / 2.0f;
+            if(_xi->idx() == 12517)
+                std::cout<<"AT1 = " << compAreaTriangle(&f_h) <<std::endl;}
+        }
+        else
+        {
+            double AT = compAreaTriangle(&f_h);
+            if(AT > 0.0f){
+                sumA += AT / 4.0f;
+            if(_xi->idx() == 12517)
+                std::cout<<"AT2 = " << compAreaTriangle(&f_h)  <<std::endl;}
+        }
+    }
+    return sumA;
+}
+
+double TriMeshHE::compAreaVoronoi(OpMesh::VertexHandle *_xi, OpMesh::VertexHandle *_xj, OpMesh::VertexHandle *_xjm, OpMesh::VertexHandle *_xjp)
+{
+    // A_voronoi = (1/8) * ( (cot Alpha_ij + cot Beta_ij)  + || xi - xj ||^2 )
+    double sumCot = compSumCot(_xi, _xj, _xjm, _xjp);
+
+    if(sumCot == 0.0f)
+        return 0.0f;
+
+    OpMesh::Point xi = m_mesh.point( *_xi );
+    OpMesh::Point xj = m_mesh.point( *_xj );
+    glm::vec3 edgeij(xj[0] - xi[0], xj[1] - xi[1], xj[2] - xi[2]);
+
+    return (sumCot * pow(glm::length(edgeij), 2) ) / 8.0 ;
+}
+
+double TriMeshHE::compAreaVoronoi(OpMesh::FaceHandle *_f)
+{
+    // get face iter
+    OpMesh::FaceIter f_it = m_mesh.faces_begin() + _f->idx();
+    // circulate over vertices
+    OpMesh::FaceVertexIter fv_it = m_mesh.fv_iter( *f_it );
+    OpMesh::Point p1 = m_mesh.point( *fv_it ); ++fv_it;
+    OpMesh::Point p2 = m_mesh.point( *fv_it ); ++fv_it;
+    OpMesh::Point p3 = m_mesh.point( *fv_it );
+
+    // get edges
+    glm::vec3 p2p1(p1[0] - p2[0], p1[1] - p2[1], p1[2] - p2[2]);
+    glm::vec3 p3p1(p1[0] - p3[0], p1[1] - p3[1], p1[2] - p3[2]);
+    glm::vec3 p2p3(p3[0] - p2[0], p3[1] - p2[1], p3[2] - p2[2]);
+
+    if( glm::length(p2p1) == 0.0f || glm::length(p3p1) == 0.0f || glm::length(p2p3) == 0.0f)
+        return 0.0f;
+
+    double cosP2 = glm::dot( glm::normalize(p2p1) , glm::normalize(p2p3));     // A.B = ||A|| * ||B|| * cos(AB)
+    double sinP2 = glm::length( glm::cross( glm::normalize(p2p1) , glm::normalize(p2p3) ) );    // ||AxB|| = ||A|| * ||B|| * sin(AB)
+    double cosP3 = glm::dot( glm::normalize(p3p1) , glm::normalize(-p2p3) );
+    double sinP3 = glm::length( glm::cross( glm::normalize(p3p1), glm::normalize(-p2p3) ) );
+
+
+    // cot alpha = cos alpha / sin alpha
+    double cotP2 = cosP2 / sinP2;
+    double cotP3 = cosP3 / sinP3;
+    
+    if( glm::length(p3p1) > 0.0f && glm::length(p2p1) > 0.0f && cotP3 != 0.0f)
+        return ( pow(glm::length(p3p1), 2) * cotP2 + pow(glm::length(p2p1), 2) * cotP3 ) / 8.0f;
+    
+    return 0.0f;
+}
+
+double TriMeshHE::compSumCot(OpMesh::VertexHandle *_xi, OpMesh::VertexHandle *_xj, OpMesh::VertexHandle *_xjm, OpMesh::VertexHandle *_xjp)
+{
+    //cot Alpha_ij + cot Beta_ij
+
+    OpMesh::Point x_i = m_mesh.point( *_xi );
+    OpMesh::Point x_j = m_mesh.point( *_xj );
+    OpMesh::Point x_jm = m_mesh.point( *_xjm );
+    OpMesh::Point x_jp = m_mesh.point( *_xjp );
+
+    glm::vec3 a_xi = glm::vec3( x_i[0] - x_jm[0], x_i[1] - x_jm[1], x_i[2] - x_jm[2] ); // vector x_j-1 -> x_i
+    glm::vec3 a_xj = glm::vec3( x_j[0] - x_jm[0], x_j[1] - x_jm[1], x_j[2] - x_jm[2] ); // vector x_j-1 -> x_j
+    glm::vec3 b_xi = glm::vec3( x_i[0] - x_jp[0], x_i[1] - x_jp[1], x_i[2] - x_jp[2] ); // vector x_j+1 -> x_i
+    glm::vec3 b_xj = glm::vec3( x_j[0] - x_jp[0], x_j[1] - x_jp[1], x_j[2] - x_jp[2] ); // vector x_j+1 -> x_j
+    if(glm::length(a_xi) > 0.0f && glm::length(a_xj) > 0.0f && glm::length(b_xi) > 0.0f && glm::length(b_xj) > 0.0f)
+    {
+        a_xi = glm::normalize( a_xi );
+        a_xj = glm::normalize( a_xj );
+        b_xi = glm::normalize( b_xi );
+        b_xj = glm::normalize( b_xj );
+    }
+    else
+        return 0.0f;
+
+    double cosA = glm::dot(a_xi, a_xj);     // A.B = ||A|| * ||B|| * cos(AB)
+    double sinA = glm::length( glm::cross(a_xi, a_xj) );    // ||AxB|| = ||A|| * ||B|| * sin(AB)
+    double cosB = glm::dot(b_xi, b_xj);
+    double sinB = glm::length( glm::cross(b_xi, b_xj) );
+
+    // cot alpha = cos alpha / sin alpha
+    double cotA = cosA / sinA;
+    double cotB = cosB / sinB;
+
+    return cotA + cotB;
+}
+
+double TriMeshHE::compAreaTriangle(OpMesh::FaceHandle *_f)
+{
+    // get face iter
+    OpMesh::FaceIter f_it = m_mesh.faces_begin() + _f->idx();
+    // circulate over vertices
+    OpMesh::FaceHalfedgeIter fh_it = m_mesh.fh_iter( *f_it );
+    // point from
+    OpMesh::Point p1 = m_mesh.point( m_mesh.from_vertex_handle(fh_it) );
+    // point to
+    OpMesh::Point p2 = m_mesh.point( m_mesh.to_vertex_handle(fh_it) );
+    // previous point
+    OpMesh::Point p3 = m_mesh.point( m_mesh.from_vertex_handle( m_mesh.prev_halfedge_handle(fh_it) ) );
+
+    // get 2 edges
+    glm::vec3 e1(p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]);
+    glm::vec3 e2(p3[0] - p1[0], p3[1] - p1[1], p3[2] - p1[2]);
+
+    if( glm::length(e1) > 0.0f && glm::length(e2) > 0.0f )
+    {
+        // area = (1/2) * || e1 x e2 ||
+        if(abs(glm::dot( glm::normalize(e1), glm::normalize(e2))) > 0.00001f) //@@ epsilon to fix
+        {
+            double normCross = glm::length( glm::cross(e1, e2) );
+                return normCross / 2.0f;
+        }
+
+    }
+
+    return 0.0f;
+}
+
+bool TriMeshHE::isTriangleObtuse(OpMesh::FaceHandle *_f)
+{
+    bool res = false;
+    // get face iter
+    OpMesh::FaceIter f_it = m_mesh.faces_begin() + _f->idx();
+    // circulate over vertices
+    for (OpMesh::FaceHalfedgeIter fh_it = m_mesh.fh_iter( *f_it ); fh_it.is_valid(); ++fh_it)
+    {   
+        // point from
+        OpMesh::Point p1 = m_mesh.point( m_mesh.from_vertex_handle(fh_it) );
+        // point to
+        OpMesh::Point p2 = m_mesh.point( m_mesh.to_vertex_handle(fh_it) );
+        // previous point
+        OpMesh::Point p3 = m_mesh.point( m_mesh.from_vertex_handle( m_mesh.prev_halfedge_handle(fh_it) ) );
+
+        // get two edge vectors
+        glm::vec3 p1p2(p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]);
+        glm::vec3 p1p3(p3[0] - p1[0], p3[1] - p1[1], p3[2] - p1[2]);
+
+        
+        if( glm::dot( glm::normalize(p1p2), glm::normalize(p1p3) ) <= 0.0f)
+            res = true;
+    }
+
+
+    return res;
+}
+
+bool TriMeshHE::isAngleObtuse(OpMesh::FaceHandle *_f, OpMesh::VertexHandle *_xi)
+{
+    OpMesh::Point px = m_mesh.point( *_xi );
+
+    bool res = false;
+    // get face iter
+    OpMesh::FaceIter f_it = m_mesh.faces_begin() + _f->idx();
+    // circulate over vertices
+    for (OpMesh::FaceHalfedgeIter fh_it = m_mesh.fh_iter( *f_it ); fh_it.is_valid(); ++fh_it)
+    {   
+        // point from
+        OpMesh::Point p1 = m_mesh.point( m_mesh.from_vertex_handle(fh_it) );
+        // point to
+        OpMesh::Point p2 = m_mesh.point( m_mesh.to_vertex_handle(fh_it) );
+        // previous point
+        OpMesh::Point p3 = m_mesh.point( m_mesh.from_vertex_handle( m_mesh.prev_halfedge_handle(fh_it) ) );
+
+        if(px == p1)
+        {
+            // get two edge vectors
+            glm::vec3 p1p2(p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]);
+            glm::vec3 p1p3(p3[0] - p1[0], p3[1] - p1[1], p3[2] - p1[2]);
+
+        
+            if( glm::dot( glm::normalize(p1p2), glm::normalize(p1p3) ) <= 0.0f)
+                res = true;
+        }
+    }
+
+
+    return res;
 }

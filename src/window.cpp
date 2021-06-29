@@ -1,5 +1,6 @@
 #include <QFileDialog>
 #include <QColorDialog>
+#include <QMimeData>
 
 #include "window.h"
 #include "viewer.h"
@@ -511,6 +512,8 @@ void Window::positionDialog(QRect *_mainWinGeom)
     m_dialogBox->move(_mainWinGeom->x() + 20 , _mainWinGeom->y() + 50);
 }
 
+
+
         /*------------------------------------------------------------------------------------------------------------+
         |                                                   SLOTS                                                     |
         +-------------------------------------------------------------------------------------------------------------*/
@@ -538,7 +541,7 @@ void Window::rejectDialog()
 
 void Window::loadMeshHE()
 {
-    QString file = QFileDialog::getOpenFileName(this, "open file", "../../3dmodels", "Mesh (*.obj *.off *.ply *.stl)");
+    QString file = QFileDialog::getOpenFileName(this, "open file", "../../models/misc", "Mesh (*.obj *.off *.ply *.stl)");
     if( !file.isEmpty() )
     {
         m_glViewer->loadTriMeshHE(file);
@@ -555,7 +558,7 @@ void Window::loadMeshHE()
 
 void Window::loadMeshSoup()
 {
-    QString file = QFileDialog::getOpenFileName(this, "open file", "../../3dmodels", "Mesh (*.obj *.off *.ply *.stl)");
+    QString file = QFileDialog::getOpenFileName(this, "open file", "../../models/misc", "Mesh (*.obj *.off *.ply *.stl)");
     if( !file.isEmpty() )
     {
         m_glViewer->loadTriMeshSoup(file);
@@ -840,7 +843,7 @@ void Window::toggleMeshCol()
 
 void Window::openTexDialog()
 {
-    QString file = QFileDialog::getOpenFileName(this, "open file", "../../3dmodels", "Image (*.png)");
+    QString file = QFileDialog::getOpenFileName(this, "open file", "../../models/misc", "Image (*.png)");
     if( !file.isEmpty() )
     {
         m_glViewer->setTex(file);
@@ -870,7 +873,7 @@ void Window::toggleTex()
 
 void Window::openNormalMapDialog()
 {
-    QString file = QFileDialog::getOpenFileName(this, "open file", "../../3dmodels", "Image (*.png)");
+    QString file = QFileDialog::getOpenFileName(this, "open file", "../../models/misc", "Image (*.png)");
     if( !file.isEmpty() )
     {
         m_glViewer->setNormalMap(file);

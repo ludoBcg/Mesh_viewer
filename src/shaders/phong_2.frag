@@ -69,6 +69,8 @@ void main()
 	vec3 l_vecL;
 	vec3 l_vecV;
 	
+	vec3 l_modelN = modelN;
+	
 	if(u_useNormalMap == 1)
 	{
 		// Read new normal from normal map
@@ -80,6 +82,8 @@ void main()
 		// compute new version of L and V in tangent space
 		l_vecL = normalize( TBN * vecL );
 		l_vecV = normalize( TBN * vecV );
+		
+		l_modelN = l_vecN;
 	
 	}
 	else
@@ -95,7 +99,7 @@ void main()
 	if(u_showNormals == 1)
 	{
 		// -- Render normals --
-		color = vec4(0.5 * /*l_vecN*/modelN + 0.5, 1.0);
+		color = vec4(0.5 * /*l_vecN*/l_modelN + 0.5, 1.0);
 	}
 	else
 	{

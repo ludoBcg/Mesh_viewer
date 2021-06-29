@@ -87,6 +87,7 @@ class Viewer : public QGLViewer
             {
                 // Load mesh
                 m_triMesh->writeFile( _fileName.toStdString() );
+                std::cout << std::endl << "Saved " << _fileName.toStdString() <<std::endl;
             }
             else
                 std::cerr << "[ERROR] Viewer::saveMesh(): filename empty" << std::endl;
