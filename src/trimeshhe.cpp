@@ -483,33 +483,36 @@ void TriMeshHE::meanCurv()
 {
     OpMesh::VertexIter v_it, v_end(m_mesh.vertices_end());
 
-    std::vector<double> values;
+    std::vector<double> values, sortedVal;
 
     double maxCurv = 0.0f;
     for (v_it = m_mesh.vertices_begin(); v_it != v_end; ++v_it)
     {
         double curv = compMeanCurv( &v_it.handle() ) ;
- 
-        // get max curvature
-        if(curv > maxCurv)
-            maxCurv = curv;
 
         values.push_back(curv);
-
     }
+
+    // sort vector and ignore the last 5% of higher curvatures to remove outliers
+    sortedVal = values;
+    std::sort(sortedVal.begin(), sortedVal.end() );
+    float maxBound = sortedVal[(int)( (float)sortedVal.size() *0.95f )];
+    maxCurv = maxBound;
 
     unsigned int i = 0;
     for (v_it = m_mesh.vertices_begin(), i=0; v_it != v_end; ++v_it, ++i)
     {
         double H = 0.0f;
-        if(values[i] > 0.0f)
+        if(values[i] > 0.0f && values[i] < maxBound)
         {
+            // normalize cuvature using maximum
             double curvNormalized = values[i] / maxCurv;
+            // H in [0; 120] degrees (red to green)
             H = 120 - curvNormalized * 120;
         }
-        // The value of s, v, and a must all be in the range 0-255; the value of h must be in the range 0-359.
-        // HSV color (h = 120 degrees(red to green), s = 100 percent, v = 100 percent )
-        QColor rgb = QColor::fromHsv(  (int)H, 255, 255, 255);
+
+        // build HSV color and transform to RGB 
+        QColor rgb = QColor::fromHsv(  (int)H, 255, 255);
         OpMesh::Color col( rgb.red() , rgb.green(), rgb.blue() );
         m_mesh.set_color(*v_it, col );
 
@@ -519,6 +522,9 @@ void TriMeshHE::meanCurv()
 
 double TriMeshHE::compMeanCurv(OpMesh::VertexHandle *_xi)
 {
+    if(!m_mesh.is_manifold(*_xi ) )
+        return 0.0f;
+
     OpMesh::VertexVertexIter vv_it, next_it, prev_it;
 
     glm::vec3 K(0.0f);
@@ -537,25 +543,19 @@ double TriMeshHE::compMeanCurv(OpMesh::VertexHandle *_xi)
         glm::vec3 x_i(xi[0], xi[1], xi[2]);
         glm::vec3 x_j(xj[0], xj[1], xj[2]);
 
-
         K += (float)compSumCot(_xi, &(vv_it.handle()), &(prev_it.handle()), &(next_it.handle()) ) * (x_i - x_j) ;
     }
 
     float A = (float)compAreaMixed(_xi);
     glm::vec3 K2;
-    if(A > 0.0001f) // @@ epsilon to fix
+    if(A > std::numeric_limits<float>::epsilon() )
         K2 = K / (2.0f * A );
     else
         return 0.0f;
 
 
-if(0.5f * glm::length(K2) >500)
-{
-    std::cout<<" [DEBUG]  TriMeshHE::compMeanCurv() : handle = "<< _xi->idx() <<std::endl;
-    std::cout<<" [DEBUG]  TriMeshHE::compMeanCurv() : A = "<< A <<std::endl;
-}
+    return  0.5f * glm::length(K2);
 
-    return 0.5f * glm::length(K2);
 }
 
 double TriMeshHE::compAreaMixed(OpMesh::VertexHandle *_xi)
@@ -566,34 +566,36 @@ double TriMeshHE::compAreaMixed(OpMesh::VertexHandle *_xi)
     OpMesh::VertexFaceIter vf_it;
     for (vf_it = m_mesh.vf_iter( *_xi ); vf_it.is_valid(); ++vf_it)
     {
-        // get handle to triangle
-        OpMesh::FaceHandle f_h = vf_it.handle();
+        if(m_mesh.is_manifold(*_xi ) )
+        {
+            // get handle to triangle
+            OpMesh::FaceHandle f_h = vf_it.handle();
+        
+            if( !isTriangleObtuse(&f_h) )
+            {
+                double AV = compAreaVoronoi(_xi, &f_h);
+                if(AV > 0.0f)
+                    sumA += AV;
+               
+            }
+            else if( isAngleObtuse(&f_h, _xi) )
+            {
+                double AT = compAreaTriangle(&f_h);
+                if(AT > 0.0f)
+                    sumA += AT / 2.0f;
+                
+            }
+            else
+            {
+                double AT = compAreaTriangle(&f_h);
+                if(AT > 0.0f)
+                    sumA += AT / 4.0f;
+                
+            }
+        }
 
-        if( !isTriangleObtuse(&f_h) )
-        {
-            double AV = compAreaVoronoi(&f_h);
-            if(AV > 0.0f){
-                sumA += AV;
-            if(_xi->idx() == 12517)
-                std::cout<<"AV = " << compAreaVoronoi(&f_h) <<std::endl;}
-        }
-        else if( isAngleObtuse(&f_h, _xi) )
-        {
-            double AT = compAreaTriangle(&f_h);
-            if(AT > 0.0f){
-                sumA += AT / 2.0f;
-            if(_xi->idx() == 12517)
-                std::cout<<"AT1 = " << compAreaTriangle(&f_h) <<std::endl;}
-        }
-        else
-        {
-            double AT = compAreaTriangle(&f_h);
-            if(AT > 0.0f){
-                sumA += AT / 4.0f;
-            if(_xi->idx() == 12517)
-                std::cout<<"AT2 = " << compAreaTriangle(&f_h)  <<std::endl;}
-        }
     }
+
     return sumA;
 }
 
@@ -612,15 +614,38 @@ double TriMeshHE::compAreaVoronoi(OpMesh::VertexHandle *_xi, OpMesh::VertexHandl
     return (sumCot * pow(glm::length(edgeij), 2) ) / 8.0 ;
 }
 
-double TriMeshHE::compAreaVoronoi(OpMesh::FaceHandle *_f)
+float TriMeshHE::compAreaVoronoi(OpMesh::VertexHandle *_xi, OpMesh::FaceHandle *_f)
 {
     // get face iter
     OpMesh::FaceIter f_it = m_mesh.faces_begin() + _f->idx();
     // circulate over vertices
     OpMesh::FaceVertexIter fv_it = m_mesh.fv_iter( *f_it );
-    OpMesh::Point p1 = m_mesh.point( *fv_it ); ++fv_it;
-    OpMesh::Point p2 = m_mesh.point( *fv_it ); ++fv_it;
-    OpMesh::Point p3 = m_mesh.point( *fv_it );
+    OpMesh::Point pA = m_mesh.point( *fv_it ); ++fv_it;
+    OpMesh::Point pB = m_mesh.point( *fv_it ); ++fv_it;
+    OpMesh::Point pC = m_mesh.point( *fv_it );
+
+    OpMesh::Point p1 ,p2, p3;
+
+    OpMesh::Point px = m_mesh.point( *_xi );
+    if(px == pA)
+    {
+        p1 = pA;
+        p2 = pB;
+        p3 = pC;
+    }
+    else if(px == pB)
+    {
+        p1 = pB;
+        p2 = pA;
+        p3 = pC;
+    }
+    else
+    {
+        p1 = pC;
+        p2 = pA;
+        p3 = pB;
+    }
+
 
     // get edges
     glm::vec3 p2p1(p1[0] - p2[0], p1[1] - p2[1], p1[2] - p2[2]);
@@ -630,17 +655,17 @@ double TriMeshHE::compAreaVoronoi(OpMesh::FaceHandle *_f)
     if( glm::length(p2p1) == 0.0f || glm::length(p3p1) == 0.0f || glm::length(p2p3) == 0.0f)
         return 0.0f;
 
-    double cosP2 = glm::dot( glm::normalize(p2p1) , glm::normalize(p2p3));     // A.B = ||A|| * ||B|| * cos(AB)
-    double sinP2 = glm::length( glm::cross( glm::normalize(p2p1) , glm::normalize(p2p3) ) );    // ||AxB|| = ||A|| * ||B|| * sin(AB)
-    double cosP3 = glm::dot( glm::normalize(p3p1) , glm::normalize(-p2p3) );
-    double sinP3 = glm::length( glm::cross( glm::normalize(p3p1), glm::normalize(-p2p3) ) );
+    float cosP2 = glm::dot( glm::normalize(p2p1) , glm::normalize(p2p3));     // A.B = ||A|| * ||B|| * cos(AB)
+    float sinP2 = glm::length( glm::cross( glm::normalize(p2p1) , glm::normalize(p2p3) ) );    // ||AxB|| = ||A|| * ||B|| * sin(AB)
+    float cosP3 = glm::dot( glm::normalize(p3p1) , glm::normalize(-p2p3) );
+    float sinP3 = glm::length( glm::cross( glm::normalize(p3p1), glm::normalize(-p2p3) ) );
 
 
     // cot alpha = cos alpha / sin alpha
-    double cotP2 = cosP2 / sinP2;
-    double cotP3 = cosP3 / sinP3;
+    float cotP2 = cosP2 / sinP2;
+    float cotP3 = cosP3 / sinP3;
     
-    if( glm::length(p3p1) > 0.0f && glm::length(p2p1) > 0.0f && cotP3 != 0.0f)
+    if( glm::length(p3p1) > std::numeric_limits<float>::epsilon() && glm::length(p2p1) > std::numeric_limits<float>::epsilon() && cotP3 != 0.0f && cotP2 != 0.0f)
         return ( pow(glm::length(p3p1), 2) * cotP2 + pow(glm::length(p2p1), 2) * cotP3 ) / 8.0f;
     
     return 0.0f;
@@ -698,10 +723,10 @@ double TriMeshHE::compAreaTriangle(OpMesh::FaceHandle *_f)
     glm::vec3 e1(p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]);
     glm::vec3 e2(p3[0] - p1[0], p3[1] - p1[1], p3[2] - p1[2]);
 
-    if( glm::length(e1) > 0.0f && glm::length(e2) > 0.0f )
+    if( glm::length(e1) > std::numeric_limits<float>::epsilon() && glm::length(e2) > std::numeric_limits<float>::epsilon() )
     {
         // area = (1/2) * || e1 x e2 ||
-        if(abs(glm::dot( glm::normalize(e1), glm::normalize(e2))) > 0.00001f) //@@ epsilon to fix
+        if(abs(glm::dot( glm::normalize(e1), glm::normalize(e2))) > std::numeric_limits<float>::epsilon())
         {
             double normCross = glm::length( glm::cross(e1, e2) );
                 return normCross / 2.0f;

@@ -47,6 +47,7 @@ float specular_normalized(in vec3 _N, in vec3 _H, in float _specularPower)
 	return specular;
 }
 
+
 float compDiff(in vec3 _N, in vec3 _L)
 {
 	// Calculate the diffuse (Lambertian) reflection term
@@ -99,7 +100,7 @@ void main()
 	if(u_showNormals == 1)
 	{
 		// -- Render normals --
-		color = vec4(0.5 * /*l_vecN*/l_modelN + 0.5, 1.0);
+		color = vec4(0.5 * l_modelN + 0.5, 1.0);
 	}
 	else
 	{

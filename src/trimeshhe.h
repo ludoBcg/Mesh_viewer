@@ -123,7 +123,7 @@ class TriMeshHE : public Mesh
 
         double compMeanCurv(OpMesh::VertexHandle *_xi);
         double compAreaMixed(OpMesh::VertexHandle *_xi);
-        double compAreaVoronoi(OpMesh::FaceHandle *_f);
+        float compAreaVoronoi(OpMesh::VertexHandle *_xi, OpMesh::FaceHandle *_f);
         double compAreaVoronoi(OpMesh::VertexHandle *_xi, OpMesh::VertexHandle *_xj, OpMesh::VertexHandle *_xjm, OpMesh::VertexHandle *_xjp);
         double compSumCot(OpMesh::VertexHandle *_xi, OpMesh::VertexHandle *_xj, OpMesh::VertexHandle *_xjm, OpMesh::VertexHandle *_xjp);
         double compAreaTriangle(OpMesh::FaceHandle *_f);
