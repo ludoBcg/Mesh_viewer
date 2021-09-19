@@ -277,7 +277,8 @@ bool TriMeshHE::readFile(std::string _filename)
 //        m_mesh.release_vertex_colors();
 
 
-    meanCurv();
+    //meanCurv();
+    getVariation();
 
     return true;
 }
@@ -475,6 +476,108 @@ void TriMeshHE::lapSmooth(unsigned int _nbIter, float _fact)
     }
 
     computeNormals();
+}
+
+
+/************************************************************************************************************************/
+
+void TriMeshHE::getVariation()
+{
+    OpMesh::VertexIter v_it, v_end(m_mesh.vertices_end());
+
+    std::vector<double> values, sortedVal;
+
+    double maxCurv = 0.0f;
+    for (v_it = m_mesh.vertices_begin(); v_it != v_end; ++v_it)
+    {
+        double curv = getLocalVariation( v_it ) ;
+
+        values.push_back(curv);
+    }
+
+    // sort vector and ignore the last 5% of higher curvatures to remove outliers
+    sortedVal = values;
+    std::sort(sortedVal.begin(), sortedVal.end() );
+    float maxBound = sortedVal[(int)( (float)sortedVal.size() *0.95f )];
+    maxCurv = maxBound;
+
+    unsigned int i = 0;
+    for (v_it = m_mesh.vertices_begin(), i=0; v_it != v_end; ++v_it, ++i)
+    {
+        double H = 0.0f;
+        if(values[i] > 0.0f && values[i] < maxBound)
+        {
+            // normalize cuvature using maximum
+            double curvNormalized = values[i] / maxCurv;
+            // H in [0; 120] degrees (red to green)
+            H = 120 - curvNormalized * 120;
+        }
+
+        // build HSV color and transform to RGB 
+        QColor rgb = QColor::fromHsv(  (int)H, 255, 255);
+        OpMesh::Color col( rgb.red() , rgb.green(), rgb.blue() );
+        m_mesh.set_color(*v_it, col );
+
+    }
+}
+
+
+double TriMeshHE::getLocalVariation(OpMesh::VertexIter v_it)
+{
+    // N = number on point in the cloud (i.e. the current vertex and his 1-ring neighborhood
+    int N = m_mesh.valence(v_it) + 1;
+
+    // Compute the centroid (center of gravity)
+    OpMesh::Point cog(0, 0, 0);
+    OpMesh::Point vi = m_mesh.point(v_it);
+    cog += vi;
+    int cpt = 1;
+    for(OpMesh::VertexVertexIter vv_it = m_mesh.vv_iter(v_it); vv_it; ++vv_it)
+    {
+        OpMesh::Point vj = m_mesh.point(vv_it);
+        cog += vj;
+        cpt++;
+    }
+    cog /= cpt;
+
+    // M matrix = difference between centroid and each vertex
+    Eigen::MatrixX3d M;
+    M.resize(N,3);
+    // Fill M matrix
+    cpt = 0;
+    OpMesh::Point var = (vi - cog);
+    Eigen::Vector3d varb;
+    varb(0) = var[0]; varb(1) = var[1]; varb(2) = var[2];
+    M.row(cpt) =  varb;
+    for(OpMesh::VertexVertexIter vv_it = m_mesh.vv_iter(v_it); vv_it; ++vv_it)
+    {
+        cpt++;
+        OpMesh::Point vj = m_mesh.point(vv_it);
+        var = (vj - cog);
+        varb(0) = var[0]; varb(1) = var[1]; varb(2) = var[2];
+        M.row(cpt) =  varb;
+    }
+
+    // Compute C matrix (C = M^t * M)
+    Eigen::Matrix3d C = M.transpose() * M;
+
+    // eigen values decomposition of C
+    Eigen::VectorXcd eigenVals = C.eigenvalues();
+    std::vector< double > Lambda;
+    Lambda.push_back(eigenVals(0).real());
+    Lambda.push_back(eigenVals(1).real());
+    Lambda.push_back(eigenVals(2).real());
+
+    // lambda0 < lambda1 < lambda2
+    std::sort(Lambda.begin(), Lambda.end());
+    double lambda0 = Lambda[0];
+    double lambda1 = Lambda[1];
+    double lambda2 = Lambda[2];
+
+    // Compute surface variation sigma = lambda0 / (lambda0 + lambda1 + lambda2)
+    double sigma = lambda0 / (lambda0 + lambda1 + lambda2);
+    return sigma;
+
 }
 
 

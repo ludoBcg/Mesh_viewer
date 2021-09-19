@@ -3,9 +3,16 @@
 
 #include "mesh.h"
 
+
+#include <Eigen/Dense>
+#include <Eigen/SVD>
+#include <Eigen/LU>
+
+
 // -------------------- OpenMesh
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
+
 
 
 // simple triangle mesh, using default traits
@@ -130,6 +137,11 @@ class TriMeshHE : public Mesh
         bool isTriangleObtuse(OpMesh::FaceHandle *_f);
         bool isAngleObtuse(OpMesh::FaceHandle *_f, OpMesh::VertexHandle *_xi);
         void meanCurv();
+
+
+void getVariation();
+double getLocalVariation(OpMesh::VertexIter v_it);
+
     protected:
 
 

@@ -53,6 +53,9 @@ include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/external/glm")
 aux_source_directory("${CMAKE_CURRENT_SOURCE_DIR}/external/lodepng" PROJECT_SRCS)
 include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/external/lodepng")
 
+# Eigen
+include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/external/eigen")
+
 
 ################################# QT #################################
 # find QT packages
