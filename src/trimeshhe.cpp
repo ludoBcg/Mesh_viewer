@@ -277,9 +277,6 @@ bool TriMeshHE::readFile(std::string _filename)
 //        m_mesh.release_vertex_colors();
 
 
-    //meanCurv();
-    getVariation();
-
     return true;
 }
 
@@ -479,10 +476,16 @@ void TriMeshHE::lapSmooth(unsigned int _nbIter, float _fact)
 }
 
 
-/************************************************************************************************************************/
 
-void TriMeshHE::getVariation()
+
+void TriMeshHE::computeSurfVar()
 {
+    // Surface variation is calculated using the algorithm described in :
+    // Pauly et al., "Efficient Simplification of Point-Sampled Surfaces", IEEE Visualization, 2002
+    // https://www.graphics.rwth-aachen.de/media/papers/p_Pau021.pdf
+
+    std::cout << "[INFO] TriMeshHE::computeSurfVar(): mesh color will be overwritten by surface variation " << std::endl;
+
     OpMesh::VertexIter v_it, v_end(m_mesh.vertices_end());
 
     std::vector<double> values, sortedVal;
@@ -490,7 +493,7 @@ void TriMeshHE::getVariation()
     double maxCurv = 0.0f;
     for (v_it = m_mesh.vertices_begin(); v_it != v_end; ++v_it)
     {
-        double curv = getLocalVariation( v_it ) ;
+        double curv = compLocalVariation( &v_it.handle() ) ;
 
         values.push_back(curv);
     }
@@ -522,17 +525,17 @@ void TriMeshHE::getVariation()
 }
 
 
-double TriMeshHE::getLocalVariation(OpMesh::VertexIter v_it)
+double TriMeshHE::compLocalVariation(OpMesh::VertexHandle *_hi)
 {
     // N = number on point in the cloud (i.e. the current vertex and his 1-ring neighborhood
-    int N = m_mesh.valence(v_it) + 1;
+    int N = m_mesh.valence(*_hi) + 1;
 
     // Compute the centroid (center of gravity)
     OpMesh::Point cog(0, 0, 0);
-    OpMesh::Point vi = m_mesh.point(v_it);
+    OpMesh::Point vi = m_mesh.point(*_hi);
     cog += vi;
     int cpt = 1;
-    for(OpMesh::VertexVertexIter vv_it = m_mesh.vv_iter(v_it); vv_it; ++vv_it)
+    for(OpMesh::VertexVertexIter vv_it = m_mesh.vv_iter(*_hi); vv_it; ++vv_it)
     {
         OpMesh::Point vj = m_mesh.point(vv_it);
         cog += vj;
@@ -549,7 +552,7 @@ double TriMeshHE::getLocalVariation(OpMesh::VertexIter v_it)
     Eigen::Vector3d varb;
     varb(0) = var[0]; varb(1) = var[1]; varb(2) = var[2];
     M.row(cpt) =  varb;
-    for(OpMesh::VertexVertexIter vv_it = m_mesh.vv_iter(v_it); vv_it; ++vv_it)
+    for(OpMesh::VertexVertexIter vv_it = m_mesh.vv_iter(*_hi); vv_it; ++vv_it)
     {
         cpt++;
         OpMesh::Point vj = m_mesh.point(vv_it);
@@ -581,9 +584,15 @@ double TriMeshHE::getLocalVariation(OpMesh::VertexIter v_it)
 }
 
 
-/************************************************************************************************************************/
-void TriMeshHE::meanCurv()
+
+void TriMeshHE::computeMeanCurv()
 {
+    // Discrete Mean Curvature is calculated using the algorithm described in :
+    // Using Meyer et al., "Discrete Differential-Geometry Operators for Triangulated 2-Manifolds", Visualization and Mathematics III, 2003
+    // http://multires.caltech.edu/pubs/diffGeoOps.pdf
+
+    std::cout << "[INFO] TriMeshHE::computeMeanCurv(): mesh color will be overwritten by surface variation " << std::endl;
+
     OpMesh::VertexIter v_it, v_end(m_mesh.vertices_end());
 
     std::vector<double> values, sortedVal;
@@ -591,7 +600,7 @@ void TriMeshHE::meanCurv()
     double maxCurv = 0.0f;
     for (v_it = m_mesh.vertices_begin(); v_it != v_end; ++v_it)
     {
-        double curv = compMeanCurv( &v_it.handle() ) ;
+        double curv = vertMeanCurv( &v_it.handle() ) ;
 
         values.push_back(curv);
     }
@@ -623,7 +632,7 @@ void TriMeshHE::meanCurv()
 }
 
 
-double TriMeshHE::compMeanCurv(OpMesh::VertexHandle *_xi)
+double TriMeshHE::vertMeanCurv(OpMesh::VertexHandle *_xi)
 {
     if(!m_mesh.is_manifold(*_xi ) )
         return 0.0f;
@@ -702,20 +711,6 @@ double TriMeshHE::compAreaMixed(OpMesh::VertexHandle *_xi)
     return sumA;
 }
 
-double TriMeshHE::compAreaVoronoi(OpMesh::VertexHandle *_xi, OpMesh::VertexHandle *_xj, OpMesh::VertexHandle *_xjm, OpMesh::VertexHandle *_xjp)
-{
-    // A_voronoi = (1/8) * ( (cot Alpha_ij + cot Beta_ij)  + || xi - xj ||^2 )
-    double sumCot = compSumCot(_xi, _xj, _xjm, _xjp);
-
-    if(sumCot == 0.0f)
-        return 0.0f;
-
-    OpMesh::Point xi = m_mesh.point( *_xi );
-    OpMesh::Point xj = m_mesh.point( *_xj );
-    glm::vec3 edgeij(xj[0] - xi[0], xj[1] - xi[1], xj[2] - xi[2]);
-
-    return (sumCot * pow(glm::length(edgeij), 2) ) / 8.0 ;
-}
 
 float TriMeshHE::compAreaVoronoi(OpMesh::VertexHandle *_xi, OpMesh::FaceHandle *_f)
 {
@@ -776,6 +771,21 @@ float TriMeshHE::compAreaVoronoi(OpMesh::VertexHandle *_xi, OpMesh::FaceHandle *
 
 double TriMeshHE::compSumCot(OpMesh::VertexHandle *_xi, OpMesh::VertexHandle *_xj, OpMesh::VertexHandle *_xjm, OpMesh::VertexHandle *_xjp)
 {
+
+    //  _xjm --- _xi
+    //     \      |  \
+    //      \     |   \
+    //       \    |    \
+    //        \   |     \
+    //          _xj --- _xjp
+    //
+    // _xi the "central" vertex
+    // _xj is a neighbor of _xi
+    //_xjm is the "previous" neighbor (_xj-1) 
+    //_xjp is the "next" neighbor (_xp-1)
+    // Alpha_ij = (_xj, _xjm, _xi) angle
+    // Beta_ij = (_xi, _xjp, _xj) angle
+
     //cot Alpha_ij + cot Beta_ij
 
     OpMesh::Point x_i = m_mesh.point( *_xi );
@@ -843,6 +853,7 @@ double TriMeshHE::compAreaTriangle(OpMesh::FaceHandle *_f)
 bool TriMeshHE::isTriangleObtuse(OpMesh::FaceHandle *_f)
 {
     bool res = false;
+
     // get face iter
     OpMesh::FaceIter f_it = m_mesh.faces_begin() + _f->idx();
     // circulate over vertices

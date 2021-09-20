@@ -90,11 +90,11 @@ Window::Window() : QWidget()
     m_boxSceneLayout = new QVBoxLayout;
 
 
-    // Shader button;
-    m_buttonShader = new QPushButton("load shader files", this);
-    m_buttonShader->setFixedSize(100, 25);
-    QObject::connect(m_buttonShader, SIGNAL(clicked()), this, SLOT(openShaderDialog()));
-    m_boxSceneLayout->addWidget(m_buttonShader);
+    //// Shader button;
+    //m_buttonShader = new QPushButton("load shader files", this);
+    //m_buttonShader->setFixedSize(100, 25);
+    //QObject::connect(m_buttonShader, SIGNAL(clicked()), this, SLOT(openShaderDialog()));
+    //m_boxSceneLayout->addWidget(m_buttonShader);
 
     // Background color button
     m_backColLayout = new QHBoxLayout;
@@ -341,7 +341,7 @@ Window::Window() : QWidget()
     m_normalMapLayout->addWidget(m_toggleNormalMap);
     m_boxTexLayout->addLayout(m_normalMapLayout);
 
-    
+    m_boxTexLayout->addStretch();
 
     m_groupBoxTex->setLayout(m_boxTexLayout);
     m_boxGlobalLayout->addWidget(m_groupBoxTex);
@@ -409,6 +409,22 @@ Window::Window() : QWidget()
         m_boxGeomLayout->addLayout(m_smoothParamLayout);
 
 
+    // Compute mean curvature
+    m_buttonMeanCurv = new QPushButton("Compute mean curvature", this);
+    m_buttonMeanCurv->setFixedSize(175, 25);
+    m_buttonMeanCurv->setVisible(false);
+    QObject::connect(m_buttonMeanCurv, SIGNAL(clicked()), m_glViewer, SLOT(compMeanCurv()));
+    m_boxGeomLayout->addWidget(m_buttonMeanCurv);
+
+    // Compute surface variation
+    m_buttonSurfVar = new QPushButton("Compute surface variation", this);
+    m_buttonSurfVar->setFixedSize(175, 25);
+    m_buttonSurfVar->setVisible(false);
+    QObject::connect(m_buttonSurfVar, SIGNAL(clicked()), m_glViewer, SLOT(compSurfVar()));
+    m_boxGeomLayout->addWidget(m_buttonSurfVar);
+
+    m_boxGeomLayout->addStretch();
+
     m_groupBoxGeom->setLayout(m_boxGeomLayout);
     m_boxGlobalLayout->addWidget(m_groupBoxGeom);
 
@@ -424,7 +440,7 @@ Window::~Window()
     //--- Delete tool box widgets ------------
 
     // Delete scene setup
-    delete m_buttonShader;
+    //delete m_buttonShader;
     delete m_backColLabel;
     delete m_buttonBackCol;
     delete m_backColLayout;
@@ -481,8 +497,12 @@ Window::~Window()
     delete m_factorSpinBox;
     delete m_factorLabel;
     delete m_smoothParamLayout;
+    delete m_buttonMeanCurv;
+    delete m_buttonSurfVar;
     delete m_boxGeomLayout;
-    delete m_groupBoxGeom;
+    delete m_groupBoxGeom; 
+    
+
     //--- Delete tool box --------------------
     delete m_boxGlobalLayout;
     delete m_dialogBox;
@@ -553,6 +573,8 @@ void Window::loadMeshHE()
         m_factorLabel->setVisible(true);
         m_toggleFlatShading->setChecked(false);
         m_toggleFlatShading->setEnabled(true);
+        m_buttonMeanCurv->setVisible(true);
+        m_buttonSurfVar->setVisible(true);
     }
 }
 
@@ -570,6 +592,8 @@ void Window::loadMeshSoup()
         m_factorLabel->setVisible(false);
         m_toggleFlatShading->setChecked(false);
         m_toggleFlatShading->setEnabled(false);
+        m_buttonMeanCurv->setVisible(false);
+        m_buttonSurfVar->setVisible(false);
     }
 }
 
@@ -580,28 +604,28 @@ void Window::saveMesh()
         m_glViewer->saveMesh(file);
 }
 
-void Window::openShaderDialog()
-{
-    QStringList files = QFileDialog::getOpenFileNames(this, "open file", "../../src/shaders", "Shader (*.vert *.frag)");
-    if( !files.isEmpty() )
-    {
-        std::string vertFile;
-        std::string fragFile;
-
-        for(int i = 0; i < files.size(); i++)
-        {
-            std::string filename = files[i].toStdString();
-            if(filename.substr(filename.find_last_of(".") + 1) == "vert")
-                vertFile = filename;
-            else if(filename.substr(filename.find_last_of(".") + 1) == "frag")
-                fragFile = filename;
-        }
-        if( !vertFile.empty() && !fragFile.empty() )
-            m_glViewer->setShaderFiles(vertFile, fragFile);
-        else
-            std::cerr << "ERROR: [Window::openShaderDialog()] selected files do not correspond to fragment and vertex shaders" << std::endl;
-    }
-}
+//void Window::openShaderDialog()
+//{
+//    QStringList files = QFileDialog::getOpenFileNames(this, "open file", "../../src/shaders", "Shader (*.vert *.frag)");
+//    if( !files.isEmpty() )
+//    {
+//        std::string vertFile;
+//        std::string fragFile;
+//
+//        for(int i = 0; i < files.size(); i++)
+//        {
+//            std::string filename = files[i].toStdString();
+//            if(filename.substr(filename.find_last_of(".") + 1) == "vert")
+//                vertFile = filename;
+//            else if(filename.substr(filename.find_last_of(".") + 1) == "frag")
+//                fragFile = filename;
+//        }
+//        if( !vertFile.empty() && !fragFile.empty() )
+//            m_glViewer->setShaderFiles(vertFile, fragFile);
+//        else
+//            std::cerr << "ERROR: [Window::openShaderDialog()] selected files do not correspond to fragment and vertex shaders" << std::endl;
+//    }
+//}
 
 void Window::selectBackColor()
 {

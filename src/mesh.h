@@ -68,6 +68,16 @@ class Mesh
             std::cerr << "[WARNING] Mesh::lapSmooth(): this virtual function should not be executed (it should only be executed by sub-classes overriding)" << std::endl; 
         }
 
+        virtual void computeMeanCurv()
+        { 
+            std::cerr << "[WARNING] Mesh::computeMeanCurv(): this virtual function should not be executed (it should only be executed by sub-classes overriding)" << std::endl; 
+        }
+
+        virtual void computeSurfVar()
+        { 
+            std::cerr << "[WARNING] Mesh::computeSurfVar(): this virtual function should not be executed (it should only be executed by sub-classes overriding)" << std::endl; 
+        }
+
     protected:
 
         /*------------------------------------------------------------------------------------------------------------+

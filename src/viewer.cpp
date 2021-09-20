@@ -61,7 +61,7 @@ void Viewer::init()
     m_triMesh->computeAABB();
 
     m_drawMesh = new DrawableMesh;
-    m_drawMesh->setProgram("../../src/shaders/phong_2.vert", "../../src/shaders/phong_2.frag");
+    m_drawMesh->setProgram("../../src/shaders/phong.vert", "../../src/shaders/phong.frag");
     m_drawMesh->createVAO(m_triMesh);
 
     // Setup scene and camera parameters
@@ -324,6 +324,21 @@ void Viewer::compNormals()
 void Viewer::compTBs()
 {
     m_triMesh->computeTB();
+    m_drawMesh->updateVAO(m_triMesh);
+    update();
+}
+
+
+void Viewer::compMeanCurv()
+{
+    m_triMesh->computeMeanCurv();
+    m_drawMesh->updateVAO(m_triMesh);
+    update();
+}
+
+void Viewer::compSurfVar()
+{
+    m_triMesh->computeSurfVar();
     m_drawMesh->updateVAO(m_triMesh);
     update();
 }

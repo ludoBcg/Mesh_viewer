@@ -9,6 +9,7 @@
 #include <QDialog>
 #include <QCheckBox>
 #include <QDoubleSpinBox>
+#include <QRadioButton>
 #include <QLabel>
 #include <QGroupBox>
 #include <QToolTip>
@@ -52,7 +53,7 @@ class Window : public QWidget
 
         QGroupBox* m_groupBoxScene;         /*!< GroupBox for scene setup */
         QVBoxLayout* m_boxSceneLayout;      /*!< Layout for scene setup */
-        QPushButton* m_buttonShader;        /*!< Button to select shader files */
+        //QPushButton* m_buttonShader;        /*!< Button to select shader files */
         QHBoxLayout* m_backColLayout;       /*!< Horizontal layout for background color */
         QLabel* m_backColLabel;             /*!< Label for background color */
         QPushButton* m_buttonBackCol;       /*!< Button to change background color */
@@ -110,6 +111,9 @@ class Window : public QWidget
         QLabel* m_nbIterLabel;              /*!< Label for number of iterations */
         QDoubleSpinBox* m_factorSpinBox;    /*!< SpinBox to change smoothing factor */
         QLabel* m_factorLabel;              /*!< Label for smoothing factor */
+        QPushButton* m_buttonMeanCurv;      /*!< Button to compute mean curvature */
+        QPushButton* m_buttonSurfVar;       /*!< Button to compute surface variation */
+
 
         bool m_texLoaded;                   /*!< True if a texture is loaded */
         bool m_normalMapLoaded;             /*!< True if a normal map is loaded */
@@ -173,7 +177,7 @@ class Window : public QWidget
         * \fn openShaderDialog
         * \brief SLOT: open dialog box to select shader files
         */
-        void openShaderDialog();
+        //void openShaderDialog();
 
         /*!
         * \fn selectBackColor

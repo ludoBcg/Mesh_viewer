@@ -343,4 +343,16 @@ class Viewer : public QGLViewer
         */
         void compTBs();
 
+        /*!
+        * \fn compMeanCurv
+        * \brief SLOT: compute mean curvature of mesh surface (TriMeshHE only)
+        */
+        void compMeanCurv();
+        /*!
+        * \fn compSurfVar
+        * \brief SLOT: compute surface variation of the mesh (TriMeshHE only)
+        */
+        void compSurfVar();
+
+
 };
