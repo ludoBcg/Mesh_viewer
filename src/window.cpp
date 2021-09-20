@@ -90,12 +90,6 @@ Window::Window() : QWidget()
     m_boxSceneLayout = new QVBoxLayout;
 
 
-    //// Shader button;
-    //m_buttonShader = new QPushButton("load shader files", this);
-    //m_buttonShader->setFixedSize(100, 25);
-    //QObject::connect(m_buttonShader, SIGNAL(clicked()), this, SLOT(openShaderDialog()));
-    //m_boxSceneLayout->addWidget(m_buttonShader);
-
     // Background color button
     m_backColLayout = new QHBoxLayout;
     m_backColLayout->setAlignment(Qt::AlignRight);
@@ -440,7 +434,6 @@ Window::~Window()
     //--- Delete tool box widgets ------------
 
     // Delete scene setup
-    //delete m_buttonShader;
     delete m_backColLabel;
     delete m_buttonBackCol;
     delete m_backColLayout;
@@ -604,28 +597,6 @@ void Window::saveMesh()
         m_glViewer->saveMesh(file);
 }
 
-//void Window::openShaderDialog()
-//{
-//    QStringList files = QFileDialog::getOpenFileNames(this, "open file", "../../src/shaders", "Shader (*.vert *.frag)");
-//    if( !files.isEmpty() )
-//    {
-//        std::string vertFile;
-//        std::string fragFile;
-//
-//        for(int i = 0; i < files.size(); i++)
-//        {
-//            std::string filename = files[i].toStdString();
-//            if(filename.substr(filename.find_last_of(".") + 1) == "vert")
-//                vertFile = filename;
-//            else if(filename.substr(filename.find_last_of(".") + 1) == "frag")
-//                fragFile = filename;
-//        }
-//        if( !vertFile.empty() && !fragFile.empty() )
-//            m_glViewer->setShaderFiles(vertFile, fragFile);
-//        else
-//            std::cerr << "ERROR: [Window::openShaderDialog()] selected files do not correspond to fragment and vertex shaders" << std::endl;
-//    }
-//}
 
 void Window::selectBackColor()
 {

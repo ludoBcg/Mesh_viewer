@@ -53,7 +53,6 @@ class Window : public QWidget
 
         QGroupBox* m_groupBoxScene;         /*!< GroupBox for scene setup */
         QVBoxLayout* m_boxSceneLayout;      /*!< Layout for scene setup */
-        //QPushButton* m_buttonShader;        /*!< Button to select shader files */
         QHBoxLayout* m_backColLayout;       /*!< Horizontal layout for background color */
         QLabel* m_backColLabel;             /*!< Label for background color */
         QPushButton* m_buttonBackCol;       /*!< Button to change background color */
@@ -172,12 +171,6 @@ class Window : public QWidget
         * \brief SLOT: open dialog box to save Mesh
         */
         void saveMesh();
-
-        /*!
-        * \fn openShaderDialog
-        * \brief SLOT: open dialog box to select shader files
-        */
-        //void openShaderDialog();
 
         /*!
         * \fn selectBackColor
