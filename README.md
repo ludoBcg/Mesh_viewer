@@ -6,4 +6,10 @@ A simple OpenGL viewer, for quick and handy mesh visualization.
 
 Uses [Qt](https://www.qt.io/) and [libQGLViewer](http://libqglviewer.com/) for GUI, and [OpenMesh](https://www.graphics.rwth-aachen.de/software/openmesh/) for winged edge data structure.  
 
+Other external dependencies:
+* [GLEW (The OpenGL Extension Wrangler Library)](http://glew.sourceforge.net/)
+* [GLM (OpenGL Mathematics)](https://glm.g-truc.net/0.9.9/)
+* [Eigen](https://eigen.tuxfamily.org/)
+* [LodePNG](https://lodev.org/lodepng/)  
+  https://github.com/lvandeve/lodepng
 
