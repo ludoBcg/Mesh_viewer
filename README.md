@@ -13,3 +13,6 @@ Other external dependencies:
 * [LodePNG](https://lodev.org/lodepng/)  
   https://github.com/lvandeve/lodepng
 
+*Update 2024*
+Compatiblity with Qt 6.7.0 (WIP)
+Used [Qt open source](https://www.qt.io/download-open-source) installer for Windows
