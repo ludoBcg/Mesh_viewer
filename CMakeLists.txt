@@ -30,66 +30,46 @@ set(HEADERS
 # Add include directories
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src" )
 
-# Define variable for linked libraries
-set(PROJECT_LIBRARIES)
+# QT 
+# OpenSource version 6.7.0 (used binaries installer for windows)
+# https://www.qt.io/download-open-source
+set(CMAKE_PREFIX_PATH C:/Qt/6.7.0/msvc2019_64/lib/cmake)
+find_package(Qt6Widgets)
+find_package(Qt6OpenGLWidgets)
+set(CMAKE_AUTOMOC ON)
 
+SET(QT_LIBRARIES Qt6::Core
+				 Qt6::Gui
+				 Qt6::OpenGL 
+				 Qt6::Widgets 
+				 Qt6::OpenGLWidgets )
 
 # OpenGL
 find_package(OpenGL REQUIRED)
 if(OPENGL_FOUND)
   include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
-  set(PROJECT_LIBRARIES ${PROJECT_LIBRARIES} ${OPENGL_LIBRARIES})
 endif(OPENGL_FOUND)
 
-# GLEW
-aux_source_directory("${CMAKE_CURRENT_SOURCE_DIR}/external/glew/src" PROJECT_SRCS)
-include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/external/glew/include")
+
+# GLEW (download binaries for windows)
+set(GLEW_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/glew-2.1.0")
+include_directories(${GLEW_DIR}/include)
+link_directories(${GLEW_DIR}/lib/Release/x64)
+# use glew32s only
+SET(GLEW_LIBS glew32s.lib)
 add_definitions(-DGLEW_STATIC -DGLEW_NO_GLU)
 
-# GLM
+	
+# GLM (Header only!)
 include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/external/glm")
 
-# lodepng
-aux_source_directory("${CMAKE_CURRENT_SOURCE_DIR}/external/lodepng" PROJECT_SRCS)
-include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/external/lodepng")
-
-# Eigen
-include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/external/eigen")
-
-
-################################# QT #################################
-# find QT packages
-set(CMAKE_PREFIX_PATH C:/Qt/5.11.2/msvc2015_64/lib/cmake)
-find_package(Qt5Widgets)
-find_package(Qt5OpenGL)
-set(CMAKE_AUTOMOC ON)
-find_package(OpenGL)
-
-################################# LibQGLViewer #######################
-include_directories(C:/Qt/5.11.2/msvc2017_64/include/QtXml)
-SET(LIBQGLVIEWER_INSTALL_DIR D:/Documents/dev/libraries/libQGLViewer-2.7.1)
-include_directories(${LIBQGLVIEWER_INSTALL_DIR})
-link_directories(${LIBQGLVIEWER_INSTALL_DIR}/QGLViewer)
-SET(LIBQGLVIEWER_LIBS_PATHS QGLViewer2.lib)
-SET(PROJECT_LIBRARIES ${SOFA_LIBS_PATHS}  ${BOOST_LIBS} ${LIBQGLVIEWER_LIBS_PATHS})
-
-################################## OpenMesh ##########################
-add_definitions(-D_USE_MATH_DEFINES)
-add_definitions(-DNOMINMAX)
-include_directories ( D:/Documents/dev/libraries/OpenMesh-7.1/src)
-link_directories(D:/Documents/dev/libraries/OpenMesh-7.1/build/Build/lib)
-
-
-SET(PROJECT_LIBRARIES ${PROJECT_LIBRARIES} ${LIBQGLVIEWER_LIBS_PATHS})###
 	
-#add_executable(soft_tissues_3  ${SRCS} ${HEADERS})
+
+
 # Add executable for project
-add_executable(${PROJECT_NAME} ${SRCS} ${HEADERS} ${PROJECT_SRCS})
+add_executable(${PROJECT_NAME} ${SRCS} ${HEADERS})
 
-qt5_use_modules(Mesh_viewer Widgets OpenGL)
-
-target_link_libraries(Mesh_viewer OpenMeshCore OpenMeshTools ${PROJECT_LIBRARIES} ${QT_LIBRARIES} ${OPENGL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES} ${GLEW_LIBS} ${OPENGL_LIBRARIES} )
 
 # Install executable
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-
