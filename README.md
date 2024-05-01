@@ -16,5 +16,7 @@ Other external dependencies:
 
 *Update 2024:*
 
-Compatiblity with Qt 6.7.0 (WIP)
-Used [Qt open source](https://www.qt.io/download-open-source) installer for Windows
+Compatiblity with Qt 6.7.0 (WIP), using VisualStudio 2022 and the [Qt open source](https://www.qt.io/download-open-source) installer for Windows.
+
+Workaround for the *Could not find the Qt platform plugin "windows"* error for VisualStudio project:
+Got to *C:\path\to\Qt\6.7.0\msvc2019_64\plugins\* and copy the *platform* folder into your executable folder (same for the dlls located in *C:\path\to\Qt\6.7.0\msvc2019_64\bin*) 
