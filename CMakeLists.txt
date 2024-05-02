@@ -7,18 +7,16 @@ project(Mesh_viewer)
 # add files
 set(SRCS
 	src/main.cpp
-	src/viewer.cpp
+	src/glwidget.cpp
 	src/window.cpp
-	src/trimeshhe.cpp
 	src/trimeshsoup.cpp
 	src/drawablemesh.cpp
     )
     
 set(HEADERS
-	src/viewer.h
+	src/glwidget.h
 	src/window.h
 	src/mesh.h
-	src/trimeshhe.h
 	src/trimeshsoup.h
 	src/drawablemesh.h
     )
