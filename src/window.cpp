@@ -1,6 +1,5 @@
 
 
-//#include "glwidget.h"
 #include "window.h"
 
 

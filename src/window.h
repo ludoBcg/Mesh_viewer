@@ -1,3 +1,15 @@
+/*********************************************************************************************************************
+ *
+ * window.h
+ *
+ * Main Qt window
+ *
+ * Mesh_viewer
+ * Ludovic Blache
+ *
+ *********************************************************************************************************************/
+
+
 #ifndef WINDOW_H
 #define WINDOW_H
 
@@ -18,8 +30,6 @@
 #include <QDropEvent>
 
 
-//class GLWidget;
-
 // based on Qt Textures Example
 // https://doc.qt.io/qt-6/qtopengl-textures-example.html
 
@@ -39,10 +49,6 @@ class Window : public QWidget
     private slots:
 
     private:
-        enum { NumRows = 2, NumColumns = 3 };
-
-        GLWidget* glWidgets[NumRows][NumColumns];
-        GLWidget* currentGlWidget;
 
         /********************************************* Main Window ********************************************/
 
