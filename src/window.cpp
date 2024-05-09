@@ -39,7 +39,7 @@ Window::Window()
     m_buttonLoadMeshHE = new QPushButton("load TriMeshHE", this);
     m_buttonLoadMeshHE->setToolTip("load a triangle mesh using half-edge data structure");
     m_buttonLoadMeshHE->setFixedSize(100, 25);
-    QObject::connect(m_buttonLoadMeshHE, SIGNAL(clicked()), this, SLOT(loadMeshHE()));
+    //QObject::connect(m_buttonLoadMeshHE, SIGNAL(clicked()), this, SLOT(loadMeshHE()));
     m_toolbarLayout->addWidget(m_buttonLoadMeshHE);
 
     // Load TriMeshSoup button
