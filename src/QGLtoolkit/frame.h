@@ -343,10 +343,12 @@ class Frame : public QObject
         * transformOf() performs the inverse transformation. 
         * Use inverseCoordinatesOf() to transform 3D coordinates instead of 3D vectors.
         */
-        glm::vec3 inverseTransformOf(const glm::vec3 _src) const
+        glm::vec3 inverseTransformOf(const glm::vec3& _src) const
         {
             return rotation().rotate(_src);
         }
+
+
 
         /*!
         * \fn coordinatesOf
@@ -393,7 +395,131 @@ class Frame : public QObject
             //Q_EMIT modified();
         }
 
-};
+
+        /*!
+        * \fn projectOnLine
+        * \brief Translates the Frame so that its position() lies on the line defined
+        * by _origin and _direction (defined in the world coordinate system).
+        * Simply uses an orthogonal projection.
+        * _direction does not need to be normalized.
+        * \param _origin: origin point of line
+        * \param _direction: direction vector of line
+        */
+        void projectOnLine(const glm::vec3& _origin, const glm::vec3& _direction)
+        {
+            const glm::vec3 shift = _origin - position();
+            glm::vec3 proj = shift;
+            proj = qgltoolkit::projectOnAxis(proj, _direction);
+            glm::vec3 translat = shift - proj;
+            this->translate(translat);
+        }
+
+
+        /*!
+        * \fn alignWithFrame
+        * \brief Aligns the Frame with _frame, so that two of their axis are parallel.
+        *
+        * If one of the X, Y and Z axis of the Frame is almost parallel to any of the X,
+        * Y, or Z axis of _frame, the Frame is rotated so that these two axis actually
+        * become parallel.
+        * If, after this first rotation, two other axis are also almost parallel,
+        * a second alignment is performed. The two frames then have identical orientations,
+        * up to 90 degrees rotations.
+        *
+        * _threshold measures how close two axis must be to be considered parallel.
+        * It is compared with the absolute values of the dot product of the normalized axis.
+        * As a result, useful range is sqrt(2)/2 (systematic alignment) to 1 (no alignment).
+        *
+        * When _move is set to true, the Frame position() is also affected by the alignment.
+        * The new Frame's position() is such that the _frame position (computed with coordinatesOf(),
+        * in the Frame coordinates system) does not change.
+        *
+        * _frame may be NULL and then represents the world coordinate system
+        *
+        * \param _frame: frame to align with
+        * \param _move: defines if frame position is affected or not
+        * \param _threshold: compared with dot product to define when vectors are considered close
+        */
+        void alignWithFrame(const Frame* const _frame, bool _move = false, double _threshold = 0.0)
+        {
+            glm::vec3 directions[2][3];
+            for (unsigned short d = 0; d < 3; ++d)
+            {
+                glm::vec3 dir((d == 0) ? 1.0 : 0.0, (d == 1) ? 1.0 : 0.0, (d == 2) ? 1.0 : 0.0);
+                if (_frame)
+                    directions[0][d] = _frame->inverseTransformOf(dir);
+                else
+                    directions[0][d] = dir;
+                directions[1][d] = inverseTransformOf(dir);
+            }
+
+            double maxProj = 0.0;
+            double proj;
+            unsigned short index[2];
+            index[0] = index[1] = 0;
+            for (unsigned short i = 0; i < 3; ++i)
+                for (unsigned short j = 0; j < 3; ++j)
+                {
+                    proj = std::abs(glm::dot(directions[0][i], directions[1][j]));
+                    if (proj >= maxProj)
+                    {
+                        index[0] = i;
+                        index[1] = j;
+                        maxProj = proj;
+                    }
+                }
+
+            Frame old;
+            old = *this;
+
+            double coef = glm::dot(directions[0][index[0]], directions[1][index[1]]);
+            if (std::abs(coef) >= _threshold)
+            {
+                const glm::vec3 axis = glm::cross(directions[0][index[0]], directions[1][index[1]]);
+                double angle = asin(glm::length(axis));
+                if (coef >= 0.0)
+                    angle = -angle;
+                Quaternion q = rotation().inverse() * Quaternion(axis, angle) * orientation();
+                this->rotate(q);
+
+                // Try to align an other axis direction
+                unsigned short d = (index[1] + 1) % 3;
+                glm::vec3 dir((d == 0) ? 1.0 : 0.0, (d == 1) ? 1.0 : 0.0, (d == 2) ? 1.0 : 0.0);
+                dir = inverseTransformOf(dir);
+
+                double max = 0.0;
+                for (unsigned short i = 0; i < 3; ++i)
+                {
+                    double proj = std::abs(glm::dot(directions[0][i], dir));
+                    if (proj > max)
+                    {
+                        index[0] = i;
+                        max = proj;
+                    }
+                }
+
+                if (max >= _threshold)
+                {
+                    const glm::vec3 axis = glm::cross(directions[0][index[0]], dir);
+                    double angle = asin(glm::length(axis));
+                    if (glm::dot(directions[0][index[0]], dir) >= 0.0)
+                        angle = -angle;
+                    Quaternion q = rotation().inverse() * Quaternion(axis, angle) * orientation();
+                    this->rotate(q);
+                }
+            }
+
+            if (_move)
+            {
+                glm::vec3 center;
+                if (_frame)
+                    center = _frame->position();
+                center = center - orientation().rotate(old.coordinatesOf(center)) - translation();
+                this->translate(center);
+            }
+        }
+
+}; // class Frame
 
 
 } // namespace qgltoolkit

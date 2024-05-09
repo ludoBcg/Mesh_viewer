@@ -755,7 +755,8 @@ class  Quaternion
         }
 
 
-};
+}; // class Quaternion
+
 
 } // namespace qgltoolkit
 
