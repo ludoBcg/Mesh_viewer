@@ -10,6 +10,7 @@ set(SRCS
 	src/glwidget.cpp
 	src/window.cpp
 	src/trimeshsoup.cpp
+	src/trimeshhe.cpp
 	src/drawablemesh.cpp
     )
     
@@ -18,6 +19,7 @@ set(HEADERS
 	src/window.h
 	src/mesh.h
 	src/trimeshsoup.h
+	src/trimeshhe.h
 	src/drawablemesh.h
     )
 	
@@ -61,13 +63,21 @@ add_definitions(-DGLEW_STATIC -DGLEW_NO_GLU)
 # GLM (Header only!)
 include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/external/glm")
 
-	
+# OpenMesh
+# build VS solution using provided Cmake script
+# uncheck "BUILD_APPS" to avoid Qt5 search
+add_definitions(-D_USE_MATH_DEFINES)
+add_definitions(-DNOMINMAX)
+set(OPENMESH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/OpenMesh-10.0.0")
+include_directories ( ${OPENMESH_DIR}/src)
+link_directories(${OPENMESH_DIR}/build/Build/lib)	
 
 
 # Add executable for project
 add_executable(${PROJECT_NAME} ${SRCS} ${HEADERS})
 
-target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES} ${GLEW_LIBS} ${OPENGL_LIBRARIES} )
+# todo: use OpenMeshCored OpenMeshToolsd for debug, OpenMeshCore OpenMeshTools for release
+target_link_libraries(${PROJECT_NAME} OpenMeshCored OpenMeshToolsd ${QT_LIBRARIES} ${GLEW_LIBS} ${OPENGL_LIBRARIES} )
 
 # Install executable
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
