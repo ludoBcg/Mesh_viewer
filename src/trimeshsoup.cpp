@@ -1,6 +1,4 @@
 
-
-
 #include "trimeshsoup.h"
 
 TriMeshSoup::TriMeshSoup()
@@ -40,7 +38,7 @@ void TriMeshSoup::getVertices(std::vector<glm::vec3>& _vertices)
     }
     else
     {
-        std::cerr << "[WARNING] TriMeshSoup::getVertices: Empty vertices array" << std::endl;
+        qWarning() << "[Warning] TriMeshSoup::getVertices: Empty vertices array";
     }
 }
 
@@ -56,7 +54,7 @@ void TriMeshSoup::getNormals(std::vector<glm::vec3>& _normals)
     }
     else
     {
-        std::cerr << "[WARNING] TriMeshSoup::getNormals: Empty normals array" << std::endl;
+        qWarning() << "[Warning] TriMeshSoup::getNormals: Empty normals array";
     }
 }
 
@@ -72,7 +70,7 @@ void TriMeshSoup::getIndices(std::vector<uint32_t>& _indices)
     }
     else
     {
-        std::cerr << "[WARNING] TriMeshSoup::getIndices: Empty indices array" << std::endl;
+        qWarning() << "[Warning] TriMeshSoup::getIndices: Empty indices array";
     }
 }
 
@@ -219,7 +217,7 @@ void TriMeshSoup::computeAABB()
     }
     else
     {
-        std::cerr << "[WARNING] TriMeshSoup::computeAABB: Empty vertices array" << std::endl;
+        qWarning() << "[Warning] TriMeshSoup::computeAABB: Empty vertices array";
         m_bBoxMin = glm::vec3(0.0f, 0.0f, 0.0f);
         m_bBoxMax = glm::vec3(0.0f, 0.0f, 0.0f);
     }
@@ -231,9 +229,9 @@ void TriMeshSoup::computeNormals()
 {
     
     if(m_isVertDuplicated)
-        std::cerr << "[WARNING] TriMeshSoup::computeNormals(): Vertices are already duplicated, vertex normal cannot be properly calculated" << std::endl;
+        qWarning() << "[Warning] TriMeshSoup::computeNormals: Vertices are already duplicated, vertex normal cannot be properly calculated";
     else
-        std::cerr << "[INFO] TriMeshSoup::computeNormals(): Vertices will be duplicated to calculate face normal vertex attribute" << std::endl;
+        qInfo() << "[info] TriMeshSoup::computeNormals: Vertices will be duplicated to calculate face normal vertex attribute";
 
     
     std::int32_t vertexIndex0, vertexIndex1, vertexIndex2;
@@ -294,7 +292,7 @@ void TriMeshSoup::computeNormals()
     }
     
 
-    std::cout << "[INFO] TriMeshSoup::computeNormals(): Normals computed" << std::endl;
+    qInfo() << "[info] TriMeshSoup::computeNormals: Normals computed";
 }
 
 
@@ -302,7 +300,7 @@ void TriMeshSoup::computeTB()
 {
     if( m_normals.size() == 0)
     {
-        std::cerr << "[WARNING] TriMeshSoup::computeTB(): normals not available" << std::endl; 
+        qWarning() << "[Warning] TriMeshSoup::computeTB: normals not available";
         computeNormals();
     }
 
@@ -343,7 +341,7 @@ void TriMeshSoup::computeTB()
     }
     else
     {
-        std::cerr << "[WARNING] TriMeshSoup::computeTB(): texcoords not available" << std::endl; 
+        qWarning() << "[Warning] TriMeshSoup::computeTB: texcoords not available";
     }
 }
 
@@ -356,7 +354,7 @@ void TriMeshSoup::duplicateVertices()
     // Check if data is available 
     if(m_indices.size() == 0 || m_vertices.size() ==0 )
     {
-        std::cerr << "[WARNING] TriMeshSoup::duplicateVertices(): Vertex data incomplete" << std::endl;
+        qWarning() << "[Warning] TriMeshSoup::duplicateVertices(): Vertex data incomplete";
         return;
     }
     bool hasNormals = (m_normals.size() != 0 );
@@ -367,17 +365,17 @@ void TriMeshSoup::duplicateVertices()
     // Check consistency of vertex attributes
     if( m_vertices.size() != m_normals.size() && hasNormals)
     {
-        std::cerr << "[WARNING] TriMeshSoup::duplicateVertices(): arrays of vertex coords and normal coords have different sizes" << std::endl;
+        qWarning() << "[Warning] TriMeshSoup::duplicateVertices: arrays of vertex coords and normal coords have different sizes";
         return;
     }
     if( m_vertices.size() != m_colors.size() && hasColors)
     {
-        std::cerr << "[WARNING] TriMeshSoup::duplicateVertices(): arrays of vertex coords and colors have different sizes" << std::endl;
+        qWarning() << "[Warning] TriMeshSoup::duplicateVertices: arrays of vertex coords and colors have different sizes";
         return;
     }
     if( m_vertices.size() != m_texcoords.size() && hasUVs)
     {
-        std::cerr << "[WARNING] TriMeshSoup::duplicateVertices(): arrays of vertex coords and UV coords have different sizes" << std::endl;
+        qWarning() << "[Warning] TriMeshSoup::duplicateVertices: arrays of vertex coords and UV coords have different sizes";
         return;
     }
 
@@ -418,7 +416,7 @@ void TriMeshSoup::duplicateVertices()
     temp_colors.clear();
     temp_texcoords.clear();
 
-    std::cout << "[INFO] TriMeshSoup::duplicateVertices(): Vertices duplicated" << std::endl;
+    qInfo() << "[info]  TriMeshSoup::duplicateVertices: Vertices duplicated";
 
     m_isVertDuplicated = true;
 }
@@ -579,7 +577,7 @@ bool TriMeshSoup::importOBJ(const std::string &_filename)
     // Compute normals (if OBJ-file did not contain normals)
     if(m_normals.size() == 0) 
     {
-        std::cout << "[INFO] TriMeshSoup::importOBJ(): Normals not provided, compute them " << std::endl;
+        qInfo() << "[info] TriMeshSoup::importOBJ: Normals not provided, compute them ";
         computeNormals();
     }
 

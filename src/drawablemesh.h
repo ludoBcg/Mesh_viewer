@@ -23,7 +23,6 @@
 //QT_FORWARD_DECLARE_CLASS(QOpenGLVertexArrayObject)
 
 
-
 // The attribute locations we will use in the vertex shader
 enum AttributeLocation 
 {
@@ -42,8 +41,9 @@ enum AttributeLocation
 * \brief Drawable mesh
 * Render a TriMesh using a Blinn-Phong shading model and texture mapping
 */
-class DrawableMesh//: protected QOpenGLFunctions_3_3_Core
+class DrawableMesh //: protected QOpenGLFunctions_3_3_Core
 {
+
     public:
 
         /*------------------------------------------------------------------------------------------------------------+
@@ -94,7 +94,7 @@ class DrawableMesh//: protected QOpenGLFunctions_3_3_Core
         inline void setTexFlag(bool _useTex) 
         { 
             if(!m_uvProvided && _useTex)
-                std::cerr << "[WARNING] DrawableMesh::setTexFlag(): No UV coords available" << std::endl;
+                qWarning() << "[Warning] DrawableMesh::setTexFlag: No UV coords available";
             m_useTex = _useTex; 
         }
         /*! \fn setNormalMapFlag */
@@ -103,11 +103,11 @@ class DrawableMesh//: protected QOpenGLFunctions_3_3_Core
             if(_useNormalMap)
             {
                 if(!m_uvProvided)
-                    std::cerr << "[WARNING] DrawableMesh::setNormalMapFlag(): No UV coords available" << std::endl;
+                    qWarning() << "[Warning] DrawableMesh::setNormalMapFlag: No UV coords available";
                 if(!m_tangentProvided)
-                    std::cerr << "[WARNING] DrawableMesh::setNormalMapFlag(): No tangent coords available" << std::endl;
+                    qWarning() << "[Warning] DrawableMesh::setNormalMapFlag: No tangent coords available";
                 if(!m_bitangentProvided)
-                    std::cerr << "[WARNING] DrawableMesh::setNormalMapFlag(): No bitangent coords available" << std::endl;
+                    qWarning() << "[Warning] DrawableMesh::setNormalMapFlag: No bitangent coords available";
             }
             m_useNormalMap = _useNormalMap; 
         }

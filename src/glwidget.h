@@ -25,6 +25,12 @@
 #include <QOpenGLWidget>
 #include <QMouseEvent>
 
+//#include <QOpenGLFunctions>
+//#include <QOpenGLBuffer>
+
+//QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram);
+
+
 // based on Qt Textures Example
 // https://doc.qt.io/qt-6/qtopengl-textures-example.html
 
@@ -282,12 +288,12 @@ public:
         * \fn compMeanCurv
         * \brief SLOT: compute mean curvature of mesh surface (TriMeshHE only)
         */
-        void compMeanCurv();
+        //void compMeanCurv();
         /*!
         * \fn compSurfVar
         * \brief SLOT: compute surface variation of the mesh (TriMeshHE only)
         */
-        void compSurfVar();
+        //void compSurfVar();
 
 };
 

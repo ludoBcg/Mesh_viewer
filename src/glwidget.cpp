@@ -128,7 +128,7 @@ void GLWidget::loadTriMeshSoup(QString _fileName)
 {
     if (!_fileName.isEmpty())
     {
-        std::cout << std::endl << "Load " << _fileName.toStdString() << std::endl;
+        qInfo() << "[info] GLWidget::loadTriMeshSoup: Load " <<  _fileName.toStdString();
         // Load mesh
         //m_triMesh = nullptr;
         //m_triMesh = new TriMeshSoup(true, false, false);
@@ -279,19 +279,19 @@ void GLWidget::compTBs()
 }
 
 
-void GLWidget::compMeanCurv()
-{
-    m_triMesh->computeMeanCurv();
-    m_drawMesh->updateVAO(m_triMesh.get());
-    update();
-}
+//void GLWidget::compMeanCurv()
+//{
+//    m_triMesh->computeMeanCurv();
+//    m_drawMesh->updateVAO(m_triMesh.get());
+//    update();
+//}
 
-void GLWidget::compSurfVar()
-{
-    m_triMesh->computeSurfVar();
-    m_drawMesh->updateVAO(m_triMesh.get());
-    update();
-}
+//void GLWidget::compSurfVar()
+//{
+//    m_triMesh->computeSurfVar();
+//    m_drawMesh->updateVAO(m_triMesh.get());
+//    update();
+//}
 
 
 

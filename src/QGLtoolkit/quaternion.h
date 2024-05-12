@@ -26,6 +26,9 @@
 #include <math.h>
 
 
+#include <QtLogging>
+#include <QtDebug>
+
 
 namespace qgltoolkit 
 {
@@ -46,7 +49,7 @@ static glm::vec3 projectOnAxis(glm::vec3 _vec, const glm::vec3& _direction)
 {
 
     if ( squaredNorm(_direction) < epsilon)
-        std::cout << "Quaternion::projectOnAxis: axis direction is not normalized " <<std::endl;
+        qWarning() << "[Warning] Quaternion::projectOnAxis: axis direction is not normalized";
 
     return  (  glm::dot(_vec , _direction)  / squaredNorm(_direction) ) * _direction;
 }

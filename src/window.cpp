@@ -406,14 +406,14 @@ Window::Window()
     m_buttonMeanCurv = new QPushButton("Compute mean curvature", this);
     m_buttonMeanCurv->setFixedSize(175, 25);
     m_buttonMeanCurv->setVisible(false);
-    QObject::connect(m_buttonMeanCurv, SIGNAL(clicked()), m_glViewer, SLOT(compMeanCurv()));
+    //QObject::connect(m_buttonMeanCurv, SIGNAL(clicked()), m_glViewer, SLOT(compMeanCurv()));
     m_boxGeomLayout->addWidget(m_buttonMeanCurv);
 
     // Compute surface variation
     m_buttonSurfVar = new QPushButton("Compute surface variation", this);
     m_buttonSurfVar->setFixedSize(175, 25);
     m_buttonSurfVar->setVisible(false);
-    QObject::connect(m_buttonSurfVar, SIGNAL(clicked()), m_glViewer, SLOT(compSurfVar()));
+    //QObject::connect(m_buttonSurfVar, SIGNAL(clicked()), m_glViewer, SLOT(compSurfVar()));
     m_boxGeomLayout->addWidget(m_buttonSurfVar);
 
     m_boxGeomLayout->addStretch();

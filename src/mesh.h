@@ -1,6 +1,17 @@
+/*********************************************************************************************************************
+ *
+ * mesh.h
+ *
+ * Abstract class for mesh data structure
+ *
+ * Mesh_viewer
+ * Ludovic Blache
+ *
+ *********************************************************************************************************************/
+
+
 #ifndef MESH_H
 #define MESH_H
-
 
 
 #include <iostream>
@@ -10,6 +21,10 @@
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
+
+
+#include <QtLogging>
+#include <QtDebug>
 
 /*!
 * \class Mesh
@@ -54,31 +69,13 @@ class Mesh
 
         virtual bool readFile(std::string _filename) = 0;
         virtual bool writeFile(std::string _filename) = 0;
-
         virtual void computeAABB() = 0;
-
-        virtual void duplicateVertices()
-        { 
-            std::cerr << "[WARNING] Mesh::duplicateVertices(): this virtual function should not be executed (it should only be executed by sub-classes overriding)" << std::endl; 
-        }
-
+        virtual void duplicateVertices() = 0;
         virtual void computeNormals() = 0;
         virtual void computeTB() = 0;
-
-        virtual void lapSmooth(unsigned int _nbIter = 1, float _fact = 1.0f )
-        { 
-            std::cerr << "[WARNING] Mesh::lapSmooth(): this virtual function should not be executed (it should only be executed by sub-classes overriding)" << std::endl; 
-        }
-
-        virtual void computeMeanCurv()
-        { 
-            std::cerr << "[WARNING] Mesh::computeMeanCurv(): this virtual function should not be executed (it should only be executed by sub-classes overriding)" << std::endl; 
-        }
-
-        virtual void computeSurfVar()
-        { 
-            std::cerr << "[WARNING] Mesh::computeSurfVar(): this virtual function should not be executed (it should only be executed by sub-classes overriding)" << std::endl; 
-        }
+        //virtual void lapSmooth(unsigned int _nbIter = 1, float _fact = 1.0f) = 0;
+        //virtual void computeMeanCurv() = 0;
+        //virtual void computeSurfVar() = 0;
 
     protected:
 

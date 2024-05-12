@@ -105,11 +105,11 @@ void DrawableMesh::fillVAO(Mesh* _triMesh, bool _create)
 
                 
     if(!m_vertexProvided)
-        std::cerr << "[WARNING] DrawableMesh::createVAO(): No vertex provided" << std::endl;
+        qWarning() << "[Warning] DrawableMesh::createVAO: No vertex provided";
     if(!m_normalProvided)
-        std::cerr << "[WARNING] DrawableMesh::createVAO(): No normal provided" << std::endl;
+        qWarning() << "[Warning] DrawableMesh::createVAO: No normal provided";
     if(!m_indexProvided)
-        std::cerr << "[WARNING] DrawableMesh::createVAO(): No index provided" << std::endl;
+        qWarning() << "[Warning] DrawableMesh::createVAO: No index provided";
 
     // Generates and populates a VBO for vertex coords
     if(_create)
