@@ -21,3 +21,5 @@ Compatiblity with Qt 6.7.0 (WIP), using VisualStudio 2022 and the [Qt open sourc
 Workaround for the *Could not find the Qt platform plugin "windows"* error for VisualStudio project:
 
 Go to *C:\path\to\Qt\6.7.0\msvc2019_64\plugins* and copy the *platform* folder into your executable folder (same for the dlls located in *C:\path\to\Qt\6.7.0\msvc2019_64\bin*) 
+
+Used OpenMesh 10.0.0, built from [sources](https://www.graphics.rwth-aachen.de/software/openmesh/download/). Use the provided Cmake script to generate a VS2022 solution (uncheck the *BUILD_APPS* option), and build the *OpenMeshCore* and *OpenMeshTools* projects. 
