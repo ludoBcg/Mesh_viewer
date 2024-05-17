@@ -123,6 +123,12 @@ class TriMeshSoup : public Mesh
         */
         void computeTB();
 
+        /*!
+        * \fn lapSmooth
+        * \brief Apply a Laplacian smoothing of the mesh (not available)
+        */
+        void lapSmooth(unsigned int _nbIter = 1, float _fact = 1.0f);
+
         /*
         * \fn duplicateVertices
         * \brief Duplicates vertex attributes for each adjacent triangle.

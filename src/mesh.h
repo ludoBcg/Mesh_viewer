@@ -73,7 +73,7 @@ class Mesh
         virtual void duplicateVertices() = 0;
         virtual void computeNormals() = 0;
         virtual void computeTB() = 0;
-        //virtual void lapSmooth(unsigned int _nbIter = 1, float _fact = 1.0f) = 0;
+        virtual void lapSmooth(unsigned int _nbIter = 1, float _fact = 1.0f) = 0;
         //virtual void computeMeanCurv() = 0;
         //virtual void computeSurfVar() = 0;
 

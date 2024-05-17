@@ -346,6 +346,12 @@ void TriMeshSoup::computeTB()
 }
 
 
+void TriMeshSoup::lapSmooth(unsigned int _nbIter, float _fact)
+{
+    qWarning() << "[Warning] TriMeshSoup::lapSmooth: Laplacian smooting not availalbe for TriMeshSoup, use TriMeshHE instead";
+}
+
+
 
 void TriMeshSoup::duplicateVertices()
 {

@@ -39,7 +39,7 @@ Window::Window()
     m_buttonLoadMeshHE = new QPushButton("load TriMeshHE", this);
     m_buttonLoadMeshHE->setToolTip("load a triangle mesh using half-edge data structure");
     m_buttonLoadMeshHE->setFixedSize(100, 25);
-    //QObject::connect(m_buttonLoadMeshHE, SIGNAL(clicked()), this, SLOT(loadMeshHE()));
+    QObject::connect(m_buttonLoadMeshHE, SIGNAL(clicked()), this, SLOT(loadMeshHE()));
     m_toolbarLayout->addWidget(m_buttonLoadMeshHE);
 
     // Load TriMeshSoup button
@@ -74,7 +74,7 @@ Window::Window()
     m_dialogBox = new QDialog(this);
     m_dialogBox->setModal(false);
     m_dialogBox->setVisible(false);
-    m_dialogBox->setGeometry(this->geometry().x() + 20, this->geometry().y() + 50, 250, 500);
+    m_dialogBox->setGeometry(this->geometry().x() + 20, this->geometry().y() + 50, 250, 400);
     m_dialogBox->setWindowTitle("Toolbox");
     QObject::connect(m_dialogBox, SIGNAL(rejected()), this, SLOT(rejectDialog()));
 
@@ -407,16 +407,16 @@ Window::Window()
     m_buttonMeanCurv->setFixedSize(175, 25);
     m_buttonMeanCurv->setVisible(false);
     //QObject::connect(m_buttonMeanCurv, SIGNAL(clicked()), m_glViewer, SLOT(compMeanCurv()));
-    m_boxGeomLayout->addWidget(m_buttonMeanCurv);
+    //m_boxGeomLayout->addWidget(m_buttonMeanCurv);
 
     // Compute surface variation
     m_buttonSurfVar = new QPushButton("Compute surface variation", this);
     m_buttonSurfVar->setFixedSize(175, 25);
     m_buttonSurfVar->setVisible(false);
     //QObject::connect(m_buttonSurfVar, SIGNAL(clicked()), m_glViewer, SLOT(compSurfVar()));
-    m_boxGeomLayout->addWidget(m_buttonSurfVar);
+    //m_boxGeomLayout->addWidget(m_buttonSurfVar);
 
-    m_boxGeomLayout->addStretch();
+    //m_boxGeomLayout->addStretch();
 
     m_groupBoxGeom->setLayout(m_boxGeomLayout);
     m_boxGlobalLayout->addWidget(m_groupBoxGeom);
@@ -560,7 +560,7 @@ void Window::loadMeshHE()
     QString file = QFileDialog::getOpenFileName(this, "open file", "../../models/misc", "Mesh (*.obj *.off *.ply *.stl)");
     if (!file.isEmpty())
     {
-        //m_glViewer->loadTriMeshHE(file);
+        m_glViewer->loadTriMeshHE(file);
         m_buttonDuplVertices->setVisible(false);
         m_buttonLapSmooth->setVisible(true);
         m_nbIterSpinBox->setVisible(true);
@@ -569,8 +569,8 @@ void Window::loadMeshHE()
         m_factorLabel->setVisible(true);
         m_toggleFlatShading->setChecked(false);
         m_toggleFlatShading->setEnabled(true);
-        m_buttonMeanCurv->setVisible(true);
-        m_buttonSurfVar->setVisible(true);
+        //m_buttonMeanCurv->setVisible(true);
+        //m_buttonSurfVar->setVisible(true);
     }
 }
 
@@ -588,8 +588,8 @@ void Window::loadMeshSoup()
         m_factorLabel->setVisible(false);
         m_toggleFlatShading->setChecked(false);
         m_toggleFlatShading->setEnabled(false);
-        m_buttonMeanCurv->setVisible(false);
-        m_buttonSurfVar->setVisible(false);
+        //m_buttonMeanCurv->setVisible(false);
+        //m_buttonSurfVar->setVisible(false);
     }
 }
 
@@ -889,5 +889,5 @@ void Window::compNormals()
 
 void Window::lapSmooth()
 {
-    //m_glViewer->lapSmooth(m_nbIterSpinBox->value(), m_factorSpinBox->value());
+    m_glViewer->lapSmooth(m_nbIterSpinBox->value(), m_factorSpinBox->value());
 }
