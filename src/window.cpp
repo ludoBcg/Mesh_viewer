@@ -596,8 +596,8 @@ void Window::loadMeshSoup()
 void Window::saveMesh()
 {
     QString file = QFileDialog::getSaveFileName(this, "save file", "../../results", "Mesh (*.obj *.off *.ply *.stl)");
-    //if (!file.isEmpty())
-        //m_glViewer->saveMesh(file);
+    if (!file.isEmpty())
+        m_glViewer->saveMesh(file);
 }
 
 

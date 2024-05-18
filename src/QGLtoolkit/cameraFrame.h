@@ -143,7 +143,7 @@ class CameraFrame : public qgltoolkit::Frame
         {
             if (_radius <= 0.0) 
             {
-                std::cerr<<"Scene radius must be positive - Ignoring value: "<< _radius <<std::endl;
+                qCritical() << "[ERROR] CameraFrame::setSceneRadius: Scene radius must be positive - Ignoring value: "<< _radius;
                 return;
             }
             m_sceneRadius = _radius;

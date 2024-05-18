@@ -18,6 +18,7 @@
 
 #include "drawablemesh.h"
 #include "trimeshsoup.h"
+#include "trimeshhe.h"
 
 #include "QGLtoolkit/camera.h"
 
@@ -46,7 +47,23 @@ public:
     GLWidget();
     ~GLWidget();
 
+    /*!
+    * \fn loadTriMeshSoup
+    * \brief load a TriMeshSoup from a file
+    */
     void loadTriMeshSoup(QString _fileName);
+
+    /*!
+    * \fn loadTriMeshHO
+    * \brief load a TriMeshHE from a file
+    */
+    void loadTriMeshHE(QString _fileName);
+
+    /*!
+    * \fn saveMesh
+    * \brief save the current Mesh into a file
+    */
+    void saveMesh(QString _fileName);
 
 signals:
     void clicked();
@@ -172,7 +189,7 @@ public:
             m_drawMesh->loadTex(_fileName.toStdString());
         }
         else
-            std::cerr << "[ERROR] Viewer::setTex(): filename empty" << std::endl;
+            qCritical() << "[ERROR] Viewer::setTex: filename empty";
     }
 
     /*!
@@ -187,8 +204,16 @@ public:
             m_drawMesh->loadNormalMap(_fileName.toStdString());
         }
         else
-            std::cerr << "[ERROR] Viewer::setNormalMap(): filename empty" << std::endl;
+            qCritical() << "[ERROR] Viewer::setNormalMap: filename empty";
     }
+
+    /*!
+    * \fn lapSmooth
+    * \brief Laplacian smoothing of the mesh
+    * \param _nbIter: number of iterations
+    * \param _factor: factor applied to the Laplacian vector
+    */
+    void lapSmooth(int _nbIter, float _factor);
 
     public slots:
 

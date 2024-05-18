@@ -1,24 +1,9 @@
 
 #include "trimeshsoup.h"
 
-TriMeshSoup::TriMeshSoup()
-{
-    m_TBComputed = false;
-    m_isVertDuplicated = false;
-
-    m_bBoxMin = glm::vec3(0.0f, 0.0f, 0.0f);
-    m_bBoxMax = glm::vec3(0.0f, 0.0f, 0.0f);
-}
-
-
-TriMeshSoup::TriMeshSoup(bool _normals, bool _texCoords2D, bool _col)
-{
-    m_TBComputed = false;
-    m_isVertDuplicated = false;
-
-    m_bBoxMin = glm::vec3(0.0f, 0.0f, 0.0f);
-    m_bBoxMax = glm::vec3(0.0f, 0.0f, 0.0f);
-}
+TriMeshSoup::TriMeshSoup() : Mesh()
+    , m_isVertDuplicated(false)
+{}
 
 
 TriMeshSoup::~TriMeshSoup()
@@ -159,7 +144,7 @@ bool TriMeshSoup::readFile(std::string _filename)
     }
     else
     {
-        std::cerr << "[ERROR] TriMeshSoup::readFile(): Invalid file extension: only .obj, .off, .ply, and .stl are supported" << std::endl;
+        qCritical() << "[ERROR] TriMeshSoup::readFile: Invalid file extension: only .obj, .off, .ply, and .stl are supported";
     }
     return false;
 }
@@ -189,7 +174,7 @@ bool TriMeshSoup::writeFile(std::string _filename)
     }
     else
     {
-        std::cerr << " [ERROR] TriMeshSoup::writeFile(): Invalid file extension: only .obj, .off, and .stl are supported" << std::endl;
+        qCritical() << " [ERROR] TriMeshSoup::writeFile: Invalid file extension: only .obj, .off, and .stl are supported";
     }
     return false;
 }
@@ -348,7 +333,7 @@ void TriMeshSoup::computeTB()
 
 void TriMeshSoup::lapSmooth(unsigned int _nbIter, float _fact)
 {
-    qWarning() << "[Warning] TriMeshSoup::lapSmooth: Laplacian smooting not availalbe for TriMeshSoup, use TriMeshHE instead";
+    qWarning() << "[Warning] TriMeshSoup::lapSmooth: Laplacian smooting not available for TriMeshSoup, use TriMeshHE instead";
 }
 
 
@@ -422,7 +407,7 @@ void TriMeshSoup::duplicateVertices()
     temp_colors.clear();
     temp_texcoords.clear();
 
-    qInfo() << "[info]  TriMeshSoup::duplicateVertices: Vertices duplicated";
+    qInfo() << "[info] TriMeshSoup::duplicateVertices: Vertices duplicated";
 
     m_isVertDuplicated = true;
 }
@@ -460,7 +445,7 @@ bool TriMeshSoup::importOBJ(const std::string &_filename)
     std::ifstream f(_filename.c_str());
     if(!f.is_open()) 
     {
-        std::cerr << "[ERROR] TriMeshSoup::importOBJ(): Could not open " << _filename << std::endl;
+        qCritical() << "[ERROR] TriMeshSoup::importOBJ: Could not open " << _filename;
         return false;
     }
 
@@ -597,13 +582,13 @@ void TriMeshSoup::exportOBJ(const std::string &_filename)
     FILE* file = fopen(_filename.c_str(), "w");
     if( !file) 
     {
-        std::cerr << " [ERROR] TriMeshSoup::exportOBJ(): Cannot open file to write" << _filename << std::endl;
+        qCritical() << " [ERROR] TriMeshSoup::exportOBJ: Cannot open file to write" << _filename;
     }
 
     unsigned int nb_triangles = m_indices.size()/3;
     if( m_indices.size() % 3 != 0)
     {
-        std::cerr << " [ERROR] TriMeshSoup::exportOBJ(): Number of vertices is not a multiple of 3" << std::endl;
+        qCritical() << " [ERROR] TriMeshSoup::exportOBJ: Number of vertices is not a multiple of 3";
     }
 
     unsigned int i;
@@ -676,7 +661,7 @@ bool TriMeshSoup::importOFF(const std::string &_filename)
 
     if (!ifile.is_open() || !ifile.good())
     {
-        std::cerr << "[ERROR] TriMeshSoup::importOFF(): cannot open file "  << _filename  << std::endl;
+        qCritical() << "[ERROR] TriMeshSoup::importOFF: cannot open file "  << _filename;
         return false;
     }
 
@@ -710,7 +695,7 @@ bool TriMeshSoup::importOFF(const std::string &_filename)
     }
     else
     {
-        std::cerr << "[ERROR] TriMeshSoup::importOFF(): wrong header, should be OFF, COFF, NOFF, or CNOFF. "  << _filename  << std::endl;
+        qCritical() << "[ERROR] TriMeshSoup::importOFF: wrong header, should be OFF, COFF, NOFF, or CNOFF. "  << _filename;
     }
 
     // read number of vertices, faces, edges, and vertices per face
@@ -791,7 +776,7 @@ bool TriMeshSoup::importOFF(const std::string &_filename)
     // Compute normals
     if(m_normals.size() == 0) 
     {
-        std::cout << "[INFO] TriMeshSoup::importOFF(): Normals not provided, compute them " << std::endl;
+        qInfo() << "[INFO] TriMeshSoup::importOFF: Normals not provided, compute them ";
         computeNormals();
     }
 
@@ -807,13 +792,13 @@ void TriMeshSoup::exportOFF(const std::string &_filename)
     FILE* file = fopen(_filename.c_str(), "w");
     if( !file) 
     {
-        std::cerr << "[ERROR] TriMeshSoup::exportOFF(): Cannot open file to write" << _filename << std::endl;
+        qCritical() << "[ERROR] TriMeshSoup::exportOFF: Cannot open file to write" << _filename;
     }
 
     unsigned int nb_triangles = m_indices.size()/3;
     if( m_indices.size() % 3 != 0)
     {
-        std::cerr << "[ERROR] TriMeshSoup::exportOFF(): Number of vertices is not a multiple of 3" << std::endl;
+        qCritical() << "[ERROR] TriMeshSoup::exportOFF: Number of vertices is not a multiple of 3";
     }
 
     bool hasColors = ( m_colors.size() == m_vertices.size() );
@@ -875,7 +860,7 @@ bool TriMeshSoup::importPLY(const std::string &_filename)
 
     if (!ifile.is_open() || !ifile.good())
     {
-        std::cerr << "[ERROR] TriMeshSoup::importPLY(): cannot open file "  << _filename  << std::endl;
+        qCritical() << "[ERROR] TriMeshSoup::importPLY: cannot open file "  << _filename;
         return false;
     }
 
@@ -885,12 +870,11 @@ bool TriMeshSoup::importPLY(const std::string &_filename)
     std::string header, line;
     std::getline(ifile,header);
     if(header != "ply")
-        std::cerr << "[ERROR] TriMeshSoup::importPLY(): wrong header, should start with ply "  << std::endl;
+        qCritical() << "[ERROR] TriMeshSoup::importPLY: wrong header, should start with ply ";
 
     
     std::string keyword, structure, type1, type2, valueS;
     float valueF;
-    int valueI;
     std::vector<std::string> vertProperties;
     std::vector<std::string> vertPropertiesTypes;
 
@@ -914,7 +898,7 @@ bool TriMeshSoup::importPLY(const std::string &_filename)
             isBinBE = true;
         }*/
         else
-            std::cerr << "[ERROR] TriMeshSoup::importPLY(): only file format are ascii/binary_little_endian/binary_big_endian 1.0" << std::endl;
+            qCritical() << "[ERROR] TriMeshSoup::importPLY: only file format are ascii/binary_little_endian/binary_big_endian 1.0";
     }
 
 
@@ -958,7 +942,7 @@ bool TriMeshSoup::importPLY(const std::string &_filename)
                 {
                     vertProp = false;
                     faceProp = false;
-                    std::cerr << "[ERROR] TriMeshSoup::importPLY(): wrong header, only elements supported are vertex and face " << std::endl;
+                    qCritical() << "[ERROR] TriMeshSoup::importPLY: wrong header, only elements supported are vertex and face ";
                 }
             }
             else if (keyword == "property")
@@ -977,9 +961,9 @@ bool TriMeshSoup::importPLY(const std::string &_filename)
                     // face properties
                     linestream >> structure >> type1 >> type2 >> valueS;
                     if(structure != "list")
-                        std::cerr << "[ERROR] TriMeshSoup::importPLY(): wrong header, only face structure supported is list " << std::endl;
+                        qCritical() << "[ERROR] TriMeshSoup::importPLY: wrong header, only face structure supported is list ";
                     if(valueS != "vertex_indices")
-                        std::cerr << "[ERROR] TriMeshSoup::importPLY(): wrong header, only face structure supported is list of vertex indices " << std::endl;
+                        qCritical() << "[ERROR] TriMeshSoup::importPLY: wrong header, only face structure supported is list of vertex indices ";
                 }
             }
 
@@ -1001,7 +985,7 @@ bool TriMeshSoup::importPLY(const std::string &_filename)
     std::vector<std::string>::iterator it3 = find (vertProperties.begin(), vertProperties.end(), "z");
     if( it1 == vertProperties.end() || it2 == vertProperties.end() ||  it3 == vertProperties.end() )
     {
-        std::cerr << "[ERROR] TriMeshSoup::importPLY(): vertex coordinates not provided " << std::endl;
+        qCritical() << "[ERROR] TriMeshSoup::importPLY: vertex coordinates not provided";
         return false;
     }
 
@@ -1074,7 +1058,7 @@ bool TriMeshSoup::importPLY(const std::string &_filename)
 
         if(valence != 3)
         {
-            std::cerr << "[ERROR] TriMeshSoup::importPLY(): only triangles faces suported " << std::endl;
+            qCritical() << "[ERROR] TriMeshSoup::importPLY: only triangles faces suported ";
             return false;
         }
         // read vertices' indices
@@ -1089,7 +1073,7 @@ bool TriMeshSoup::importPLY(const std::string &_filename)
 
     // check if size of lists are consistent
     if(m_vertices.size() != nbVert || m_indices.size() != nbFaces*3 ) 
-        std::cerr << "[ERROR] TriMeshSoup::importPLY(): insonsistent data " << std::endl;
+        qCritical() << "[ERROR] TriMeshSoup::importPLY: insonsistent data ";
 
     return true;
 }
@@ -1102,13 +1086,13 @@ void TriMeshSoup::exportPLY(const std::string &_filename)
     FILE* file = fopen(_filename.c_str(), "w");
     if( !file) 
     {
-        std::cerr << "[ERROR] TriMeshSoup::exportPLY(): Cannot open file to write" << _filename << std::endl;
+        qCritical() << "[ERROR] TriMeshSoup::exportPLY: Cannot open file to write" << _filename;
     }
 
-    unsigned int nb_triangles = m_indices.size()/3;
+    unsigned int nb_triangles = static_cast<unsigned int>(m_indices.size())/3;
     if( m_indices.size() % 3 != 0)
     {
-        std::cerr << "[ERROR] TriMeshSoup::exportPLY(): Number of vertices is not a multiple of 3" << std::endl;
+        qCritical() << "[ERROR] TriMeshSoup::exportPLY: Number of vertices is not a multiple of 3";
     }
 
     bool hasColors = ( m_colors.size() == m_vertices.size() );
@@ -1120,7 +1104,7 @@ void TriMeshSoup::exportPLY(const std::string &_filename)
     fprintf(file, "comment generated by Mesh_viewer\n");
 
     // write vertex properties
-    fprintf(file, "element vertex %d\n", m_vertices.size() );
+    fprintf(file, "element vertex %d\n", static_cast<int>(m_vertices.size()) );
     fprintf(file, "property float x\n");
     fprintf(file, "property float y\n");
     fprintf(file, "property float z\n");
@@ -1270,7 +1254,7 @@ bool TriMeshSoup::readSTL(const std::string &_filename, std::vector<float> * con
     }
     else 
     {
-        std::cerr << "[ERROR] TriMeshSoup::readSTL(): Cannot open file " << _filename << std::endl;
+        qCritical() << "[ERROR] TriMeshSoup::readSTL: Cannot open file " << _filename;
         return false;
     }
     return true;
@@ -1293,8 +1277,8 @@ bool TriMeshSoup::importSTL(const std::string &_filename)
     if (!status)
         return false;
 
-    const int32_t num_vertices = buffer_vertices.size() / 3;
-    const int32_t num_normals = buffer_normals.size() / 3;
+    const int32_t num_vertices = static_cast<int32_t>(buffer_vertices.size()) / 3;
+    const int32_t num_normals = static_cast<int32_t>(buffer_normals.size()) / 3;
 
     // Store vertex positions.
     m_vertices.reserve(num_vertices);
@@ -1313,8 +1297,7 @@ bool TriMeshSoup::importSTL(const std::string &_filename)
     // Store face normals.
     if (!buffer_normals.empty() && (num_normals == num_vertices/3) )
     {
-        std::cout<<"read normals"<<std::endl;
-        std::cout<<num_normals<<" "<<num_vertices<<std::endl;
+        qInfo() << "[info] TriMeshSoup::importSTL: read normals";
         for (int32_t i = 0; i < num_normals; ++i)
         { 
             glm::vec3 normal;
@@ -1330,7 +1313,7 @@ bool TriMeshSoup::importSTL(const std::string &_filename)
     }
     else
     {
-        std::cout<<"compute normals"<<std::endl;
+        qInfo() << "[info] TriMeshSoup::importSTL: compute normals";
         m_normals.reserve(num_vertices);
         for (int32_t i = 0; i < num_vertices; i += 3)
         { 
@@ -1350,7 +1333,7 @@ bool TriMeshSoup::importSTL(const std::string &_filename)
 void TriMeshSoup::exportSTL(const std::string &_filename)
 {
     if( m_vertices.empty() || m_indices.empty() )
-        std::cerr<<"[ERROR] TriMeshSoup::exportSTL(): empty data"<<std::endl;
+        qCritical() << "[ERROR] TriMeshSoup::exportSTL: empty data";
 
     struct STL_TRIANGLE
     {
@@ -1362,12 +1345,12 @@ void TriMeshSoup::exportSTL(const std::string &_filename)
     };
 
     std::uint8_t header[80] = "Exported STL";
-    std::uint32_t num_triangles =  m_indices.size() / 3;
+    std::uint32_t num_triangles = static_cast<uint32_t>(m_indices.size()) / 3;
 
     FILE *file = std::fopen(_filename.c_str(), "wb+");
     if( !file) 
     {
-        std::cerr << "[ERROR] TriMeshSoup::exportSTL(): Cannot open file to write" << _filename << std::endl;
+        qCritical() << "[ERROR] TriMeshSoup::exportSTL: Cannot open file to write" << _filename;
     }
 
     std::fwrite(&header[0], sizeof(header), 1, file);

@@ -36,23 +36,13 @@ class TriMeshSoup : public Mesh
 
         /*------------------------------------------------------------------------------------------------------------+
         |                                        CONSTRUCTORS / DESTRUCTORS                                           |
-        +------------------------------------------------------------------------------------------------------------*/
+        +-------------------------------------------------------------------------------------------------------------*/
 
         /*!
         * \fn TriMeshSoup
         * \brief Default constructor of TriMeshSoup
         */
         TriMeshSoup();
-
-        /*!
-        * \fn TriMeshSoup
-        * \brief Constructor of TriMeshSoup with various vertex properties.
-        *        Other properties can still be requested when needed.
-        * \param _normals : true if mesh needs normals
-        * \param _texCoords2D : true if mesh needs texCoords2D
-        * \param _col : true if mesh needs colors
-        */
-        TriMeshSoup(bool _normals, bool _texCoords2D, bool _col);
 
         /*!
         * \fn ~TriMeshSoup

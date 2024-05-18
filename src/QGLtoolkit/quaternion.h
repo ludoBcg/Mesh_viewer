@@ -22,7 +22,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
-#define _USE_MATH_DEFINES
+//#define _USE_MATH_DEFINES
 #include <math.h>
 
 

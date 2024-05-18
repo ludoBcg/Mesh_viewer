@@ -3,9 +3,6 @@
 #include "glwidget.h"
 
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-
 
 
 GLWidget::GLWidget(QWidget* parent) : QOpenGLWidget(parent)
@@ -47,8 +44,7 @@ void GLWidget::initializeGL()
 
 
     // Load default mesh 
-    //m_triMesh = new TriMeshHE(true, false, false, false);
-    m_triMesh = std::make_unique<TriMeshSoup>(true, false, false);
+    m_triMesh = std::make_unique<TriMeshSoup>();
     m_triMesh->readFile("../../models/armadillo.obj");
     m_triMesh->computeAABB();
 
@@ -120,19 +116,14 @@ void GLWidget::mouseDoubleClickEvent(QMouseEvent* event )
     this->update();
 }
 
-/*!
-* \fn loadTriMeshSoup
-* \brief load a TriMeshSoup from a file
-*/
+
 void GLWidget::loadTriMeshSoup(QString _fileName)
 {
     if (!_fileName.isEmpty())
     {
         qInfo() << "[info] GLWidget::loadTriMeshSoup: Load " <<  _fileName.toStdString();
         // Load mesh
-        //m_triMesh = nullptr;
-        //m_triMesh = new TriMeshSoup(true, false, false);
-        m_triMesh = std::make_unique<TriMeshSoup>(true, false, false);
+        m_triMesh = std::make_unique<TriMeshSoup>();
         m_triMesh->readFile(_fileName.toStdString());
         m_drawMesh->updateVAO(m_triMesh.get());
         m_drawMesh->setFlatShadingFlag(false);
@@ -141,8 +132,41 @@ void GLWidget::loadTriMeshSoup(QString _fileName)
         paintGL();
     }
     else
-        std::cerr << "[ERROR] Viewer::loadTriMeshSoup(): filename empty" << std::endl;
+        qCritical() << "[ERROR] Viewer::loadTriMeshSoup: filename empty";
 }
+
+
+void GLWidget::loadTriMeshHE(QString _fileName)
+{
+    if (!_fileName.isEmpty())
+    {
+        qInfo() << "[info] GLWidget::loadTriMeshHE: Load " << _fileName.toStdString();
+        // Load mesh
+        m_triMesh = std::make_unique<TriMeshHE>(true, true, true, true);
+        m_triMesh->readFile(_fileName.toStdString());
+        m_drawMesh->updateVAO(m_triMesh.get());
+        m_drawMesh->setFlatShadingFlag(false);
+        m_triMesh->computeAABB();
+        updateScene();
+        paintGL();
+    }
+    else
+        qCritical() << "[ERROR] Viewer::loadTriMeshSoup: filename empty";
+}
+
+
+void GLWidget::saveMesh(QString _fileName)
+{
+    if (!_fileName.isEmpty())
+    {
+        // Load mesh
+        m_triMesh->writeFile(_fileName.toStdString());
+        qInfo() << "[info] Viewer::saveMesh: saved to file " << _fileName.toStdString();
+    }
+    else
+        qCritical() << "[ERROR] Viewer::saveMesh: filename empty";
+}
+
 
 void GLWidget::updateScene()
 {
@@ -163,6 +187,15 @@ void GLWidget::updateScene()
         m_camera.setSceneBoundingBox(min, max);
 
     }
+}
+
+
+void GLWidget::lapSmooth(int _nbIter, float _factor)
+{
+    m_triMesh->lapSmooth(_nbIter, _factor);
+    m_drawMesh->updateVAO(m_triMesh.get());
+    qInfo() << "[info] GLWidget::lapSmooth: Laplacian smoothing applied";
+    update();
 }
 
 

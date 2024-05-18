@@ -55,13 +55,13 @@ class Mesh
         * \brief get min point of the bounding box
         * \return 3D coords of the min point of the BBox
         */
-        glm::vec3 getBBoxMin() { return m_bBoxMin; }
+        inline glm::vec3 getBBoxMin() const { return m_bBoxMin; }
         /*!
         * \fn getBBoxMax
         * \brief get max point of the bounding box
         * \return 3D coords of the max point of the BBox
         */
-        glm::vec3 getBBoxMax() { return m_bBoxMax; }
+        inline glm::vec3 getBBoxMax() const { return m_bBoxMax; }
 
         /*------------------------------------------------------------------------------------------------------------+
         |                                               OTHER METHODS                                                 |
@@ -80,13 +80,22 @@ class Mesh
     protected:
 
         /*------------------------------------------------------------------------------------------------------------+
+        |                                               CONSTRUCTOR                                                   |
+        +-------------------------------------------------------------------------------------------------------------*/
+
+        Mesh() : m_bBoxMin(0.0f, 0.0f, 0.0f)
+               , m_bBoxMax(1.0f, 2.0f, 3.0f)
+               , m_TBComputed(false)
+        {}
+
+        /*------------------------------------------------------------------------------------------------------------+
         |                                                ATTRIBUTES                                                   |
         +-------------------------------------------------------------------------------------------------------------*/
 
-        bool m_TBComputed;                      /*!< Flag that indicates if tangent and bitangents had been computed */
+        bool m_TBComputed = false;                  /*!< Flag that indicates if tangent and bitangents had been computed */
 
-        glm::vec3 m_bBoxMin;                    /*!< 3D coordinates of the min corner of the bounding box */
-        glm::vec3 m_bBoxMax;                    /*!< 3D coordinates of the max corner of the bounding box */
+        glm::vec3 m_bBoxMin = { 0.0f, 0.0f, 0.0f }; /*!< 3D coordinates of the min corner of the bounding box */
+        glm::vec3 m_bBoxMax = { 0.0f, 0.0f, 0.0f }; /*!< 3D coordinates of the max corner of the bounding box */
 
         /*------------------------------------------------------------------------------------------------------------+
         |                                               OTHER METHODS                                                 |
@@ -103,7 +112,8 @@ class Mesh
         * \param _tangent : result tangent vector
         * \param _bitangent : result bitangent vector
         */
-        void compTandBT(glm::vec3 _delta_pos1, glm::vec3 _delta_pos2, glm::vec3 _delta_uv1, glm::vec3 _delta_uv2, glm::vec3& _tangent, glm::vec3& _bitangent)
+        void compTandBT(  glm::vec3 _delta_pos1, glm::vec3 _delta_pos2, glm::vec3 _delta_uv1, glm::vec3 _delta_uv2
+                        , glm::vec3& _tangent /* return */ , glm::vec3& _bitangent /* return */)
         {
             glm::normalize(_delta_pos1);
             glm::normalize(_delta_pos2);
@@ -111,8 +121,8 @@ class Mesh
             glm::normalize(_delta_uv2);
 
 	        float r = 1.0f / (_delta_uv1.x * _delta_uv2.y - _delta_uv1.y * _delta_uv2.x);
-            _tangent = (_delta_pos1 * _delta_uv2.y   - _delta_pos2 * _delta_uv1.y)*r;
-            _bitangent = (_delta_pos2 * _delta_uv1.x   - _delta_pos1 * _delta_uv2.x)*r;
+            _tangent = (_delta_pos1 * _delta_uv2.y - _delta_pos2 * _delta_uv1.y) * r;
+            _bitangent = (_delta_pos2 * _delta_uv1.x - _delta_pos1 * _delta_uv2.x) * r;
 
             glm::normalize(_tangent);
             glm::normalize(_bitangent);
