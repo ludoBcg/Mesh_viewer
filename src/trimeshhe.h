@@ -1,18 +1,26 @@
+/*********************************************************************************************************************
+ *
+ * triMeshhe.h
+ *
+ * Mesh class for triangle mesh, using OpenMesh half-edge sata structure
+ *
+ * Mesh_viewer
+ * Ludovic Blache
+ *
+ *********************************************************************************************************************/
+
+
 #ifndef TRIMESHHE_H
 #define TRIMESHHE_H
 
 #include "mesh.h"
 
+#include <Eigen/Dense>
+#include <Eigen/SVD>
+#include <Eigen/LU>
 
-//#include <Eigen/Dense>
-//#include <Eigen/SVD>
-//#include <Eigen/LU>
-
-
-// -------------------- OpenMesh
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
-
 
 
 // simple triangle mesh, using default traits
@@ -142,7 +150,7 @@ class TriMeshHE : public Mesh
         * Using Meyer et al., "Discrete Differential-Geometry Operators for Triangulated 2-Manifolds", Visualization and Mathematics III, 2003
         * http://multires.caltech.edu/pubs/diffGeoOps.pdf
         */
-        //void computeMeanCurv();
+        void computeMeanCurv();
 
         /*!
         * \fn computeMeanCurv
@@ -150,7 +158,7 @@ class TriMeshHE : public Mesh
         * Using Pauly et al., "Efficient Simplification of Point-Sampled Surfaces", IEEE Visualization, 2002
         * https://www.graphics.rwth-aachen.de/media/papers/p_Pau021.pdf
         */
-        //void computeSurfVar();
+        void computeSurfVar();
 
 
     protected:
@@ -173,38 +181,38 @@ class TriMeshHE : public Mesh
         /*!
         * \fn compLocalVariation
         * \brief surface variation  at a given vertex
-        * \param _hi: handle of the vertex where surface variation is calculated
+        * \param _hi: iterator of the vertex where surface variation is calculated
         * \return local variation at vertex _hi
         */
-        //double compLocalVariation(OpMesh::VertexHandle *_hi);
+        double compLocalVariation(OpMesh::VertexIter _hi);
 
         /*!
         * \fn compLocalVariation
         * \brief discrete mean curvature at a given vertex
-        * \param _hi: handle of the vertex where surface variation is calculated
+        * \param _hi: iterator of the vertex where surface variation is calculated
         * \return mean curvature at vertex _xi
         */
-        //double vertMeanCurv(OpMesh::VertexHandle *_xi);
+        double vertMeanCurv(OpMesh::VertexIter _xi);
 
         /*!
         * \fn compAreaMixed
         * \brief compute the "mixed area" of triangles connected to a given vertex.
         * see Fig 4. in  http://multires.caltech.edu/pubs/diffGeoOps.pdf 
-        * \param _xi: handle of the vertex, which area of connected triangles is computed
+        * \param _xi: iterator of the vertex, which area of connected triangles is computed
         * \return mixed area of 1-ring neighborhood of _xi
         */
-        //double compAreaMixed(OpMesh::VertexHandle *_xi);
+        double compAreaMixed(OpMesh::VertexIter _xi);
 
         /*!
         * \fn compAreaVoronoi
         * \brief compute area of a Voronoi region , defined by a triangle facet _f and one of its vertices _xi.
         * The Voronoi region is the the part of the Triangle _f that isbelongs to the Voronoi cell of the vertex _xi.
         * see Fig 3. in  http://multires.caltech.edu/pubs/diffGeoOps.pdf 
-        * \param _f: handle of the triangle face
-        * \param _xi: handle of the vertex (Voronoi cell's seed)
+        * \param _f: iterator of the triangle face
+        * \param _xi: iterator of the vertex (Voronoi cell's seed)
         * \return area of the fraction of triangle _f that is the Voronoi cell of _xi
         */
-        //float compAreaVoronoi(OpMesh::VertexHandle *_xi, OpMesh::FaceHandle *_f);
+        float compAreaVoronoi(OpMesh::VertexIter _xi, OpMesh::FaceIter _f);
 
         /*!
         * \fn compSumCot
@@ -215,38 +223,38 @@ class TriMeshHE : public Mesh
         * For a given vertex x_i, x_j is accessed through a vertex-vertex iterator (circulates around all vertices connected to x_i, i.e., 1-st ring neighborhood)
         * The angle alpha_ij is therefore located at the "previous" vertex on the ring (x_j-1).
         * The angle beta_ij is similarly located at the "next" vertex on the ring (x_j+1).
-        * \param _xi, _xj: handles of vertices x_i and x_j
-        * \param _xjm: handle of vertex where alpha_ij is located (x_j-1).
-        * \param _xjp: handle of vertex where beta_ij is located (x_j+1).                  
+        * \param _xi, _xj: iterators of vertices x_i and x_j
+        * \param _xjm: iterator of vertex where alpha_ij is located (x_j-1).
+        * \param _xjp: iterator of vertex where beta_ij is located (x_j+1).                  
         * \return value of cotan(alpha_ij)+cotan(beta_ij)
         */
-        //double compSumCot(OpMesh::VertexHandle *_xi, OpMesh::VertexHandle *_xj, OpMesh::VertexHandle *_xjm, OpMesh::VertexHandle *_xjp);
+        double compSumCot(OpMesh::VertexIter _xi, OpMesh::VertexIter _xj, OpMesh::VertexIter _xjm, OpMesh::VertexIter _xjp);
 
         /*!
         * \fn compAreaTriangle
         * \brief compute area of a triangle facet 
-        * \param _f: handle of the triangle face
+        * \param _f: iterator of the triangle face
         * \return area of triangle
         */
-        //double compAreaTriangle(OpMesh::FaceHandle *_f);
+        double compAreaTriangle(OpMesh::FaceIter _f);
 
         /*!
         * \fn isTriangleObtuse
         * \brief test if a facet is an obtuse triangle (i.e., contains an obtuse angle). 
-        * \param _f: handle of the triangle face to test
+        * \param _f: iterator of the triangle face to test
         * \return true if triangle is obtuse
         */
-        //bool isTriangleObtuse(OpMesh::FaceHandle *_f);
+        bool isTriangleObtuse(OpMesh::FaceIter _f);
 
         /*!
         * \fn isAngleObtuse
         * \brief test if an angle is obtuse. 
         * The angle is defined by the facet and vertex to which it is connected.
-        * \param _f: handle of the triangle face in which the angle is located
-        * \param _xi: handle of the vertex which corresponds to the angle corner in _f
+        * \param _f: iterator of the triangle face in which the angle is located
+        * \param _xi: iterator of the vertex which corresponds to the angle corner in _f
         * \return true if angle is obtuse
         */
-        //bool isAngleObtuse(OpMesh::FaceHandle *_f, OpMesh::VertexHandle *_xi);
+        bool isAngleObtuse(OpMesh::FaceIter _f, OpMesh::VertexIter _xi);
 
 };
 #endif // TRIMESHHE_H

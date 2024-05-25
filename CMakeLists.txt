@@ -1,6 +1,12 @@
 # check CMAKE version
 cmake_minimum_required(VERSION 3.0)
 
+# C++ 20
+set(CMAKE_CXX_STANDARD 20)
+
+
+#################################### SOURCES ####################################
+
 # create project
 project(Mesh_viewer)
 
@@ -25,10 +31,15 @@ set(HEADERS
 	
 
 	
-################################# EXTERNAL LIBS ######################
+################################# EXTERNAL LIBS #################################
 
 # Add include directories
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src" )
+
+
+# OpenMP
+find_package(OpenMP)
+
 
 # QT 
 # OpenSource version 6.7.0 (used binaries installer for windows)
@@ -37,12 +48,12 @@ set(CMAKE_PREFIX_PATH C:/Qt/6.7.0/msvc2019_64/lib/cmake)
 find_package(Qt6Widgets)
 find_package(Qt6OpenGLWidgets)
 set(CMAKE_AUTOMOC ON)
-
 SET(QT_LIBRARIES Qt6::Core
 				 Qt6::Gui
 				 Qt6::OpenGL 
 				 Qt6::Widgets 
 				 Qt6::OpenGLWidgets )
+
 
 # OpenGL
 find_package(OpenGL REQUIRED)
@@ -60,8 +71,11 @@ SET(GLEW_LIBS glew32s.lib)
 add_definitions(-DGLEW_STATIC -DGLEW_NO_GLU)
 
 	
-# GLM (Header only!)
+# GLM (Header only)
 include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/external/glm")
+
+# Eigen (Header only)
+include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/external/eigen-3.4.0")
 
 # OpenMesh
 # build VS solution using provided Cmake script
@@ -73,11 +87,14 @@ include_directories ( ${OPENMESH_DIR}/src)
 link_directories(${OPENMESH_DIR}/build/Build/lib)	
 
 
+
+################################## VS SOLUTION ##################################
+
 # Add executable for project
 add_executable(${PROJECT_NAME} ${SRCS} ${HEADERS})
 
 # todo: use OpenMeshCored OpenMeshToolsd for debug, OpenMeshCore OpenMeshTools for release
-target_link_libraries(${PROJECT_NAME} OpenMeshCored OpenMeshToolsd ${QT_LIBRARIES} ${GLEW_LIBS} ${OPENGL_LIBRARIES} )
+target_link_libraries(${PROJECT_NAME} OpenMP::OpenMP_CXX OpenMeshCored OpenMeshToolsd ${QT_LIBRARIES} ${GLEW_LIBS} ${OPENGL_LIBRARIES} )
 
 # Install executable
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
