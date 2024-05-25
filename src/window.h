@@ -69,6 +69,7 @@ class Window : public QWidget
 
         QGroupBox* m_groupBoxScene;         /*!< GroupBox for scene setup */
         QVBoxLayout* m_boxSceneLayout;      /*!< Layout for scene setup */
+        QHBoxLayout* m_sceneColLayout;      /*!< Layout for scene colors */
         QHBoxLayout* m_backColLayout;       /*!< Horizontal layout for background color */
         QLabel* m_backColLabel;             /*!< Label for background color */
         QPushButton* m_buttonBackCol;       /*!< Button to change background color */
@@ -101,6 +102,7 @@ class Window : public QWidget
         QHBoxLayout* m_specPowLayout;       /*!< Horizontal layout for specular power */
         QDoubleSpinBox* m_specPowSpinBox;   /*!< SpinBox to change specular power */
         QLabel* m_specPowLabel;             /*!< Label for specular power */
+        QHBoxLayout* m_boxMeshColLayout;    /*!< Horizontal layout for mesh coloring */
         QCheckBox* m_toggleShowNormals;     /*!< CheckBox to activate/deactivate rendering of normal vectors */
         QCheckBox* m_toggleMeshCol;         /*!< CheckBox to activate/deactivate mesh color rendering */
         QCheckBox* m_toggleFlatShading;     /*!< CheckBox to activate/deactivate flat shading */

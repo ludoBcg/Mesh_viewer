@@ -1,40 +1,45 @@
+/*********************************************************************************************************************
+ *
+ * drawablemesh.cpp
+ *
+ * Mesh_viewer
+ * Ludovic Blache
+ *
+ *********************************************************************************************************************/
+
+
+#include <QImage>
+#include <QString>
+
 #include "drawablemesh.h"
 
 
-DrawableMesh::DrawableMesh()
+DrawableMesh::DrawableMesh() :
+      m_ambientColor(0.04f, 0.04f, 0.06f)
+    , m_diffuseColor(0.82f, 0.66f, 0.43f)
+    , m_specularColor(0.9f, 0.9f, 0.9f)
+    , m_wireColor(0.5f, 0.5f, 0.5f)
+    , m_specPow(128.0f)
+    , m_vertexProvided(false)
+    , m_normalProvided(false)
+    , m_colorProvided(false)
+    , m_tangentProvided(false)
+    , m_bitangentProvided(false)
+    , m_uvProvided(false)
+    , m_indexProvided(false)
+    , m_shadedRenderOn(true)
+    , m_wireframeRenderOn(false)
+    , m_wireframeShadingOn(true)
+    , m_useAmbient(true)
+    , m_useDiffuse(true)
+    , m_useSpecular(true)
+    , m_useTex(false)
+    , m_useNormalMap(false)
+    , m_showNormals(false)
+    , m_flatShading(false)
+    , m_useGammaCorrec(true)
+    , m_useMeshCol(false)
 {
-    /* TODO */
-    //m_defaultVAO = 0;
-    m_ambientColor = glm::vec3(0.04f, 0.04f, 0.06f);
-    m_diffuseColor = glm::vec3(0.82f, 0.66f, 0.43f);
-    m_specularColor = glm::vec3(0.9f, 0.9f, 0.9f);
-
-    m_wireColor = glm::vec3(0.5f, 0.5f, 0.5f);
-
-    m_specPow = 128.0f;
-
-    setAmbientFlag(true);
-    setDiffuseFlag(true);
-    setSpecularFlag(true);
-    setTexFlag(false);
-    setNormalMapFlag(false);
-    setShowNormalFlag(false);
-    setFlatShadingFlag(false);
-    setUseGammaCorrecFlag(true);
-    setUseMeshColFlag(false);
-
-    m_vertexProvided = false;
-    m_normalProvided = false;
-    m_colorProvided = false;
-    m_tangentProvided = false;
-    m_bitangentProvided = false;
-    m_uvProvided = false;
-    m_indexProvided = false;
-
-    m_shadedRenderOn = true;
-    m_wireframeRenderOn = false;
-    m_wireframeShadingOn = true;
-
     // Load wireframe program
     m_programWF = loadShaderProgram("../../src/shaders/wireframe.vert", "../../src/shaders/wireframe.frag");
 
@@ -55,19 +60,19 @@ DrawableMesh::~DrawableMesh()
 }
 
 
-void DrawableMesh::createVAO(Mesh* _triMesh)
+void DrawableMesh::createVAO(std::shared_ptr<Mesh> _triMesh)
 {
     fillVAO(_triMesh, true);
 }
 
 
-void DrawableMesh::updateVAO(Mesh* _triMesh)
+void DrawableMesh::updateVAO(std::shared_ptr<Mesh> _triMesh)
 {
     fillVAO(_triMesh, false);
 }
 
 
-void DrawableMesh::fillVAO(Mesh* _triMesh, bool _create)
+void DrawableMesh::fillVAO(std::shared_ptr<Mesh> _triMesh, bool _create)
 {
     // mandatory data
     std::vector<glm::vec3> vertices;
@@ -246,8 +251,8 @@ void DrawableMesh::fillVAO(Mesh* _triMesh, bool _create)
     glBindVertexArray(m_defaultVAO); // unbinds the VAO
 
     // Additional information required by draw calls
-    m_numVertices = vertices.size();
-    m_numIndices = indices.size();
+    m_numVertices = static_cast<int>(vertices.size());
+    m_numIndices = static_cast<int>(indices.size());
 
     // Clear temporary vectors
     vertices.clear();
@@ -261,7 +266,7 @@ void DrawableMesh::fillVAO(Mesh* _triMesh, bool _create)
 }
 
 
-void DrawableMesh::draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm::vec3 _lightCol)
+void DrawableMesh::draw(glm::mat4& _mv, glm::mat4& _mvp, glm::vec3& _lightPos, glm::vec3& _lightCol) const
 {
     if(m_shadedRenderOn)
     {
@@ -392,15 +397,11 @@ void DrawableMesh::draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm:
 
 GLuint DrawableMesh::load2DTexture(const std::string& _filename, bool _repeat)
 {
-    std::vector<unsigned char> data;
-    unsigned width, height;
-    //unsigned error = lodepng::decode(data, width, height, _filename);
-    //if (error != 0) 
-    //{
-    //    std::cerr << "[ERROR] DrawableMesh::load2DTexture() " << lodepng_error_text(error) << std::endl;
-    //    std::exit(EXIT_FAILURE);
-    //}
+    QImage image = QImage(QString(_filename.c_str()));
+    image = image.convertToFormat(QImage::Format_RGBA8888);
 
+    qInfo() << "[info] DrawableMesh::load2DTexture: image format: " << image.format();
+    
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -416,7 +417,8 @@ GLuint DrawableMesh::load2DTexture(const std::string& _filename, bool _repeat)
     }
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(data[0]));
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, &(image.constBits()[0]));
+    
     glBindTexture(GL_TEXTURE_2D, 0);
 
     return texture;
@@ -439,7 +441,7 @@ GLuint DrawableMesh::loadShaderProgram(const std::string& _vertShaderFilename, c
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &compiled);
     if (!compiled) 
     {
-        std::cerr << "[ERROR] DrawableMesh::loadShaderProgram(): Vertex shader compilation failed:" << std::endl;
+        qCritical() << "[ERROR] DrawableMesh::loadShaderProgram: Vertex shader compilation failed:";
         showShaderInfoLog(vertexShader);
         glDeleteShader(vertexShader);
         return 0;
@@ -456,7 +458,7 @@ GLuint DrawableMesh::loadShaderProgram(const std::string& _vertShaderFilename, c
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compiled);
     if (!compiled) 
     {
-        std::cerr << "[ERROR] DrawableMesh::loadShaderProgram(): Fragment shader compilation failed:" << std::endl;
+        qCritical() << "[ERROR] DrawableMesh::loadShaderProgram(): Fragment shader compilation failed:";
         showShaderInfoLog(fragmentShader);
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
@@ -478,7 +480,7 @@ GLuint DrawableMesh::loadShaderProgram(const std::string& _vertShaderFilename, c
     glGetProgramiv(program, GL_LINK_STATUS, &linked);
     if (!linked) 
     {
-        std::cerr << "[ERROR] DrawableMesh::loadShaderProgram(): Linking failed:" << std::endl;
+        qCritical() << "[ERROR] DrawableMesh::loadShaderProgram(): Linking failed:";
         showProgramInfoLog(program);
         glDeleteProgram(program);
         glDeleteShader(vertexShader);
@@ -511,7 +513,7 @@ void DrawableMesh::showShaderInfoLog(GLuint _shader)
     std::vector<char> infoLog(infoLogLength);
     glGetShaderInfoLog(_shader, infoLogLength, &infoLogLength, &infoLog[0]);
     std::string infoLogStr(infoLog.begin(), infoLog.end());
-    std::cerr << infoLogStr << std::endl;
+    qCritical() << "[ERROR] DrawableMesh::showShaderInfoLog: " << infoLogStr;
 }
 
 
@@ -522,5 +524,5 @@ void DrawableMesh::showProgramInfoLog(GLuint _program)
     std::vector<char> infoLog(infoLogLength);
     glGetProgramInfoLog(_program, infoLogLength, &infoLogLength, &infoLog[0]);
     std::string infoLogStr(infoLog.begin(), infoLog.end());
-    std::cerr << infoLogStr << std::endl;
+    qCritical() << "[ERROR] DrawableMesh::showProgramInfoLog: " << infoLogStr;
 }

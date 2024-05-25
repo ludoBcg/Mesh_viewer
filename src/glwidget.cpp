@@ -1,7 +1,14 @@
+/*********************************************************************************************************************
+ *
+ * glwidget.cpp
+ *
+ * Mesh_viewer
+ * Ludovic Blache
+ *
+ *********************************************************************************************************************/
 
 
 #include "glwidget.h"
-
 
 
 
@@ -44,13 +51,13 @@ void GLWidget::initializeGL()
 
 
     // Load default mesh 
-    m_triMesh = std::make_unique<TriMeshSoup>();
+    m_triMesh = std::make_shared<TriMeshSoup>();
     m_triMesh->readFile("../../models/armadillo.obj");
     m_triMesh->computeAABB();
 
     m_drawMesh = std::make_unique<DrawableMesh>();
     m_drawMesh->setProgram("../../src/shaders/phong.vert", "../../src/shaders/phong.frag");
-    m_drawMesh->createVAO(m_triMesh.get());
+    m_drawMesh->createVAO(m_triMesh);
 
     m_camera.setFieldOfView(glm::radians(45.0));
 
@@ -125,7 +132,7 @@ void GLWidget::loadTriMeshSoup(QString _fileName)
         // Load mesh
         m_triMesh = std::make_unique<TriMeshSoup>();
         m_triMesh->readFile(_fileName.toStdString());
-        m_drawMesh->updateVAO(m_triMesh.get());
+        m_drawMesh->updateVAO(m_triMesh);
         m_drawMesh->setFlatShadingFlag(false);
         m_triMesh->computeAABB();
         updateScene();
@@ -144,7 +151,7 @@ void GLWidget::loadTriMeshHE(QString _fileName)
         // Load mesh
         m_triMesh = std::make_unique<TriMeshHE>(true, true, true, true);
         m_triMesh->readFile(_fileName.toStdString());
-        m_drawMesh->updateVAO(m_triMesh.get());
+        m_drawMesh->updateVAO(m_triMesh);
         m_drawMesh->setFlatShadingFlag(false);
         m_triMesh->computeAABB();
         updateScene();
@@ -193,7 +200,7 @@ void GLWidget::updateScene()
 void GLWidget::lapSmooth(int _nbIter, float _factor)
 {
     m_triMesh->lapSmooth(_nbIter, _factor);
-    m_drawMesh->updateVAO(m_triMesh.get());
+    m_drawMesh->updateVAO(m_triMesh);
     qInfo() << "[info] GLWidget::lapSmooth: Laplacian smoothing applied";
     update();
 }
@@ -293,38 +300,38 @@ void GLWidget::toggleMeshCol()
 void GLWidget::duplVertices()
 {
     m_triMesh->duplicateVertices();
-    m_drawMesh->updateVAO(m_triMesh.get());
+    m_drawMesh->updateVAO(m_triMesh);
     update();
 }
 
 void GLWidget::compNormals()
 {
     m_triMesh->computeNormals();
-    m_drawMesh->updateVAO(m_triMesh.get());
+    m_drawMesh->updateVAO(m_triMesh);
     update();
 }
 
 void GLWidget::compTBs()
 {
     m_triMesh->computeTB();
-    m_drawMesh->updateVAO(m_triMesh.get());
+    m_drawMesh->updateVAO(m_triMesh);
     update();
 }
 
 
-//void GLWidget::compMeanCurv()
-//{
-//    m_triMesh->computeMeanCurv();
-//    m_drawMesh->updateVAO(m_triMesh.get());
-//    update();
-//}
+void GLWidget::compMeanCurv()
+{
+    m_triMesh->computeMeanCurv();
+    m_drawMesh->updateVAO(m_triMesh);
+    update();
+}
 
-//void GLWidget::compSurfVar()
-//{
-//    m_triMesh->computeSurfVar();
-//    m_drawMesh->updateVAO(m_triMesh.get());
-//    update();
-//}
+void GLWidget::compSurfVar()
+{
+    m_triMesh->computeSurfVar();
+    m_drawMesh->updateVAO(m_triMesh);
+    update();
+}
 
 
 

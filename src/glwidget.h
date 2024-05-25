@@ -92,7 +92,7 @@ private:
     +-------------------------------------------------------------------------------------------------------------*/
 
     qgltoolkit::Camera m_camera;
-    std::unique_ptr<Mesh> m_triMesh = nullptr;
+    std::shared_ptr<Mesh> m_triMesh = nullptr;
     std::unique_ptr<DrawableMesh> m_drawMesh = nullptr;
 
     QColor m_backCol = Qt::black;
@@ -313,12 +313,12 @@ public:
         * \fn compMeanCurv
         * \brief SLOT: compute mean curvature of mesh surface (TriMeshHE only)
         */
-        //void compMeanCurv();
+        void compMeanCurv();
         /*!
         * \fn compSurfVar
         * \brief SLOT: compute surface variation of the mesh (TriMeshHE only)
         */
-        //void compSurfVar();
+        void compSurfVar();
 
 };
 

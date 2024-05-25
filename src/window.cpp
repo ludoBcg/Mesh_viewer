@@ -1,3 +1,11 @@
+/*********************************************************************************************************************
+ *
+ * window.cpp
+ *
+ * Mesh_viewer
+ * Ludovic Blache
+ *
+ *********************************************************************************************************************/
 
 
 #include "window.h"
@@ -72,9 +80,10 @@ Window::Window()
     /*******************************************************************************************/
 
     m_dialogBox = new QDialog(this);
+    m_dialogBox->move(400, 300);
     m_dialogBox->setModal(false);
     m_dialogBox->setVisible(false);
-    m_dialogBox->setGeometry(this->geometry().x() + 20, this->geometry().y() + 50, 250, 400);
+    m_dialogBox->setGeometry(this->geometry().x(), this->geometry().y(), 250, 400);
     m_dialogBox->setWindowTitle("Toolbox");
     QObject::connect(m_dialogBox, SIGNAL(rejected()), this, SLOT(rejectDialog()));
 
@@ -88,6 +97,8 @@ Window::Window()
     // Scene setup layout
     m_boxSceneLayout = new QVBoxLayout;
 
+    // Scene colors layout
+    m_sceneColLayout = new QHBoxLayout;
 
     // Background color button
     m_backColLayout = new QHBoxLayout;
@@ -105,7 +116,7 @@ Window::Window()
     m_buttonBackCol->setFixedSize(25, 20);
     QObject::connect(m_buttonBackCol, SIGNAL(clicked()), this, SLOT(selectBackColor()));
     m_backColLayout->addWidget(m_buttonBackCol);
-    m_boxSceneLayout->addLayout(m_backColLayout);
+    m_sceneColLayout->addLayout(m_backColLayout);
 
     // Light color
     m_lightColLayout = new QHBoxLayout;
@@ -121,7 +132,9 @@ Window::Window()
     m_buttonLightCol->setFixedSize(25, 20);
     QObject::connect(m_buttonLightCol, SIGNAL(clicked()), this, SLOT(selectLightColor()));
     m_lightColLayout->addWidget(m_buttonLightCol);
-    m_boxSceneLayout->addLayout(m_lightColLayout);
+
+    m_sceneColLayout->addLayout(m_lightColLayout);
+    m_boxSceneLayout->addLayout(m_sceneColLayout);
 
     // Render surface
     m_toggleShowSurf = new QCheckBox;
@@ -262,6 +275,9 @@ Window::Window()
     m_specPowLayout->setAlignment(Qt::AlignRight);
     m_boxShadingLayout->addLayout(m_specPowLayout);
 
+    // Mesh coloring layout
+    m_boxMeshColLayout = new QHBoxLayout;
+
     // Toggle use mesh colors button
     m_toggleMeshCol = new QCheckBox;
     m_toggleMeshCol->setText("use mesh colors");
@@ -269,7 +285,7 @@ Window::Window()
     m_toggleMeshCol->setEnabled(true);
     QObject::connect(m_toggleMeshCol, SIGNAL(clicked()), m_glViewer, SLOT(toggleMeshCol()));
     QObject::connect(m_toggleMeshCol, SIGNAL(clicked()), this, SLOT(toggleMeshCol()));
-    m_boxShadingLayout->addWidget(m_toggleMeshCol);
+    m_boxMeshColLayout->addWidget(m_toggleMeshCol);
 
 
     // Toggle show normals button
@@ -278,7 +294,9 @@ Window::Window()
     m_toggleShowNormals->setChecked(false);
     QObject::connect(m_toggleShowNormals, SIGNAL(clicked()), m_glViewer, SLOT(toggleShowNormals()));
     QObject::connect(m_toggleShowNormals, SIGNAL(clicked()), this, SLOT(toggleShowNormals()));
-    m_boxShadingLayout->addWidget(m_toggleShowNormals);
+    m_boxMeshColLayout->addWidget(m_toggleShowNormals);
+
+    m_boxShadingLayout->addLayout(m_boxMeshColLayout);
 
     // Toggle flat shading button
     m_toggleFlatShading = new QCheckBox;
@@ -308,7 +326,7 @@ Window::Window()
     // Load texture button
     m_texLayout = new QHBoxLayout;
     m_buttonLoadTex = new QPushButton("load texture", this);
-    m_buttonLoadTex->setFixedSize(150, 25);
+    m_buttonLoadTex->setFixedSize(150, 20);
     QObject::connect(m_buttonLoadTex, SIGNAL(clicked()), this, SLOT(openTexDialog()));
     m_texLayout->addWidget(m_buttonLoadTex);
     m_toggleTex = new QCheckBox;
@@ -323,7 +341,7 @@ Window::Window()
     // Load Normal map button
     m_normalMapLayout = new QHBoxLayout;
     m_buttonLoadNormalMap = new QPushButton("load normal map", this);
-    m_buttonLoadNormalMap->setFixedSize(150, 25);
+    m_buttonLoadNormalMap->setFixedSize(150, 20);
     QObject::connect(m_buttonLoadNormalMap, SIGNAL(clicked()), this, SLOT(openNormalMapDialog()));
     m_normalMapLayout->addWidget(m_buttonLoadNormalMap);
     m_toggleNormalMap = new QCheckBox;
@@ -348,26 +366,26 @@ Window::Window()
 
     // Duplicate vertices button
     m_buttonDuplVertices = new QPushButton("duplicate vertices", this);
-    m_buttonDuplVertices->setFixedSize(175, 25);
+    m_buttonDuplVertices->setFixedSize(200, 20);
     QObject::connect(m_buttonDuplVertices, SIGNAL(clicked()), m_glViewer, SLOT(duplVertices()));
     m_boxGeomLayout->addWidget(m_buttonDuplVertices);
 
     // Recompute normals button
     m_buttonCompNormals = new QPushButton("recompute normals", this);
-    m_buttonCompNormals->setFixedSize(175, 25);
+    m_buttonCompNormals->setFixedSize(200, 20);
     QObject::connect(m_buttonCompNormals, SIGNAL(clicked()), m_glViewer, SLOT(compNormals()));
     QObject::connect(m_buttonCompNormals, SIGNAL(clicked()), this, SLOT(compNormals()));
     m_boxGeomLayout->addWidget(m_buttonCompNormals);
 
     // Compute tangents + bitangents button
     m_buttonCompTB = new QPushButton("compute tangents and bitangents", this);
-    m_buttonCompTB->setFixedSize(175, 25);
+    m_buttonCompTB->setFixedSize(200, 20);
     QObject::connect(m_buttonCompTB, SIGNAL(clicked()), m_glViewer, SLOT(compTBs()));
     m_boxGeomLayout->addWidget(m_buttonCompTB);
 
     // Apply Laplacian smoothing
     m_buttonLapSmooth = new QPushButton("Laplacian smoothing", this);
-    m_buttonLapSmooth->setFixedSize(175, 25);
+    m_buttonLapSmooth->setFixedSize(200, 20);
     m_buttonLapSmooth->setVisible(false);
     QObject::connect(m_buttonLapSmooth, SIGNAL(clicked()), this, SLOT(lapSmooth()));
     m_boxGeomLayout->addWidget(m_buttonLapSmooth);
@@ -404,17 +422,17 @@ Window::Window()
 
     // Compute mean curvature
     m_buttonMeanCurv = new QPushButton("Compute mean curvature", this);
-    m_buttonMeanCurv->setFixedSize(175, 25);
+    m_buttonMeanCurv->setFixedSize(200, 20);
     m_buttonMeanCurv->setVisible(false);
-    //QObject::connect(m_buttonMeanCurv, SIGNAL(clicked()), m_glViewer, SLOT(compMeanCurv()));
-    //m_boxGeomLayout->addWidget(m_buttonMeanCurv);
+    QObject::connect(m_buttonMeanCurv, SIGNAL(clicked()), m_glViewer, SLOT(compMeanCurv()));
+    m_boxGeomLayout->addWidget(m_buttonMeanCurv);
 
     // Compute surface variation
     m_buttonSurfVar = new QPushButton("Compute surface variation", this);
-    m_buttonSurfVar->setFixedSize(175, 25);
+    m_buttonSurfVar->setFixedSize(200, 20);
     m_buttonSurfVar->setVisible(false);
-    //QObject::connect(m_buttonSurfVar, SIGNAL(clicked()), m_glViewer, SLOT(compSurfVar()));
-    //m_boxGeomLayout->addWidget(m_buttonSurfVar);
+    QObject::connect(m_buttonSurfVar, SIGNAL(clicked()), m_glViewer, SLOT(compSurfVar()));
+    m_boxGeomLayout->addWidget(m_buttonSurfVar);
 
     //m_boxGeomLayout->addStretch();
 
@@ -441,6 +459,7 @@ Window::~Window()
     delete m_lightColLabel;
     delete m_buttonLightCol;
     delete m_lightColLayout;
+    delete m_sceneColLayout;
     delete m_toggleShowSurf;
     delete m_toggleShowLines;
     delete m_wireLabel;
@@ -468,6 +487,7 @@ Window::~Window()
     delete m_specPowLayout;
     delete m_toggleShowNormals;
     delete m_toggleMeshCol;
+    delete m_boxMeshColLayout;
     delete m_toggleFlatShading;
     delete m_toggleGammaCorrec;
     delete m_boxShadingLayout;
@@ -569,8 +589,8 @@ void Window::loadMeshHE()
         m_factorLabel->setVisible(true);
         m_toggleFlatShading->setChecked(false);
         m_toggleFlatShading->setEnabled(true);
-        //m_buttonMeanCurv->setVisible(true);
-        //m_buttonSurfVar->setVisible(true);
+        m_buttonMeanCurv->setVisible(true);
+        m_buttonSurfVar->setVisible(true);
     }
 }
 
@@ -588,8 +608,8 @@ void Window::loadMeshSoup()
         m_factorLabel->setVisible(false);
         m_toggleFlatShading->setChecked(false);
         m_toggleFlatShading->setEnabled(false);
-        //m_buttonMeanCurv->setVisible(false);
-        //m_buttonSurfVar->setVisible(false);
+        m_buttonMeanCurv->setVisible(false);
+        m_buttonSurfVar->setVisible(false);
     }
 }
 

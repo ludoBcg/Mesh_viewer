@@ -4,23 +4,7 @@
 #define QT_NO_OPENGL_ES_2
 #include <GL/glew.h>
 
-
-//#include <lodepng.h>
-
 #include "mesh.h"
-
-//#include <QWindow>
-////#include <QOpenGLFunctions>
-//#include <QOpenGLFunctions_3_3_Core>
-//#include <QOpenGLVertexArrayObject>
-//#include <QOpenGLContext>
-//#include <QOpenGLPaintDevice>
-//#include <QPainter>
-//
-//QT_FORWARD_DECLARE_CLASS(QPainter)
-//QT_FORWARD_DECLARE_CLASS(QOpenGLContext)
-//QT_FORWARD_DECLARE_CLASS(QOpenGLPaintDevice)
-//QT_FORWARD_DECLARE_CLASS(QOpenGLVertexArrayObject)
 
 
 // The attribute locations we will use in the vertex shader
@@ -153,14 +137,14 @@ class DrawableMesh //: protected QOpenGLFunctions_3_3_Core
         * \brief Create mesh VAO and VBOs, calling fillVAO().
         * \param _triMesh : Mesh to update mesh VAO and VBOs from
         */
-        void createVAO(Mesh* _triMesh);
+        void createVAO(std::shared_ptr<Mesh> _triMesh);
 
         /*!
         * \fn updateVAO
         * \brief Update mesh VAO and VBOs, calling fillVAO().
         * \param _triMesh : Mesh to update mesh VAO and VBOs from
         */
-        void updateVAO(Mesh* _triMesh);
+        void updateVAO(std::shared_ptr<Mesh> _triMesh);
 
         /*!
         * \fn createVAO
@@ -168,7 +152,7 @@ class DrawableMesh //: protected QOpenGLFunctions_3_3_Core
         * \param _triMesh : Mesh to fill mesh VAO and VBOs from
         * \param _create : true to init the VBOs and VAO, false to update them 
         */
-        void fillVAO(Mesh* _triMesh, bool _create);
+        void fillVAO(std::shared_ptr<Mesh> _triMesh, bool _create);
 
         /*!
         * \fn draw
@@ -178,7 +162,7 @@ class DrawableMesh //: protected QOpenGLFunctions_3_3_Core
         * \param _lightPos : 3D coords of light position
         * \param _lightCol : RGB color of the light
         */
-        void draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm::vec3 _lightCol);
+        void draw(glm::mat4& _mv, glm::mat4& _mvp, glm::vec3& _lightPos, glm::vec3& _lightCol) const;
 
         /*!
         * \fn loadTex

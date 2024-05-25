@@ -1,3 +1,15 @@
+/*********************************************************************************************************************
+ *
+ * trimeshsoup.cpp
+ *
+ * Mesh_viewer
+ * Ludovic Blache
+ *
+ *********************************************************************************************************************/
+
+
+// hide fopen() and sscanf() deprecation warnings
+#define _CRT_SECURE_NO_WARNINGS
 
 #include "trimeshsoup.h"
 
@@ -89,7 +101,7 @@ void TriMeshSoup::getTangents(std::vector<glm::vec3>& _tangents)
     if(_tangents.size() != 0)
         _tangents.clear();
 
-    if(m_tangents.size() != 0)
+    if(m_tangents.size() != 0 && m_TBComputed)
     {
         _tangents.assign(m_tangents.begin(), m_tangents.end());
     }
@@ -101,7 +113,7 @@ void TriMeshSoup::getBitangents(std::vector<glm::vec3>& _bitangents)
     if(_bitangents.size() != 0)
         _bitangents.clear();
 
-    if(m_bitangents.size() != 0)
+    if(m_bitangents.size() != 0 && m_TBComputed)
     {
         _bitangents.assign(m_bitangents.begin(), m_bitangents.end());
     }
@@ -211,16 +223,13 @@ void TriMeshSoup::computeAABB()
 
 
 void TriMeshSoup::computeNormals()
-{
-    
+{ 
     if(m_isVertDuplicated)
         qWarning() << "[Warning] TriMeshSoup::computeNormals: Vertices are already duplicated, vertex normal cannot be properly calculated";
     else
         qInfo() << "[info] TriMeshSoup::computeNormals: Vertices will be duplicated to calculate face normal vertex attribute";
-
     
     std::int32_t vertexIndex0, vertexIndex1, vertexIndex2;
-    glm::vec3 normal;
 
     if(!m_isVertDuplicated)
     {
@@ -276,7 +285,6 @@ void TriMeshSoup::computeNormals()
         }
     }
     
-
     qInfo() << "[info] TriMeshSoup::computeNormals: Normals computed";
 }
 
@@ -323,19 +331,14 @@ void TriMeshSoup::computeTB()
             m_tangents[vertexIndex2] = tangent;
             m_bitangents[vertexIndex2] = bitangent;
         }
+        qInfo() << "[info] TriMeshSoup::computeTB: Tangents and Bitangents computed";
+        m_TBComputed = true;
     }
     else
     {
         qWarning() << "[Warning] TriMeshSoup::computeTB: texcoords not available";
     }
 }
-
-
-void TriMeshSoup::lapSmooth(unsigned int _nbIter, float _fact)
-{
-    qWarning() << "[Warning] TriMeshSoup::lapSmooth: Laplacian smooting not available for TriMeshSoup, use TriMeshHE instead";
-}
-
 
 
 void TriMeshSoup::duplicateVertices()
@@ -351,7 +354,6 @@ void TriMeshSoup::duplicateVertices()
     bool hasNormals = (m_normals.size() != 0 );
     bool hasColors = (m_colors.size() != 0 );
     bool hasUVs = (m_texcoords.size() != 0 );
-
 
     // Check consistency of vertex attributes
     if( m_vertices.size() != m_normals.size() && hasNormals)
@@ -585,7 +587,7 @@ void TriMeshSoup::exportOBJ(const std::string &_filename)
         qCritical() << " [ERROR] TriMeshSoup::exportOBJ: Cannot open file to write" << _filename;
     }
 
-    unsigned int nb_triangles = m_indices.size()/3;
+    unsigned int nb_triangles = static_cast<unsigned int>(m_indices.size()) / 3;
     if( m_indices.size() % 3 != 0)
     {
         qCritical() << " [ERROR] TriMeshSoup::exportOBJ: Number of vertices is not a multiple of 3";
@@ -597,7 +599,7 @@ void TriMeshSoup::exportOBJ(const std::string &_filename)
 
     // Write vertices
     fprintf(file, "\n");
-    fprintf(file, "# %d vertices\n", m_vertices.size() );
+    fprintf(file, "# %d vertices\n", static_cast<int>(m_vertices.size()) );
     for (i = 0; i <m_vertices.size(); i++) 
     {
         fprintf(file, "v %f %f %f\n", m_vertices[i].x, m_vertices[i].y, m_vertices[i].z);
@@ -605,7 +607,7 @@ void TriMeshSoup::exportOBJ(const std::string &_filename)
 
     // Write normals
     fprintf(file, "\n");
-    fprintf(file, "# %d normals\n", m_normals.size() );
+    fprintf(file, "# %d normals\n", static_cast<int>(m_normals.size()) );
     for (i = 0; i <m_normals.size(); i++) 
     {
         fprintf(file, "vn %f %f %f\n", m_normals[i].x, m_normals[i].y, m_normals[i].z);
@@ -613,7 +615,7 @@ void TriMeshSoup::exportOBJ(const std::string &_filename)
 
     // Write texcoords
     fprintf(file, "\n");
-    fprintf(file, "# %d texcoords\n", m_texcoords.size() );
+    fprintf(file, "# %d texcoords\n", static_cast<int>(m_texcoords.size()) );
     for (i = 0; i <m_texcoords.size(); i++) 
     {
         fprintf(file, "vt %f %f \n", m_texcoords[i].x, m_texcoords[i].y);
@@ -640,8 +642,11 @@ void TriMeshSoup::exportOBJ(const std::string &_filename)
     fclose(file);
 }
 
+
+// Reads mesh from OFF file
 // https://people.sc.fsu.edu/~jburkardt/data/off/off.html
 // https://segeval.cs.princeton.edu/public/off_format.html
+//
 bool TriMeshSoup::importOFF(const std::string &_filename)
 {
     
@@ -776,7 +781,7 @@ bool TriMeshSoup::importOFF(const std::string &_filename)
     // Compute normals
     if(m_normals.size() == 0) 
     {
-        qInfo() << "[INFO] TriMeshSoup::importOFF: Normals not provided, compute them ";
+        qInfo() << "[info] TriMeshSoup::importOFF: Normals not provided, compute them ";
         computeNormals();
     }
 
@@ -795,7 +800,7 @@ void TriMeshSoup::exportOFF(const std::string &_filename)
         qCritical() << "[ERROR] TriMeshSoup::exportOFF: Cannot open file to write" << _filename;
     }
 
-    unsigned int nb_triangles = m_indices.size()/3;
+    unsigned int nb_triangles = static_cast<unsigned int>(m_indices.size()) / 3;
     if( m_indices.size() % 3 != 0)
     {
         qCritical() << "[ERROR] TriMeshSoup::exportOFF: Number of vertices is not a multiple of 3";
@@ -814,7 +819,7 @@ void TriMeshSoup::exportOFF(const std::string &_filename)
         fprintf(file, "OFF\n");
 
 
-    fprintf(file, "%d %d %d\n", m_vertices.size(), nb_triangles, 0 );
+    fprintf(file, "%d %d %d\n", static_cast<int>(m_vertices.size()), nb_triangles, 0 );
 
     // Write vertices
     for (unsigned int i = 0; i <m_vertices.size(); i++) 
@@ -841,6 +846,7 @@ void TriMeshSoup::exportOFF(const std::string &_filename)
 
 // binary PLY not supported
 // http://paulbourke.net/dataformats/ply/
+//
 bool TriMeshSoup::importPLY(const std::string &_filename)
 {
     // read ASCII
@@ -853,7 +859,7 @@ bool TriMeshSoup::importPLY(const std::string &_filename)
     // Clear old mesh 
     clear();
 
-    int nbVert, nbFaces;
+    int nbVert = 0, nbFaces = 0;
 
     // open file
     std::ifstream ifile(_filename.c_str() );
@@ -867,14 +873,14 @@ bool TriMeshSoup::importPLY(const std::string &_filename)
     // read header
 
     // ply
-    std::string header, line;
+    std::string header = "", line = "";
     std::getline(ifile,header);
     if(header != "ply")
         qCritical() << "[ERROR] TriMeshSoup::importPLY: wrong header, should start with ply ";
 
     
-    std::string keyword, structure, type1, type2, valueS;
-    float valueF;
+    std::string keyword = "", structure = "", type1 = "", type2 = "", valueS = "";
+    float valueF = 0.0f;
     std::vector<std::string> vertProperties;
     std::vector<std::string> vertPropertiesTypes;
 
@@ -970,7 +976,6 @@ bool TriMeshSoup::importPLY(const std::string &_filename)
         }
     }
 
-    
     bool hasNormal = false;
     bool hasFlag = false;
     bool hasColor = false;
@@ -1013,7 +1018,7 @@ bool TriMeshSoup::importPLY(const std::string &_filename)
 
 
     // read vertices
-    for (unsigned int i = 0; i<nbVert && std::getline(ifile, line); i++)
+    for (int i = 0; i<nbVert && std::getline(ifile, line); i++)
     {
         // get line
         std::stringstream linestream(line);
@@ -1048,7 +1053,7 @@ bool TriMeshSoup::importPLY(const std::string &_filename)
     }
 
     // read faces
-    for (unsigned int i = 0; i<nbFaces && std::getline(ifile, line); i++)
+    for (int i = 0; i<nbFaces && std::getline(ifile, line); i++)
     {
         // get line
         std::stringstream linestream(line);
@@ -1070,7 +1075,6 @@ bool TriMeshSoup::importPLY(const std::string &_filename)
         }
     }
 
-
     // check if size of lists are consistent
     if(m_vertices.size() != nbVert || m_indices.size() != nbFaces*3 ) 
         qCritical() << "[ERROR] TriMeshSoup::importPLY: insonsistent data ";
@@ -1089,7 +1093,7 @@ void TriMeshSoup::exportPLY(const std::string &_filename)
         qCritical() << "[ERROR] TriMeshSoup::exportPLY: Cannot open file to write" << _filename;
     }
 
-    unsigned int nb_triangles = static_cast<unsigned int>(m_indices.size())/3;
+    unsigned int nb_triangles = static_cast<unsigned int>(m_indices.size()) / 3;
     if( m_indices.size() % 3 != 0)
     {
         qCritical() << "[ERROR] TriMeshSoup::exportPLY: Number of vertices is not a multiple of 3";
@@ -1147,7 +1151,6 @@ void TriMeshSoup::exportPLY(const std::string &_filename)
         
     }
   
-
     // Write facets (triangles)
     for (unsigned int i = 0; i <nb_triangles; i++) 
     {
@@ -1187,7 +1190,6 @@ void TriMeshSoup::readSTLAscii(FILE * const _file, std::vector<float> * const _v
         }
         if ( std::strstr( line, "vertex" ) ) 
         {
-
             double vertex[3];
             char str[16];
 
@@ -1196,7 +1198,6 @@ void TriMeshSoup::readSTLAscii(FILE * const _file, std::vector<float> * const _v
             _vertex_data->push_back( vertex[0] );
             _vertex_data->push_back( vertex[1] );
             _vertex_data->push_back( vertex[2] );
-
         }
     }
 }
@@ -1232,8 +1233,9 @@ void TriMeshSoup::readSTLBinary(FILE * const _file, std::vector<float> * const _
 }
 
 
-//! Reads mesh from STL file (ASCII or binary). The format, ASCII or
-//! binary, is detected automatically by checking the content of the file.
+// Reads mesh from STL file (ASCII or binary). The format, ASCII or
+// binary, is detected automatically by checking the content of the file.
+//
 bool TriMeshSoup::readSTL(const std::string &_filename, std::vector<float> * const _vertex_data, std::vector<float> * const _normal_data)
 {
     FILE *file = std::fopen( _filename.c_str(), "rb" );
@@ -1260,8 +1262,10 @@ bool TriMeshSoup::readSTL(const std::string &_filename, std::vector<float> * con
     return true;
 }
 
+
 // Reads mesh from STL file (ASCII or binary)
 // https://en.wikipedia.org/wiki/STL_(file_format)
+//
 bool TriMeshSoup::importSTL(const std::string &_filename)
 {
     if (!m_vertices.empty())

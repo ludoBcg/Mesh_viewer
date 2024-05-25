@@ -117,7 +117,10 @@ class TriMeshSoup : public Mesh
         * \fn lapSmooth
         * \brief Apply a Laplacian smoothing of the mesh (not available)
         */
-        void lapSmooth(unsigned int _nbIter = 1, float _fact = 1.0f);
+        inline void lapSmooth(unsigned int _nbIter = 1, float _fact = 1.0f)
+        {
+            qWarning() << "[Warning] TriMeshSoup::lapSmooth: Laplacian smooting not available for TriMeshSoup, use TriMeshHE instead";
+        }
 
         /*
         * \fn duplicateVertices
@@ -125,9 +128,26 @@ class TriMeshSoup : public Mesh
         */
         void duplicateVertices();
 
+        /*!
+        * \fn computeMeanCurv
+        * \brief Compute mean curvature of the mesh (not available)
+        */
+        inline void computeMeanCurv()
+        {
+            qWarning() << "[Warning] TriMeshSoup::computeMeanCurv: Mean curvature not available for TriMeshSoup, use TriMeshHE instead";
+        }
+
+        /*!
+        * \fn computeMeanCurv
+        * \brief Compute surface variation of the mesh (not available)
+        */
+        inline void computeSurfVar()
+        {
+            qWarning() << "[Warning] TriMeshSoup::computeSurfVar: Surface variation not available for TriMeshSoup, use TriMeshHE instead";
+        }
+
 
     protected:
-
 
         /*------------------------------------------------------------------------------------------------------------+
         |                                                ATTRIBUTES                                                   |
@@ -146,11 +166,9 @@ class TriMeshSoup : public Mesh
 
         bool m_isVertDuplicated;                /*!< flag if vertices have been duplicated */
 
-
         /*------------------------------------------------------------------------------------------------------------+
         |                                               OTHER METHODS                                                 |
         +-------------------------------------------------------------------------------------------------------------*/
-
 
         /*!
         * \fn importOBJ
@@ -181,7 +199,6 @@ class TriMeshSoup : public Mesh
         * \param _filename: name of file to write
         */
         void exportOFF(const std::string &_filename);
-
 
         /*!
         * \fn importPLY
