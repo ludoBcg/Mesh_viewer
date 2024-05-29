@@ -29,12 +29,12 @@ set(HEADERS
 	src/drawablemesh.h
     )
 	
-
-	
-################################# EXTERNAL LIBS #################################
-
 # Add include directories
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src" )
+	
+
+
+################################# EXTERNAL LIBS #################################
 
 
 # OpenMP
@@ -93,8 +93,10 @@ link_directories(${OPENMESH_DIR}/build/Build/lib)
 # Add executable for project
 add_executable(${PROJECT_NAME} ${SRCS} ${HEADERS})
 
-# todo: use OpenMeshCored OpenMeshToolsd for debug, OpenMeshCore OpenMeshTools for release
-target_link_libraries(${PROJECT_NAME} OpenMP::OpenMP_CXX OpenMeshCored OpenMeshToolsd ${QT_LIBRARIES} ${GLEW_LIBS} ${OPENGL_LIBRARIES} )
+# link libraries (different openmesh libs for release and debug)
+target_link_libraries(${PROJECT_NAME} OpenMP::OpenMP_CXX 
+					  debug OpenMeshCored OpenMeshToolsd ${QT_LIBRARIES} ${GLEW_LIBS} ${OPENGL_LIBRARIES} 
+					  optimized OpenMeshCore  OpenMeshTools ${QT_LIBRARIES} ${GLEW_LIBS} ${OPENGL_LIBRARIES} )
 
 # Install executable
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
