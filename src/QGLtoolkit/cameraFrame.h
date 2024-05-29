@@ -369,10 +369,12 @@ class CameraFrame : public qgltoolkit::Frame
             if ( m_zoomsOnPivotPoint ) 
             {
                 glm::vec3 direction = position() - m_pivotPoint;
+
                 if ((glm::length(direction) > 0.1 * m_sceneRadius || _delta > 0.0) && (glm::length(direction) < 10.0 * m_sceneRadius || _delta < 0.0))
                 {
                     direction *= (float)_delta;
                     this->translate(direction);
+                    qInfo() << "glm::length(direction) = " << glm::length(direction);
                 }
             } 
             else 

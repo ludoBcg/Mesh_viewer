@@ -185,13 +185,11 @@ void GLWidget::updateScene()
     if (bBoxMin != bBoxMax)
     {
         // scene setup
-        glm::vec3 min(bBoxMin.x, bBoxMin.y, bBoxMin.z);
-        glm::vec3 max(bBoxMax.x, bBoxMax.y, bBoxMax.z);
         glm::vec3 centerCoords((bBoxMin.x + bBoxMax.x) * 0.5f, (bBoxMin.y + bBoxMax.y) * 0.5f, (bBoxMin.z + bBoxMax.z) * 0.5f);
 
         // Set scene radius and center from AABBox.
         // Pivot point is set to scene center by default, 
-        m_camera.setSceneBoundingBox(min, max);
+        m_camera.setSceneBoundingBox(bBoxMin, bBoxMax);
 
     }
 }

@@ -38,7 +38,6 @@ class Camera : public qgltoolkit::CameraFrame
         glm::vec3 m_viewDirection = glm::vec3(0.0);
         glm::vec3 m_upVector = glm::vec3(0.0);
         glm::vec3 m_sceneCenter = glm::vec3(0.0);
-        float m_sceneRadius = 0.0f;
         double m_zClippingCoef;                     /*!< defines margin between scene radius and frustum borders  */
         double m_orthoCoef;                         /*!< defines dimensions for orthogonal projection */
 
@@ -409,6 +408,7 @@ class Camera : public qgltoolkit::CameraFrame
             m_projectionMatrixIsUpToDate = false;
             computeViewMatrix();
             computeProjectionMatrix();
+            
         }
 
         /*! \fn setZClippingCoefficient 
@@ -526,7 +526,6 @@ class Camera : public qgltoolkit::CameraFrame
             m_viewDirection(0.0),
             m_upVector(0.0),
             m_sceneCenter(0.0),
-            m_sceneRadius(0.0),
             m_zClippingCoef(1.0),
             m_orthoCoef(1.0)
         {
@@ -577,7 +576,6 @@ class Camera : public qgltoolkit::CameraFrame
             m_sceneCenter(_camera.m_sceneCenter),
             m_zClippingCoef(_camera.m_zClippingCoef),
             m_orthoCoef(_camera.m_orthoCoef),
-            m_sceneRadius(_camera.m_sceneRadius),
             m_viewMatrixIsUpToDate(false),
             m_projectionMatrixIsUpToDate(false)
         {
@@ -604,6 +602,8 @@ class Camera : public qgltoolkit::CameraFrame
             m_position = m_t;
             m_viewMatrixIsUpToDate = false;
             computeViewMatrix();
+            m_projectionMatrixIsUpToDate = false;
+            computeProjectionMatrix();
 
         }
 
