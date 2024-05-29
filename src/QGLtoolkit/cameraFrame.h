@@ -374,7 +374,6 @@ class CameraFrame : public qgltoolkit::Frame
                 {
                     direction *= (float)_delta;
                     this->translate(direction);
-                    qInfo() << "glm::length(direction) = " << glm::length(direction);
                 }
             } 
             else 
