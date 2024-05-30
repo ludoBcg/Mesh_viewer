@@ -34,12 +34,11 @@ In addition of the provided code, the following libraries should be copied in a 
 
 1. Use Cmake to generate a VS solution, using the CMakeLists provided.
 
-2. Open the solution, then set the Mesh_viewer project as startup project (right-click on the project in the solution explorer panel).
+2. Open the solution, then set the *Mesh_viewer* project as startup project (right-click on the project in the solution explorer panel).
    In the project properties, go to *Configuration properties -> Debugging* and set the *Working directory* to *.\Release* or *.\Debug*, depending on your current configuration.
    
 3. Workaround for the *Could not find the Qt platform plugin "windows"* error for VisualStudio project:
-
-Go to *C:\path\to\Qt\6.7.0\msvc2019_64\plugins* and copy the *platform* folder into your executable folder (same for the dlls located in *C:\path\to\Qt\6.7.0\msvc2019_64\bin*) 
+   Go to *C:\path\to\Qt\6.7.0\msvc2019_64\plugins* and copy the *platform* folder into your executable folder (same for the dlls located in *C:\path\to\Qt\6.7.0\msvc2019_64\bin*) 
 
 
 ![img2](img2.png)
