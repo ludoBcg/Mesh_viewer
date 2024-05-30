@@ -280,6 +280,7 @@ bool TriMeshHE::readFile(std::string _filename)
 //    if ( m_mesh.has_vertex_colors() && !rOpt.check( OpenMesh::IO::Options::VertexColor ) )
 //        m_mesh.release_vertex_colors();
 
+    qInfo() << "[info] TriMeshHE::readFile: finished ";
 
     return true;
 }

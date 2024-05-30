@@ -52,7 +52,8 @@ void GLWidget::initializeGL()
 
     // Load default mesh 
     m_triMesh = std::make_shared<TriMeshSoup>();
-    m_triMesh->readFile("../../models/armadillo.obj");
+    
+    m_triMesh->readFile("../../models/misc/gargo.obj");
     m_triMesh->computeAABB();
 
     m_drawMesh = std::make_unique<DrawableMesh>();
@@ -130,7 +131,7 @@ void GLWidget::loadTriMeshSoup(QString _fileName)
     {
         qInfo() << "[info] GLWidget::loadTriMeshSoup: Load " <<  _fileName.toStdString();
         // Load mesh
-        m_triMesh = std::make_unique<TriMeshSoup>();
+        m_triMesh = std::make_shared<TriMeshSoup>();
         m_triMesh->readFile(_fileName.toStdString());
         m_drawMesh->updateVAO(m_triMesh);
         m_drawMesh->setFlatShadingFlag(false);
@@ -149,7 +150,7 @@ void GLWidget::loadTriMeshHE(QString _fileName)
     {
         qInfo() << "[info] GLWidget::loadTriMeshHE: Load " << _fileName.toStdString();
         // Load mesh
-        m_triMesh = std::make_unique<TriMeshHE>(true, true, true, true);
+        m_triMesh = std::make_shared<TriMeshHE>(true, true, true, true);
         m_triMesh->readFile(_fileName.toStdString());
         m_drawMesh->updateVAO(m_triMesh);
         m_drawMesh->setFlatShadingFlag(false);

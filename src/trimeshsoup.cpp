@@ -134,24 +134,29 @@ void TriMeshSoup::getFaceNormals(std::vector<glm::vec3>& _facenormals)
 
 bool TriMeshSoup::readFile(std::string _filename)
 {
+    this->clear();
     if(_filename.substr(_filename.find_last_of(".") + 1) == "obj")
     {
         importOBJ(_filename);
+        qInfo() << "[info] TriMeshSoup::readFile: finished ";
         return true;
     }
     if(_filename.substr(_filename.find_last_of(".") + 1) == "off")
     {
         importOFF(_filename);
+        qInfo() << "[info] TriMeshSoup::readFile: finished ";
         return true;
     }
     if(_filename.substr(_filename.find_last_of(".") + 1) == "ply")
     {
         importPLY(_filename);
+        qInfo() << "[info] TriMeshSoup::readFile: finished ";
         return true;
     }
     else if(_filename.substr(_filename.find_last_of(".") + 1) == "stl") 
     {
         importSTL(_filename);
+        qInfo() << "[info] TriMeshSoup::readFile: finished ";
         return true;
     }
     else
@@ -200,14 +205,14 @@ void TriMeshSoup::computeAABB()
         glm::vec3 min = m_vertices[0];
         glm::vec3 max = m_vertices[0];
 
-        for (unsigned int i = 0; i <m_vertices.size(); i++) 
+        for (auto it = m_vertices.begin(); it != m_vertices.end(); it++)
         {
-            if(m_vertices[i].x < min.x) { min.x = m_vertices[i].x; }
-            if(m_vertices[i].y < min.y) { min.y = m_vertices[i].y; }
-            if(m_vertices[i].z < min.z) { min.z = m_vertices[i].z; }
-            if(m_vertices[i].x > max.x) { max.x = m_vertices[i].x; }
-            if(m_vertices[i].y > max.y) { max.y = m_vertices[i].y; }
-            if(m_vertices[i].z > max.z) { max.z = m_vertices[i].z; }
+            if((*it).x < min.x) { min.x = (*it).x; }
+            if((*it).y < min.y) { min.y = (*it).y; }
+            if((*it).z < min.z) { min.z = (*it).z; }
+            if((*it).x > max.x) { max.x = (*it).x; }
+            if((*it).y > max.y) { max.y = (*it).y; }
+            if((*it).z > max.z) { max.z = (*it).z; }
         }
         m_bBoxMin = min;
         m_bBoxMax = max;
