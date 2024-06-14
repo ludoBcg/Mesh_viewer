@@ -71,12 +71,6 @@ class Frame : public QObject
         Frame() : QObject(), m_t(), m_q() {}
 
         /*!
-        * \fn ~Frame
-        * \brief Destructor of Frame.
-        */
-        virtual ~Frame() {}
-
-        /*!
         * \fn Frame
         * \brief Constructor of Frame from position and orientation.
         * \param _position : position as 3D vector
@@ -85,10 +79,18 @@ class Frame : public QObject
         Frame(const glm::vec3& _position, const Quaternion& _orientation)
             : m_t(_position), m_q(_orientation)
         {}
-                
+
+        /*!
+        * \fn Frame
+        * \brief Copy constructor of Frame.
+        */
+        Frame(const Frame& _frame)
+            : m_t(_frame.m_t), m_q(_frame.m_q)
+        {}
+
         /*!
         * \fn operator=
-        * \brief Equal operator.
+        * \brief Copy assignment operator of Frame.
         */
         Frame& operator=(const Frame& _frame)
         {
@@ -101,11 +103,28 @@ class Frame : public QObject
 
         /*!
         * \fn Frame
-        * \brief Copy constructor of Frame.
+        * \brief Move contructor of Frame.
         */
-        Frame(const Frame& _frame) 
-            : m_t(_frame.m_t), m_q(_frame.m_q) 
-        {}
+        Frame(Frame&& _frame)
+            : m_t(std::move(_frame.m_t))
+            , m_q(std::move(_frame.m_q))
+        { }
+
+        /*!
+        * \fn operator=
+        * \brief Move assignment operator  of Frame.
+        */
+        Frame& operator=(Frame&& _frame) noexcept
+        {
+            m_t = std::move(_frame.m_t);
+            m_q = std::move(_frame.m_q);
+        }
+
+        /*!
+        * \fn ~Frame
+        * \brief Destructor of Frame.
+        */
+        virtual ~Frame() {}
 
 
 

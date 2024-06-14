@@ -22,6 +22,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
+#include <array>
 //#define _USE_MATH_DEFINES
 #include <math.h>
 
@@ -92,7 +93,7 @@ class  Quaternion
 
     private:
 
-        double m_q[4];    /*!< quaternion */
+        std::array<double, 4> m_q = { 0.0, 0.0, 0.0, 1.0 };  /*!< quaternion, initialized as identity*/
 
 
     public:
@@ -104,13 +105,45 @@ class  Quaternion
         /*!
         * \fn Quaternion
         * \brief Default constructor of Quaternion.
-        * Creates an identity Quaternion(0,0,0,1).
         */
-        Quaternion() 
-        {
-            m_q[0] = m_q[1] = m_q[2] = 0.0;
-            m_q[3] = 1.0;
-        }
+        Quaternion()
+            : m_q{ 0.0, 0.0, 0.0, 1.0 }
+        {}
+
+        /*!
+        * \fn Quaternion
+        * \brief Constructor of Quaternion from the four values of a Quaternion.
+        * First three values are axis*sin(angle/2) and last one is cos(angle/2).
+        * The identity Quaternion is Quaternion(0,0,0,1).
+        * \param _q0, _q1, _q2, _q3 : quaternion values
+        */
+        Quaternion(double _q0, double _q1, double _q2, double _q3)
+            : m_q{ _q0, _q1, _q2, _q3 }
+        {}
+
+        /*!
+        * \fn Quaternion
+        * \brief Copy constructor of Quaternion.
+        */
+        Quaternion(Quaternion const&) = default;
+
+        /*!
+        * \fn operator=
+        * \brief Copy assignment operator of Quaternion.
+        */
+        Quaternion& operator=(Quaternion const&) = default;
+
+        /*!
+        * \fn Quaternion
+        * \brief Move contructor of Quaternion.
+        */
+        Quaternion(Quaternion&&) = default;
+
+        /*!
+        * \fn operator=
+        * \brief Move assignment operator  of Quaternion.
+        */
+        Quaternion& operator=(Quaternion&&) = default;
 
         /*!
         * \fn ~Quaternion
@@ -130,10 +163,7 @@ class  Quaternion
             if (_axis == glm::vec3(0.0f) || norm < epsilon)
             {
                 // Null rotation
-                m_q[0] = 0.0;
-                m_q[1] = 0.0;
-                m_q[2] = 0.0;
-                m_q[3] = 1.0;
+                m_q = { 0.0, 0.0, 0.0, 1.0 };
             } 
             else 
             {
@@ -169,8 +199,7 @@ class  Quaternion
             // Identity Quaternion when one vector is null
             if ((fromSqNorm < epsilon) || (toSqNorm < epsilon)) 
             {
-                m_q[0] = m_q[1] = m_q[2] = 0.0;
-                m_q[3] = 1.0;
+                m_q = { 0.0, 0.0, 0.0, 1.0 };
             } 
             else 
             {
@@ -199,41 +228,7 @@ class  Quaternion
         */
         void setValue(double _q0, double _q1, double _q2, double _q3) 
         {
-            m_q[0] = _q0;
-            m_q[1] = _q1;
-            m_q[2] = _q2;
-            m_q[3] = _q3;
-        }
-
-        /*!
-        * \fn Quaternion
-        * \brief Constructor of Quaternion from the four values of a Quaternion. 
-        * First three values are axis*sin(angle/2) and last one is cos(angle/2).
-        * The identity Quaternion is Quaternion(0,0,0,1).
-        * \param _q0, _q1, _q2, _q3 : quaternion values
-        */
-        Quaternion(double _q0, double _q1, double _q2, double _q3) { setValue(_q0, _q1, _q2, _q3); }
-
-        /*!
-        * \fn Quaternion
-        * \brief Copy constructor of Quaternion.
-        */
-        Quaternion(const Quaternion& _Q) 
-        {
-            for (int i = 0; i < 4; ++i)
-                m_q[i] = _Q.m_q[i];
-        }
-
-        /*!
-        * \fn operator=
-        * \brief Equal operator.
-        */
-        Quaternion& operator=(const Quaternion& _Q) 
-        {
-            for (int i = 0; i < 4; ++i)
-                m_q[i] = _Q.m_q[i];
-
-            return (*this);
+            m_q = { _q0, _q1, _q2, _q3 };
         }
 
         /*!
@@ -390,14 +385,14 @@ class  Quaternion
         * \brief Bracket operator, with a constant return value. 
         * _i must range in [0..3].
         */
-        double operator[](int _i) const { return m_q[_i]; }
+        double operator[](int _i) const { return m_q.at(_i); }
 
         /*!
         * \fn &operator[]
         * \brief Bracket operator returning an l-value.
         * _i must range in [0..3].
         */
-        double& operator[](int _i) { return m_q[_i]; }
+        double& operator[](int _i) { return m_q.at(_i); }
   
         /*!
         * \fn operator*

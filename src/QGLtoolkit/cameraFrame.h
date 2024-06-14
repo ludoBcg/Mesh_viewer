@@ -67,31 +67,121 @@ class CameraFrame : public qgltoolkit::Frame
     protected:
 
         // interactions sensitivity
-        double m_rotationSensitivity;       /*!< rotation sensitivity factor */
-        double m_translationSensitivity;    /*!< translation sensitivity factor */
-        double m_wheelSensitivity;          /*!< wheel sensitivity factor */
-        double m_zoomSensitivity;           /*!< zoom sensitivity factor */
+        double m_rotationSensitivity = 1.0;                     /*!< rotation sensitivity factor */
+        double m_translationSensitivity = 1.0;                  /*!< translation sensitivity factor */
+        double m_wheelSensitivity = 1.0;                        /*!< wheel sensitivity factor */
+        double m_zoomSensitivity = 1.0;                         /*!< zoom sensitivity factor */
 
         // flags
-        bool m_rotatesAroundUpVector;       /*!< rotates around pivot point if false (defaulf behavior) */
-        bool m_zoomsOnPivotPoint;           /*!< zoom on pivot point if true (defaulf behavior) */
+        bool m_rotatesAroundUpVector = false;                   /*!< rotates around pivot point if false (defaulf behavior) */
+        bool m_zoomsOnPivotPoint = true;                        /*!< zoom on pivot point if true (defaulf behavior) */
 
         // scene parameters
-        glm::vec3 m_sceneUpVector;          /*!< up direction vector */
-        glm::vec3 m_pivotPoint;             /*!< pivot point coords */
-        double m_sceneRadius;               /*!< scene radius */
+        glm::vec3 m_sceneUpVector = glm::vec3(0.0, 1.0, 0.0);   /*!< up direction vector */
+        glm::vec3 m_pivotPoint = glm::vec3(0.0, 0.0, 0.0);      /*!< pivot point coords */
+        double m_sceneRadius = 1.0;                             /*!< scene radius */
 
         // camera parameters
-        int m_screenWidth, m_screenHeight;  /*!< windows dims (in pixels) */
-        double m_fieldOfView;               /*!< fov angle (in radians) */
-        ProjectionType m_projType;          /*!< camera projection type */
+        int m_screenWidth = 1;                                  /*!< windows width (in pixels) */
+        int m_screenHeight = 1;                                 /*!< windows height (in pixels) */          
+        double m_fieldOfView = 0.0;                             /*!< fov angle (in radians) */
+        ProjectionType m_projType = PERSPECTIVE;                /*!< camera projection type */
         
         // UI event
-        MouseAction m_action;               /*!< mouse action type */
-        QPoint m_prevPos;                   /*!< previous mouse cursor position */
+        MouseAction m_action = NO_ACTION;                       /*!< mouse action type */
+        QPoint m_prevPos;                                       /*!< previous mouse cursor position */
 
 
     public:
+
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                                CONSTRUCTORS                                                 |
+        +------------------------------------------------------------------------------------------------------------*/
+
+        /*!
+        * \fn CameraFrame
+        * \brief Default constructor of CameraFrame.
+        */
+        CameraFrame() 
+            : m_rotationSensitivity(1.0)
+            , m_translationSensitivity(1.0)
+            , m_wheelSensitivity(1.0)
+            , m_zoomSensitivity(1.0)
+            , m_rotatesAroundUpVector(false)
+            , m_zoomsOnPivotPoint(true)
+            , m_sceneUpVector(0.0, 1.0, 0.0)
+            , m_pivotPoint(0.0, 0.0, 0.0)
+            , m_sceneRadius(1.0)
+            , m_screenWidth(1)
+            , m_screenHeight(1)
+            , m_fieldOfView(0.0)
+            , m_projType(PERSPECTIVE)
+            , m_action(NO_ACTION)
+        { }
+
+        /*!
+        * \fn CameraFrame
+        * \brief Copy constructor of CameraFrame.
+        */
+        CameraFrame(const CameraFrame& _cf)
+            : Frame(_cf)
+            , m_rotationSensitivity(_cf.m_rotationSensitivity)
+            , m_translationSensitivity(_cf.m_translationSensitivity)
+            , m_wheelSensitivity(_cf.m_wheelSensitivity)
+            , m_zoomSensitivity(_cf.m_zoomSensitivity)
+            , m_rotatesAroundUpVector(_cf.m_rotatesAroundUpVector)
+            , m_zoomsOnPivotPoint(_cf.m_zoomsOnPivotPoint)
+            , m_sceneUpVector(_cf.m_sceneUpVector)
+            , m_pivotPoint(_cf.m_pivotPoint)
+            , m_sceneRadius(_cf.m_sceneRadius)
+            , m_screenWidth(_cf.m_screenWidth)
+            , m_screenHeight(_cf.m_screenHeight)
+            , m_fieldOfView(_cf.m_fieldOfView)
+            , m_projType(_cf.m_projType)
+            , m_action(NO_ACTION)
+        { }
+
+        /*!
+        * \fn ~CameraFrame
+        * \brief Destructor of CameraFrame.
+        */
+        virtual ~CameraFrame() {}
+
+        /*!
+        * \fn operator=
+        * \brief Copy assignment operator of CameraFrame.
+        */
+        CameraFrame& operator=(const CameraFrame& _cf)
+        {
+            Frame::operator=(_cf);
+
+            setRotationSensitivity(_cf.rotationSensitivity());
+            setTranslationSensitivity(_cf.translationSensitivity());
+            setWheelSensitivity(_cf.wheelSensitivity());
+            setZoomSensitivity(_cf.zoomSensitivity());
+
+            m_action = NO_ACTION;
+
+            setSceneUpVector(_cf.sceneUpVector());
+            setRotatesAroundUpVector(_cf.m_rotatesAroundUpVector);
+            setZoomsOnPivotPoint(_cf.m_zoomsOnPivotPoint);
+
+            setScreenWidthAndHeight(_cf.m_screenWidth, _cf.m_screenHeight);
+            setProjType(_cf.m_projType);
+            setPivotPoint(_cf.m_pivotPoint);
+            setSceneRadius(_cf.m_sceneRadius);
+            setFieldOfView(_cf.m_fieldOfView);
+
+            return *this;
+        }
+
+
+        //Q_SIGNALS:
+
+        //    /*! \fn manipulated 
+        //    * \brief Signal when camera frame is being manipulated.
+        //    */
+        //    void manipulated();
 
 
         /*------------------------------------------------------------------------------------------------------------+
@@ -274,82 +364,6 @@ class CameraFrame : public qgltoolkit::Frame
         {
             m_sceneUpVector = inverseTransformOf( glm::vec3(0.0, 1.0, 0.0) );
         }
-
-
-        /*------------------------------------------------------------------------------------------------------------+
-        |                                            CONSTRUCTORS/ SETTERS                                            |
-        +------------------------------------------------------------------------------------------------------------*/
-
-        /*!
-        * \fn CameraFrame
-        * \brief Destructor of CameraFrame.
-        */
-        CameraFrame()
-        : m_sceneUpVector(0.0, 1.0, 0.0), m_rotatesAroundUpVector(false), m_zoomsOnPivotPoint(true) 
-        {
-            setRotationSensitivity(1.0f);
-            setTranslationSensitivity(1.0f);
-            setWheelSensitivity(1.0f);
-            setZoomSensitivity(1.0f);
-            setScreenWidthAndHeight(0, 0);
-            setProjType(PERSPECTIVE);
-            setPivotPoint( glm::vec3(0.0) );
-            setSceneRadius(1.0f);
-            setFieldOfView(0.0f);
-        }
-
-        /*!
-        * \fn ~CameraFrame
-        * \brief Destructor of CameraFrame.
-        */
-        virtual ~CameraFrame() {}
-
-        /*!
-        * \fn operator=
-        * \brief Equal operator.
-        */
-        CameraFrame &operator=(const CameraFrame& _cf)
-        {
-            Frame::operator=(_cf);
-
-            setRotationSensitivity(_cf.rotationSensitivity());
-            setTranslationSensitivity(_cf.translationSensitivity());
-            setWheelSensitivity(_cf.wheelSensitivity());
-            setZoomSensitivity(_cf.zoomSensitivity());
-
-            m_action = NO_ACTION;
-
-            setSceneUpVector(_cf.sceneUpVector());
-            setRotatesAroundUpVector(_cf.m_rotatesAroundUpVector);
-            setZoomsOnPivotPoint(_cf.m_zoomsOnPivotPoint);
-
-            setScreenWidthAndHeight(_cf.m_screenWidth, _cf.m_screenHeight);
-            setProjType(_cf.m_projType);
-            setPivotPoint(_cf.m_pivotPoint);
-            setSceneRadius(_cf.m_sceneRadius);
-            setFieldOfView(_cf.m_fieldOfView);
-
-            return *this;
-        }
-
-        /*!
-        * \fn CameraFrame
-        * \brief Copy constructor of CameraFrame.
-        */
-        CameraFrame(const CameraFrame& _cf)
-        : Frame(_cf) 
-        { }
-
-
-        
-
-
-    //Q_SIGNALS:
-  
-    //    /*! \fn manipulated 
-    //    * \brief Signal when camera frame is being manipulated.
-    //    */
-    //    void manipulated();
 
 
     private:
