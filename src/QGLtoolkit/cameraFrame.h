@@ -142,12 +142,6 @@ class CameraFrame : public qgltoolkit::Frame
         { }
 
         /*!
-        * \fn ~CameraFrame
-        * \brief Destructor of CameraFrame.
-        */
-        virtual ~CameraFrame() {}
-
-        /*!
         * \fn operator=
         * \brief Copy assignment operator of CameraFrame.
         */
@@ -175,6 +169,11 @@ class CameraFrame : public qgltoolkit::Frame
             return *this;
         }
 
+        /*!
+        * \fn ~CameraFrame
+        * \brief Destructor of CameraFrame.
+        */
+        virtual ~CameraFrame() {}
 
         //Q_SIGNALS:
 

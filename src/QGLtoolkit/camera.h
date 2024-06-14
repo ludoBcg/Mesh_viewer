@@ -29,21 +29,97 @@ class Camera : public qgltoolkit::CameraFrame
     private:
 
         // mutable: can be modfied in a function foo() const
-        mutable glm::mat4 m_viewMatrix;             /*!< view matrix */
-        mutable bool m_viewMatrixIsUpToDate;        /*!< false if view matrix has been modified */
-        mutable glm::mat4 m_projectionMatrix;       /*!< projection matrix */
-        mutable bool m_projectionMatrixIsUpToDate;  /*!< false if projection matrix has been modified*/
+        mutable glm::mat4 m_viewMatrix = glm::mat4(1.0);        /*!< view matrix */
+        mutable bool m_viewMatrixIsUpToDate = false;            /*!< false if view matrix has been modified */
+        mutable glm::mat4 m_projectionMatrix = glm::mat4(1.0);  /*!< projection matrix */
+        mutable bool m_projectionMatrixIsUpToDate = false ;     /*!< false if projection matrix has been modified*/
 
-        glm::vec3 m_position = glm::vec3(0.0);
-        glm::vec3 m_viewDirection = glm::vec3(0.0);
-        glm::vec3 m_upVector = glm::vec3(0.0);
-        glm::vec3 m_sceneCenter = glm::vec3(0.0);
-        double m_zClippingCoef;                     /*!< defines margin between scene radius and frustum borders  */
-        double m_orthoCoef;                         /*!< defines dimensions for orthogonal projection */
+        glm::vec3 m_position = glm::vec3(0.0);                  /*!< position of camera in 3D space*/
+        glm::vec3 m_viewDirection = glm::vec3(0.0);             /*!< view direction vector */
+        glm::vec3 m_upVector = glm::vec3(0.0);                  /*!< up direction vector*/
+        glm::vec3 m_sceneCenter = glm::vec3(0.0);               /*!< center of 3D scene to look at */
+        double m_orthoCoef = 1.0;                               /*!< defines dimensions for orthogonal projection */
+        //double m_zClippingCoef;                                 /*!< defines margin between scene radius and frustum borders  */
 
-        QPointF m_prevPos;
+        //QPointF m_prevPos;
 
    public:
+
+
+       /*------------------------------------------------------------------------------------------------------------+
+        |                                               CONSTRUCTORS                                                  |
+        +------------------------------------------------------------------------------------------------------------*/
+
+        /*!
+        * \fn ~Camera
+        * \brief Default contructor of Camera.
+        */
+       Camera() :
+           m_viewMatrix(1.0),
+           m_viewMatrixIsUpToDate(false),
+           m_projectionMatrix(1.0),
+           m_projectionMatrixIsUpToDate(false),
+           m_position(0.0),
+           m_viewDirection(0.0),
+           m_upVector(0.0),
+           m_sceneCenter(0.0),
+           m_orthoCoef(1.0)
+           //m_zClippingCoef(1.0)
+       {
+           computeProjectionMatrix();
+           computeViewMatrix();
+       }
+
+       /*!
+       * \fn CameraFrame
+       * \brief Copy constructor of Camera.
+       */
+       Camera(const Camera& _camera)
+           : CameraFrame(_camera),
+           m_position(_camera.m_position),
+           m_viewDirection(_camera.m_viewDirection),
+           m_upVector(_camera.m_upVector),
+           m_sceneCenter(_camera.m_sceneCenter),
+           m_orthoCoef(_camera.m_orthoCoef),
+           m_viewMatrixIsUpToDate(false),
+           m_projectionMatrixIsUpToDate(false)
+           //m_zClippingCoef(_camera.m_zClippingCoef)
+       {
+           computeProjectionMatrix();
+           computeViewMatrix();
+       }
+
+       /*!
+       * \fn operator=
+       * \brief Copy assignment operator of Camera
+       */
+       Camera& operator=(const Camera& _camera)
+       {
+           CameraFrame::operator=(_camera);
+
+           m_position = _camera.m_position;
+           m_viewDirection = _camera.m_viewDirection;
+           m_upVector = _camera.m_upVector;
+           m_orthoCoef = _camera.m_orthoCoef;
+           m_sceneCenter = _camera.m_sceneCenter;
+           //m_zClippingCoef = _camera.m_zClippingCoef;
+
+           m_viewMatrixIsUpToDate = false;
+           m_projectionMatrixIsUpToDate = false;
+
+           computeProjectionMatrix();
+           computeViewMatrix();
+
+           return *this;
+       }
+
+       /*!
+       * \fn ~Camera
+       * \brief Destructor of Camera.
+       */
+       virtual ~Camera()
+       {
+       }
 
         /*------------------------------------------------------------------------------------------------------------+
         |                                                  GETTERS                                                    |
@@ -121,7 +197,7 @@ class Camera : public qgltoolkit::CameraFrame
         * \fn zClippingCoefficient
         * \brief Returns zClippingCoefficient.
         */
-        double zClippingCoefficient() const { return m_zClippingCoef; }
+        //double zClippingCoefficient() const { return m_zClippingCoef; }
 
         /*!
         * \fn zOrthoCoefficient
@@ -513,75 +589,7 @@ class Camera : public qgltoolkit::CameraFrame
         //void centerScene(){ m_frame.projectOnLine(sceneCenter(), viewDirection()); }
 
 
-        /*------------------------------------------------------------------------------------------------------------+
-        |                                               CONSTRUCTORS                                                  |
-        +------------------------------------------------------------------------------------------------------------*/
 
-        Camera() :
-            m_viewMatrix(1.0),
-            m_viewMatrixIsUpToDate(false),
-            m_projectionMatrix(1.0),
-            m_projectionMatrixIsUpToDate(false),
-            m_position(0.0),
-            m_viewDirection(0.0),
-            m_upVector(0.0),
-            m_sceneCenter(0.0),
-            m_zClippingCoef(1.0),
-            m_orthoCoef(1.0)
-        {
-            computeProjectionMatrix();
-            computeViewMatrix();
-        }
-
-
-        /*!
-        * \fn ~Camera
-        * \brief Destructor of Camera.
-        */
-        virtual ~Camera()
-        {
-        }
-
-        /*!
-        * \fn operator=
-        * \brief Equal operator.
-        */
-        Camera &operator=(const Camera& _camera)
-        {
-            m_position = _camera.m_position;
-            m_viewDirection = _camera.m_viewDirection;
-            m_upVector = _camera.m_upVector;
-            m_zClippingCoef = _camera.m_zClippingCoef;
-            m_orthoCoef = _camera.m_orthoCoef;
-            m_sceneCenter = _camera.m_sceneCenter;
-            m_sceneRadius = _camera.m_sceneRadius;
-
-            m_viewMatrixIsUpToDate = false;
-            m_projectionMatrixIsUpToDate = false;
-      
-            computeProjectionMatrix();
-            computeViewMatrix();
-
-            return *this;
-        }
-
-        /*!
-        * \fn CameraFrame
-        * \brief Copy constructor of CameraFrame.
-        */
-        Camera(const Camera& _camera) :
-            m_position(_camera.m_position),
-            m_viewDirection(_camera.m_viewDirection),
-            m_upVector(_camera.m_upVector),
-            m_sceneCenter(_camera.m_sceneCenter),
-            m_zClippingCoef(_camera.m_zClippingCoef),
-            m_orthoCoef(_camera.m_orthoCoef),
-            m_viewMatrixIsUpToDate(false),
-            m_projectionMatrixIsUpToDate(false)
-        {
-            computeProjectionMatrix();
-            computeViewMatrix();
-        }
 
 
         virtual void wheelEvent(QWheelEvent* const _event)
