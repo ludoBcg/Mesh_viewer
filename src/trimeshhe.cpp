@@ -90,8 +90,6 @@ void TriMeshHE::getNormals(std::vector<glm::vec3>& _normals)
             // for each vertex of the triangle
             for (OpMesh::FaceVertexIter fv_it = m_mesh.fv_iter( *f_it ); fv_it.is_valid(); ++fv_it)
             {                
-                //OpMesh::VertexHandle v_h = fv_it.handle();                          // current vertex handle
-                //OpMesh::Normal n1 = m_mesh.normal( v_h );                           // handle() is deprecated
                 OpMesh::Normal n1 = m_mesh.normal(*fv_it);                           // current vertex normal
                 _normals.push_back(glm::vec3(n1[0], n1[1], n1[2]));
             }
@@ -132,8 +130,6 @@ void TriMeshHE::getColors(std::vector<glm::vec3>& _colors)
             // for each vertex of the triangle
             for (OpMesh::FaceVertexIter fv_it = m_mesh.fv_iter( *f_it ); fv_it.is_valid(); ++fv_it)
             {                
-                //OpMesh::VertexHandle v_h = fv_it.handle();                       // current vertex handle
-                //OpMesh::Color c1 = m_mesh.color( v_h );                          // handle() is deprecated
                 OpMesh::Color c1 = m_mesh.color(*fv_it);                              // current vertex color
                 _colors.push_back(glm::vec3(c1[0], c1[1], c1[2]) / 256.0f);        // normalize color ([0;255] -> [0;1])
             }
@@ -168,8 +164,6 @@ void TriMeshHE::getTexCoords(std::vector<glm::vec2>& _texcoords)
             // for each vertex of the triangle
             for (OpMesh::FaceVertexIter fv_it = m_mesh.fv_iter( *f_it ); fv_it.is_valid(); ++fv_it)
             {                
-                //OpMesh::VertexHandle v_h = fv_it.handle();                       // current vertex handle
-                //OpMesh::TexCoord2D uv1 = m_mesh.texcoord2D( v_h );               // handle() is deprecated
                 OpMesh::TexCoord2D uv1 = m_mesh.texcoord2D(*fv_it);                 // current vertex uv
                 _texcoords.push_back(glm::vec2(uv1[0], uv1[1]));
             }
@@ -228,8 +222,6 @@ void TriMeshHE::getFaceNormals(std::vector<glm::vec3>& _facenormals)
         // for each triangle of the mesh...
         for (OpMesh::FaceIter f_it = m_mesh.faces_begin(); f_it != m_mesh.faces_end(); ++f_it)
         { 
-            //OpMesh::FaceHandle f_h = f_it.handle();                              // current face handle
-            //OpMesh::Normal n1 = m_mesh.normal( f_h );                            // handle() is deprecated
             OpMesh::Normal n1 = m_mesh.normal(*f_it);                              // current face normal
             // for each vertex of the triangle
             for (OpMesh::FaceVertexIter fv_it = m_mesh.fv_iter( *f_it ); fv_it.is_valid(); ++fv_it)
@@ -547,9 +539,9 @@ double TriMeshHE::compLocalVariation(OpMesh::VertexIter _hi)
     OpMesh::Point vi = m_mesh.point(*_hi);
     cog += vi;
     int cpt = 1;
-    for(OpMesh::VertexVertexIter vv_it = m_mesh.vv_iter(*_hi); vv_it; ++vv_it)
+    for(OpMesh::VertexVertexIter vv_it = m_mesh.vv_iter(*_hi); vv_it.is_valid(); ++vv_it)
     {
-        OpMesh::Point vj = m_mesh.point(vv_it);
+        OpMesh::Point vj = m_mesh.point(*vv_it);
         cog += vj;
         cpt++;
     }
@@ -564,10 +556,10 @@ double TriMeshHE::compLocalVariation(OpMesh::VertexIter _hi)
     Eigen::Vector3d varb;
     varb(0) = var[0]; varb(1) = var[1]; varb(2) = var[2];
     M.row(cpt) =  varb;
-    for(OpMesh::VertexVertexIter vv_it = m_mesh.vv_iter(*_hi); vv_it; ++vv_it)
+    for(OpMesh::VertexVertexIter vv_it = m_mesh.vv_iter(*_hi); vv_it.is_valid(); ++vv_it)
     {
         cpt++;
-        OpMesh::Point vj = m_mesh.point(vv_it);
+        OpMesh::Point vj = m_mesh.point(*vv_it);
         var = (vj - cog);
         varb(0) = var[0]; varb(1) = var[1]; varb(2) = var[2];
         M.row(cpt) =  varb;
@@ -667,15 +659,14 @@ double TriMeshHE::vertMeanCurv(OpMesh::VertexIter _xi)
         glm::vec3 x_i(xi[0], xi[1], xi[2]);
         glm::vec3 x_j(xj[0], xj[1], xj[2]);
 
-        //// get handle to triangle
-        OpMesh::VertexHandle v_h = vv_it.handle(), prev_h = prev_it.handle(), next_h = next_it.handle();
+        // get handle to triangle
+        OpMesh::VertexHandle v_h = *vv_it, prev_h = *prev_it, next_h = *next_it;
 
         OpMesh::VertexIter v_Vit(m_mesh, v_h);
         OpMesh::VertexIter prev_Vit(m_mesh, prev_h);
         OpMesh::VertexIter next_Vit(m_mesh, next_h);
 
         K += (float)compSumCot( _xi, v_Vit, prev_Vit, next_Vit) * (x_i - x_j);
-        /*K += (float)compSumCot(_xi, (vv_it.handle()), (prev_it.handle()), (next_it.handle()) ) * (x_i - x_j) ;*/
     }
 
     float A = (float)compAreaMixed(_xi);
@@ -701,7 +692,7 @@ double TriMeshHE::compAreaMixed(OpMesh::VertexIter _xi)
         if(m_mesh.is_manifold(*_xi ) )
         {
             // get handle to triangle
-            OpMesh::FaceHandle f_h = vf_it.handle();
+            OpMesh::FaceHandle f_h = *vf_it;
 
             OpMesh::FaceIter f_it(m_mesh, f_h);
         
@@ -847,11 +838,11 @@ double TriMeshHE::compAreaTriangle(OpMesh::FaceIter _f)
     // circulate over vertices
     OpMesh::FaceHalfedgeIter fh_it = m_mesh.fh_iter( *f_it );
     // point from
-    OpMesh::Point p1 = m_mesh.point( m_mesh.from_vertex_handle(fh_it) );
+    OpMesh::Point p1 = m_mesh.point( m_mesh.from_vertex_handle(*fh_it) );
     // point to
-    OpMesh::Point p2 = m_mesh.point( m_mesh.to_vertex_handle(fh_it) );
+    OpMesh::Point p2 = m_mesh.point( m_mesh.to_vertex_handle(*fh_it) );
     // previous point
-    OpMesh::Point p3 = m_mesh.point( m_mesh.from_vertex_handle( m_mesh.prev_halfedge_handle(fh_it) ) );
+    OpMesh::Point p3 = m_mesh.point( m_mesh.from_vertex_handle( m_mesh.prev_halfedge_handle(*fh_it) ) );
 
     // get 2 edges
     glm::vec3 e1(p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]);
@@ -881,11 +872,11 @@ bool TriMeshHE::isTriangleObtuse(OpMesh::FaceIter _f)
     for (OpMesh::FaceHalfedgeIter fh_it = m_mesh.fh_iter( *f_it ); fh_it.is_valid(); ++fh_it)
     {   
         // point from
-        OpMesh::Point p1 = m_mesh.point( m_mesh.from_vertex_handle(fh_it) );
+        OpMesh::Point p1 = m_mesh.point( m_mesh.from_vertex_handle(*fh_it) );
         // point to
-        OpMesh::Point p2 = m_mesh.point( m_mesh.to_vertex_handle(fh_it) );
+        OpMesh::Point p2 = m_mesh.point( m_mesh.to_vertex_handle(*fh_it) );
         // previous point
-        OpMesh::Point p3 = m_mesh.point( m_mesh.from_vertex_handle( m_mesh.prev_halfedge_handle(fh_it) ) );
+        OpMesh::Point p3 = m_mesh.point( m_mesh.from_vertex_handle( m_mesh.prev_halfedge_handle(*fh_it) ) );
 
         // get two edge vectors
         glm::vec3 p1p2(p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]);
@@ -911,11 +902,11 @@ bool TriMeshHE::isAngleObtuse(OpMesh::FaceIter _f, OpMesh::VertexIter _xi)
     for (OpMesh::FaceHalfedgeIter fh_it = m_mesh.fh_iter( *f_it ); fh_it.is_valid(); ++fh_it)
     {   
         // point from
-        OpMesh::Point p1 = m_mesh.point( m_mesh.from_vertex_handle(fh_it) );
+        OpMesh::Point p1 = m_mesh.point( m_mesh.from_vertex_handle(*fh_it) );
         // point to
-        OpMesh::Point p2 = m_mesh.point( m_mesh.to_vertex_handle(fh_it) );
+        OpMesh::Point p2 = m_mesh.point( m_mesh.to_vertex_handle(*fh_it) );
         // previous point
-        OpMesh::Point p3 = m_mesh.point( m_mesh.from_vertex_handle( m_mesh.prev_halfedge_handle(fh_it) ) );
+        OpMesh::Point p3 = m_mesh.point( m_mesh.from_vertex_handle( m_mesh.prev_halfedge_handle(*fh_it) ) );
 
         if(px == p1)
         {
