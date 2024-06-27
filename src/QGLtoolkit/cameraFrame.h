@@ -383,7 +383,7 @@ class CameraFrame : public qgltoolkit::Frame
             {
                 glm::vec3 direction = position() - m_pivotPoint;
 
-                if ((glm::length(direction) > 0.1 * m_sceneRadius || _delta > 0.0) && (glm::length(direction) < 10.0 * m_sceneRadius || _delta < 0.0))
+                if ((glm::length(direction) > 0.01 * m_sceneRadius || _delta > 0.0) && (glm::length(direction) < 10.0 * m_sceneRadius || _delta < 0.0))
                 {
                     direction *= (float)_delta;
                     this->translate(direction);
@@ -544,10 +544,8 @@ class CameraFrame : public qgltoolkit::Frame
                             break;
                         case ORTHOGRAPHIC: 
                         {
-                            //double w, h;
-                            //camera->getOrthoWidthHeight(w, h);
-                            //trans[0] *= 2.0 * w / screenWidth_ /*camera->screenWidth()*/;
-                            //trans[1] *= 2.0 * h / screenHeight_ /*camera->screenHeight()*/;
+                            trans[0] *= 2.0 / m_screenWidth;
+                            trans[1] *= 2.0 / m_screenHeight;
                             break;
                         }
                     }

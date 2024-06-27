@@ -152,12 +152,6 @@ class Camera : public qgltoolkit::CameraFrame
         //double fieldOfView() const {  }
 
         /*!
-        * \fn projType
-        * \brief Returns projection type.
-        */
-        //ProjectionType projType() const {  }
-
-        /*!
         * \fn projectionMatrix
         * \brief Returns projection matrix.
         */
@@ -275,31 +269,34 @@ class Camera : public qgltoolkit::CameraFrame
 
             //const double ZNear = zNear();
             //const double ZFar = zFar();
-
-            //switch (projType()) 
-            //{
-                //case CameraFrame::PERSPECTIVE: 
-                //{
-                //    const double f = 1.0 / tan(fieldOfView() / 2.0);
-
-                //    m_projectionMatrix = glm::perspective(fieldOfView(), aspectRatio(), zNear(), zFar() ); 
-                //    
-                //    break;
-                //}
-                //case CameraFrame::ORTHOGRAPHIC: 
-                //{
-                //    double halfWidth = m_orthoCoef * ((aspectRatio() < 1.0) ? 1.0 : aspectRatio());
-                //    double halfHeight = m_orthoCoef * ((aspectRatio() < 1.0) ? 1.0 / aspectRatio() : 1.0);
-
-                //    m_projectionMatrix = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, zNear(), zFar() ); 
-                //    break;
-                //}
-            //}
-
-            double zNear = glm::distance( m_sceneCenter, m_position) - m_sceneRadius * 1.01f;
+            double zNear = glm::distance(m_sceneCenter, m_position) - m_sceneRadius * 1.01f;
             double zFar = glm::distance(m_sceneCenter, m_position) + m_sceneRadius * 1.01f;
 
-            m_projectionMatrix = glm::perspective(fieldOfView(), aspectRatio(), zNear, zFar);
+            switch (projType()) 
+            {
+                case CameraFrame::PERSPECTIVE: 
+                {
+                    //const double f = 1.0 / tan(fieldOfView() / 2.0);
+
+                    //m_projectionMatrix = glm::perspective(fieldOfView(), aspectRatio(), zNear(), zFar() ); 
+
+                    m_projectionMatrix = glm::perspective(fieldOfView(), aspectRatio(), zNear, zFar);
+                    break;
+                }
+                case CameraFrame::ORTHOGRAPHIC: 
+                {
+                    double halfWidth = m_orthoCoef * ((aspectRatio() < 1.0) ? 1.0 : aspectRatio());
+                    double halfHeight = m_orthoCoef * ((aspectRatio() < 1.0) ? 1.0 / aspectRatio() : 1.0);
+
+                    m_projectionMatrix = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, zNear, zFar);
+                    break;
+                }
+            }
+
+            /*double zNear = glm::distance( m_sceneCenter, m_position) - m_sceneRadius * 1.01f;
+            double zFar = glm::distance(m_sceneCenter, m_position) + m_sceneRadius * 1.01f;
+
+            m_projectionMatrix = glm::perspective(fieldOfView(), aspectRatio(), zNear, zFar);*/
 
             m_projectionMatrixIsUpToDate = true;
         }
@@ -334,8 +331,6 @@ class Camera : public qgltoolkit::CameraFrame
             glm::vec3 quatZ = glm::normalize(glm::vec3(q02 + q13, q12 - q03, 1.0f - q11 - q00));
             glm::vec3 quatU = glm::normalize(glm::vec3(q01 - q23, 1.0 - q22 - q00, q12 + q03));
             m_viewMatrix = glm::lookAt(position(), /*m_pivotPoint*/ position() - quatZ , quatU );
-
-            //m_viewMatrix = glm::lookAt(m_position, m_sceneCenter, m_upVector);
 
             m_viewMatrixIsUpToDate = true; 
         }
