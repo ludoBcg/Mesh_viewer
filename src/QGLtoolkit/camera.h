@@ -258,9 +258,7 @@ class Camera : public qgltoolkit::CameraFrame
             if (m_projectionMatrixIsUpToDate)
                 return;
 
-            //const double ZNear = zNear();
-            //const double ZFar = zFar();
-            double zNear = glm::distance(m_sceneCenter, m_position) - m_sceneRadius * 1.01f;
+            double zNear = std::max(0.1, glm::distance(m_sceneCenter, m_position) - m_sceneRadius * 1.01f);
             double zFar = glm::distance(m_sceneCenter, m_position) + m_sceneRadius * 1.01f;
 
             switch (projType()) 
@@ -268,8 +266,6 @@ class Camera : public qgltoolkit::CameraFrame
                 case CameraFrame::PERSPECTIVE: 
                 {
                     //const double f = 1.0 / tan(fieldOfView() / 2.0);
-
-                    //m_projectionMatrix = glm::perspective(fieldOfView(), aspectRatio(), zNear(), zFar() ); 
 
                     m_projectionMatrix = glm::perspective(fieldOfView(), aspectRatio(), zNear, zFar);
                     break;
