@@ -85,6 +85,7 @@ class CameraFrame : public qgltoolkit::Frame
         int m_screenWidth = 1;                                  /*!< windows width (in pixels) */
         int m_screenHeight = 1;                                 /*!< windows height (in pixels) */          
         double m_fieldOfView = 0.0;                             /*!< fov angle (in radians) */
+        double m_orthoCoef = 1.0;                               /*!< defines dimensions for orthogonal projection */
         ProjectionType m_projType = PERSPECTIVE;                /*!< camera projection type */
         
         // UI event
@@ -115,6 +116,7 @@ class CameraFrame : public qgltoolkit::Frame
             , m_screenWidth(1)
             , m_screenHeight(1)
             , m_fieldOfView(0.0)
+            , m_orthoCoef(1.0)
             , m_projType(PERSPECTIVE)
             , m_action(NO_ACTION)
         { }
@@ -137,6 +139,7 @@ class CameraFrame : public qgltoolkit::Frame
             , m_screenWidth(_cf.m_screenWidth)
             , m_screenHeight(_cf.m_screenHeight)
             , m_fieldOfView(_cf.m_fieldOfView)
+            , m_orthoCoef(_cf.m_orthoCoef)
             , m_projType(_cf.m_projType)
             , m_action(NO_ACTION)
         { }
@@ -165,6 +168,7 @@ class CameraFrame : public qgltoolkit::Frame
             setPivotPoint(_cf.m_pivotPoint);
             setSceneRadius(_cf.m_sceneRadius);
             setFieldOfView(_cf.m_fieldOfView);
+            setOrthoCoefficient(_cf.m_orthoCoef);
 
             return *this;
         }
@@ -259,6 +263,17 @@ class CameraFrame : public qgltoolkit::Frame
         * \brief Set FOV.
         */
         void setFieldOfView(double _fov) { m_fieldOfView = _fov; }
+
+        /*!
+        * \fn orthoCoefficient
+        * \brief Returns orthoCoefficient.
+        */
+        double orthoCoefficient() const { return m_orthoCoef; }
+
+        /*! \fn setOrthoCoefficient
+        * \brief Set orthoCoefficient.
+        */
+        void setOrthoCoefficient(double _orthoCoef) { m_orthoCoef = _orthoCoef; }
 
         /*!
         * \fn viewDirection
@@ -379,22 +394,30 @@ class CameraFrame : public qgltoolkit::Frame
         */
         void zoom(double _delta)
         {
-            if ( m_zoomsOnPivotPoint ) 
+            if (projType() == ORTHOGRAPHIC)
             {
-                glm::vec3 direction = position() - m_pivotPoint;
-
-                if ((glm::length(direction) > 0.01 * m_sceneRadius || _delta > 0.0) && (glm::length(direction) < 10.0 * m_sceneRadius || _delta < 0.0))
+                if( (m_orthoCoef > 0.1f && _delta < 0.0) || (m_orthoCoef < 2.0f && _delta > 0.0) )
+                    m_orthoCoef += _delta;
+            }
+            else if (projType() == PERSPECTIVE)
+            {
+                if (m_zoomsOnPivotPoint)
                 {
-                    direction *= (float)_delta;
-                    this->translate(direction);
+                    glm::vec3 direction = position() - m_pivotPoint;
+
+                    if ((glm::length(direction) > 0.01 * m_sceneRadius || _delta > 0.0) && (glm::length(direction) < 10.0 * m_sceneRadius || _delta < 0.0))
+                    {
+                        direction *= (float)_delta;
+                        this->translate(direction);
+                    }
                 }
-            } 
-            else 
-            {
-                const float coef = std::max( std::abs( this->coordinatesOf(pivotPoint()).z), 0.2f * (float)m_sceneRadius);
-                glm::vec3 trans(0.0, 0.0, -coef * _delta);
-                trans = inverseTransformOf(trans);
-                this->translate(trans);
+                else
+                {
+                    const float coef = std::max(std::abs(this->coordinatesOf(pivotPoint()).z), 0.2f * (float)m_sceneRadius);
+                    glm::vec3 trans(0.0, 0.0, -coef * _delta);
+                    trans = inverseTransformOf(trans);
+                    this->translate(trans);
+                }
             }
         }
 
@@ -540,8 +563,10 @@ class CameraFrame : public qgltoolkit::Frame
                     switch (m_projType) 
                     {
                         case PERSPECTIVE:
-                            trans *= 2.0 * tan( fieldOfView() / 2.0 ) * std::abs(( this->coordinatesOf(pivotPoint())).z) / screenHeight();
+                        {
+                            trans *= 2.0 * tan(fieldOfView() / 2.0) * std::abs((this->coordinatesOf(pivotPoint())).z) / screenHeight();
                             break;
+                        }
                         case ORTHOGRAPHIC: 
                         {
                             trans[0] *= 2.0 / m_screenWidth;
