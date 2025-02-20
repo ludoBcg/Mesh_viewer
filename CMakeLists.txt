@@ -84,7 +84,7 @@ include_directories(SYSTEM "${LIBS_DIR}/third_party/eigen-3.4.0")
 # uncheck "BUILD_APPS" to avoid Qt5 search
 add_definitions(-D_USE_MATH_DEFINES)
 add_definitions(-DNOMINMAX)
-set(OPENMESH_DIR "${LIBS_DIR}/third_party/OpenMesh-10.0.0")
+set(OPENMESH_DIR "${LIBS_DIR}/third_party/OpenMesh-11.0.0")
 include_directories ( ${OPENMESH_DIR}/src)
 link_directories(${OPENMESH_DIR}/build/Build/lib)	
 
