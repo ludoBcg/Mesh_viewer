@@ -84,7 +84,7 @@ class TriMeshSoup : public Mesh
         * \param _filename : name of the file to read
         * \return false if file extension is not supported, true if it is
         */
-        bool readFile(std::string _filename);
+        bool readFile(const std::string& _filename);
 
         /*!
         * \fn writeFile
@@ -92,7 +92,7 @@ class TriMeshSoup : public Mesh
         * \param _filename : name of the file to write
         * \return false if file extension is not supported, true if it is
         */
-        bool writeFile(std::string _filename);
+        bool writeFile(const std::string& _filename);
 
         /*!
         * \fn computeAABB

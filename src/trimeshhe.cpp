@@ -234,7 +234,7 @@ void TriMeshHE::getFaceNormals(std::vector<glm::vec3>& _facenormals)
 }
 
 
-bool TriMeshHE::readFile(std::string _filename)
+bool TriMeshHE::readFile(const std::string& _filename)
 {
     // read options
     OpenMesh::IO::Options rOpt;
@@ -278,7 +278,7 @@ bool TriMeshHE::readFile(std::string _filename)
 }
 
 
-bool TriMeshHE::writeFile(std::string _filename)
+bool TriMeshHE::writeFile(const std::string& _filename)
 {
     // write options
     OpenMesh::IO::Options wOpt;
@@ -288,8 +288,12 @@ bool TriMeshHE::writeFile(std::string _filename)
         wOpt += OpenMesh::IO::Options::VertexNormal;
     if(m_mesh.has_vertex_texcoords2D())
         wOpt += OpenMesh::IO::Options::VertexTexCoord;
-    if(m_mesh.has_vertex_colors())
+    if (m_mesh.has_vertex_colors()
+        && _filename.substr(_filename.find_last_of(".") + 1) != "obj")
+    {
+        // Note: Wavefront exporter does not support vertex colors
         wOpt += OpenMesh::IO::Options::VertexColor;
+    }
 
     // read mesh from stdin
     if ( ! OpenMesh::IO::write_mesh(m_mesh, _filename, wOpt) )

@@ -50,22 +50,36 @@ class Window : public QWidget
 
     private:
 
+        /*!
+        * \fn buildVisDialogBox
+        * \brief Build visualization dialog box.
+        */
+        void buildVisDialogBox();
+        
+        /*!
+        * \fn buildGeomDialogBox
+        * \brief Build geometry dialog box.
+        */
+        void buildGeomDialogBox();
+
         /********************************************* Main Window ********************************************/
 
         QVBoxLayout* m_globalLayout;        /*!< Global vertical layout of the window */
 
         QHBoxLayout* m_toolbarLayout;       /*!< Horizontal layout of the toolbar */
-        QPushButton* m_buttonShowDB;        /*!< Button to show/hide dialog box */
+        QPushButton* m_buttonShowVisDB;     /*!< Button to show/hide visualization dialog box */
+        QPushButton* m_buttonShowGeomDB;    /*!< Button to show/hide geometry dialog box */
         QPushButton* m_buttonLoadMeshHE;    /*!< Button to load a TriMeshHE */
         QPushButton* m_buttonLoadMeshSoup;  /*!< Button to load a TriMeshSoup */
         QPushButton* m_buttonSaveMesh;      /*!< Button to save a Mesh */
 
         GLWidget* m_glViewer;                 /*!< QGLViewer, contains the OpenGL context */
 
-        /********************************************* Dialog Box *********************************************/
 
-        QDialog* m_dialogBox;               /*!< Dialog Box */
-        QVBoxLayout* m_boxGlobalLayout;     /*!< Global layout of the dialog box */
+        /******************************************* Vis Dialog Box *******************************************/
+
+        QDialog* m_visDialogBox;            /*!< Dialog Box for visualization tools */
+        QVBoxLayout* m_visBoxGlobalLayout;  /*!< Global layout of the dialog box */
 
         QGroupBox* m_groupBoxScene;         /*!< GroupBox for scene setup */
         QVBoxLayout* m_boxSceneLayout;      /*!< Layout for scene setup */
@@ -131,6 +145,12 @@ class Window : public QWidget
         QPushButton* m_buttonMeanCurv;      /*!< Button to compute mean curvature */
         QPushButton* m_buttonSurfVar;       /*!< Button to compute surface variation */
 
+
+        /******************************************* Geom Dialog Box ******************************************/
+        QDialog* m_geomDialogBox;            /*!< Dialog Box for geometry tools */
+        QVBoxLayout* m_geomBoxGlobalLayout;  /*!< Global layout of the dialog box */
+
+
         bool m_texLoaded;                   /*!< True if a texture is loaded */
         bool m_normalMapLoaded;             /*!< True if a normal map is loaded */
 
@@ -150,6 +170,13 @@ class Window : public QWidget
         void moveEvent(QMoveEvent* e);
 
         /*!
+        * \fn resizeEvent
+        * \brief Override resize event of the main window
+        *        Call positionDialog() each time the main window is resized
+        */
+        void resizeEvent(QResizeEvent* e);
+
+        /*!
         * \fn positionDialog
         * \brief Compute position of the dialog box relatively to main window position
         * \param _mainWinGeom: geometry of the main window
@@ -160,16 +187,28 @@ class Window : public QWidget
     public slots:
 
             /*!
-            * \fn popDialog
-            * \brief SLOT: show/hide dialog box
+            * \fn popVisDialog
+            * \brief SLOT: show/hide visualization dialog box
             */
-            void popDialog();
+            void popVisDialog();
 
             /*!
-            * \fn rejectDialog
-            * \brief SLOT: handle dialog box closing using Close [x] button
+            * \fn rejectVisDialog
+            * \brief SLOT: handle visualization dialog box closing using Close [x] button
             */
-            void rejectDialog();
+            void rejectVisDialog();
+
+            /*!
+            * \fn popGeomDialog
+            * \brief SLOT: show/hide geometry dialog box
+            */
+            void popGeomDialog();
+
+            /*!
+            * \fn rejectGeomDialog
+            * \brief SLOT: handle geometry dialog box closing using Close [x] button
+            */
+            void rejectGeomDialog();
 
             /*!
             * \fn loadMeshHE

@@ -13,6 +13,7 @@
 
 #include "trimeshsoup.h"
 
+
 TriMeshSoup::TriMeshSoup() : Mesh()
     , m_isVertDuplicated(false)
 {}
@@ -132,7 +133,7 @@ void TriMeshSoup::getFaceNormals(std::vector<glm::vec3>& _facenormals)
 }
 
 
-bool TriMeshSoup::readFile(std::string _filename)
+bool TriMeshSoup::readFile(const std::string& _filename)
 {
     this->clear();
     if(_filename.substr(_filename.find_last_of(".") + 1) == "obj")
@@ -167,7 +168,7 @@ bool TriMeshSoup::readFile(std::string _filename)
 }
 
 
-bool TriMeshSoup::writeFile(std::string _filename)
+bool TriMeshSoup::writeFile(const std::string& _filename)
 {
     if(_filename.substr(_filename.find_last_of(".") + 1) == "obj")
     {
@@ -205,14 +206,14 @@ void TriMeshSoup::computeAABB()
         glm::vec3 min = m_vertices[0];
         glm::vec3 max = m_vertices[0];
 
-        for (auto it = m_vertices.begin(); it != m_vertices.end(); it++)
+        for (auto it_v = m_vertices.begin(); it_v != m_vertices.end(); it_v++)
         {
-            if((*it).x < min.x) { min.x = (*it).x; }
-            if((*it).y < min.y) { min.y = (*it).y; }
-            if((*it).z < min.z) { min.z = (*it).z; }
-            if((*it).x > max.x) { max.x = (*it).x; }
-            if((*it).y > max.y) { max.y = (*it).y; }
-            if((*it).z > max.z) { max.z = (*it).z; }
+            if((*it_v).x < min.x) { min.x = (*it_v).x; }
+            if((*it_v).y < min.y) { min.y = (*it_v).y; }
+            if((*it_v).z < min.z) { min.z = (*it_v).z; }
+            if((*it_v).x > max.x) { max.x = (*it_v).x; }
+            if((*it_v).y > max.y) { max.y = (*it_v).y; }
+            if((*it_v).z > max.z) { max.z = (*it_v).z; }
         }
         m_bBoxMin = min;
         m_bBoxMax = max;
@@ -232,7 +233,7 @@ void TriMeshSoup::computeNormals()
     if(m_isVertDuplicated)
         qWarning() << "[Warning] TriMeshSoup::computeNormals: Vertices are already duplicated, vertex normal cannot be properly calculated";
     else
-        qInfo() << "[info] TriMeshSoup::computeNormals: Vertices will be duplicated to calculate face normal vertex attribute";
+        qInfo() << "[info] TriMeshSoup::computeNormals: Vertices are not duplicated, first duplicate vertices if you wish to calculate face normals";
     
     std::int32_t vertexIndex0, vertexIndex1, vertexIndex2;
 
@@ -242,15 +243,15 @@ void TriMeshSoup::computeNormals()
         m_normals.resize(m_vertices.size(), glm::vec3(0.0f, 0.0f, 0.0f));
 
         // 1. compute per-vertex normals by averaging the unnormalized face normals
-        for (unsigned int i = 0; i < m_indices.size(); i += 3) 
+        for (int i = 0; i < m_indices.size(); i += 3)
         {
             vertexIndex0 = m_indices[i];
             vertexIndex1 = m_indices[i + 1];
             vertexIndex2 = m_indices[i + 2];
 
-            //compute current face normal
-            glm::vec3 faceNormal = glm::cross(m_vertices[vertexIndex1] - m_vertices[vertexIndex0],  m_vertices[vertexIndex2] - m_vertices[vertexIndex0]);
-            if( faceNormal != glm::vec3(0.0f) )
+            // compute current face normal
+            glm::vec3 faceNormal = glm::cross(m_vertices[vertexIndex1] - m_vertices[vertexIndex0], m_vertices[vertexIndex2] - m_vertices[vertexIndex0]);
+            if (faceNormal != glm::vec3(0.0f))
                 faceNormal = glm::normalize(faceNormal);
 
             // add current face normal to adjacent vertices
@@ -258,14 +259,12 @@ void TriMeshSoup::computeNormals()
             m_normals[vertexIndex1] += faceNormal;
             m_normals[vertexIndex2] += faceNormal;
         }
-        for (unsigned int i = 0; i < m_normals.size(); i++) 
+        #pragma omp parallel for
+        for (int i = 0; i < m_normals.size(); i++)
         {
             // vertex normal is avg of adjacent faces' normals
             m_normals[i] = glm::normalize(m_normals[i]);
         }
-
-        // 2. duplicate vertices so we can compute face normals
-        //duplicateVertices(); // @@
     }
     else
     {
@@ -274,7 +273,7 @@ void TriMeshSoup::computeNormals()
         m_facenormals.clear();
         m_facenormals.resize(m_vertices.size(), glm::vec3(0.0f, 0.0f, 0.0f));
 
-        for (unsigned int i = 0; i < m_indices.size(); i += 3) 
+        for (int i = 0; i < m_indices.size(); i += 3) 
         {
             vertexIndex0 = m_indices[i];
             vertexIndex1 = m_indices[i + 1];

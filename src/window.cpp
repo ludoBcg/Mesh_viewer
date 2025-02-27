@@ -34,31 +34,40 @@ Window::Window()
     m_toolbarLayout = new QHBoxLayout;
     m_toolbarLayout->setAlignment(Qt::AlignLeft);
 
-    // Show dialog box button
-    m_buttonShowDB = new QPushButton("show Toolbox", this);
-    m_buttonShowDB->setToolTip("rendering and geometry tools");
-    m_buttonShowDB->setFixedSize(100, 25);
-    m_buttonShowDB->setCheckable(true);
-    m_buttonShowDB->setChecked(false);
-    QObject::connect(m_buttonShowDB, SIGNAL(clicked()), this, SLOT(popDialog()));
-    m_toolbarLayout->addWidget(m_buttonShowDB);
+    // Show visualization dialog box button
+    m_buttonShowVisDB = new QPushButton("Show visToolbox", this);
+    m_buttonShowVisDB->setToolTip("rendering tools");
+    m_buttonShowVisDB->setFixedSize(120, 25);
+    m_buttonShowVisDB->setCheckable(true);
+    m_buttonShowVisDB->setChecked(false);
+    QObject::connect(m_buttonShowVisDB, SIGNAL(clicked()), this, SLOT(popVisDialog()));
+    m_toolbarLayout->addWidget(m_buttonShowVisDB);
+
+    // Show geometry dialog box button
+    m_buttonShowGeomDB = new QPushButton("Show geomToolbox", this);
+    m_buttonShowGeomDB->setToolTip("geometry tools");
+    m_buttonShowGeomDB->setFixedSize(120, 25);
+    m_buttonShowGeomDB->setCheckable(true);
+    m_buttonShowGeomDB->setChecked(false);
+    QObject::connect(m_buttonShowGeomDB, SIGNAL(clicked()), this, SLOT(popGeomDialog()));
+    m_toolbarLayout->addWidget(m_buttonShowGeomDB);
 
     // Load TriMeshHE button
-    m_buttonLoadMeshHE = new QPushButton("load TriMeshHE", this);
+    m_buttonLoadMeshHE = new QPushButton("Load TriMeshHE", this);
     m_buttonLoadMeshHE->setToolTip("load a triangle mesh using half-edge data structure");
-    m_buttonLoadMeshHE->setFixedSize(100, 25);
+    m_buttonLoadMeshHE->setFixedSize(120, 25);
     QObject::connect(m_buttonLoadMeshHE, SIGNAL(clicked()), this, SLOT(loadMeshHE()));
     m_toolbarLayout->addWidget(m_buttonLoadMeshHE);
 
     // Load TriMeshSoup button
-    m_buttonLoadMeshSoup = new QPushButton("load TriMeshSoup", this);
+    m_buttonLoadMeshSoup = new QPushButton("Load TriMeshSoup", this);
     m_buttonLoadMeshSoup->setToolTip("load a triangle mesh using a polygon soup data structure");
-    m_buttonLoadMeshSoup->setFixedSize(100, 25);
+    m_buttonLoadMeshSoup->setFixedSize(120, 25);
     QObject::connect(m_buttonLoadMeshSoup, SIGNAL(clicked()), this, SLOT(loadMeshSoup()));
     m_toolbarLayout->addWidget(m_buttonLoadMeshSoup);
 
     // Save mesh button
-    m_buttonSaveMesh = new QPushButton("save mesh", this);
+    m_buttonSaveMesh = new QPushButton("Save mesh", this);
     m_buttonSaveMesh->setToolTip("save mesh to a file (warning: file format depends on data structure)");
     m_buttonSaveMesh->setFixedSize(100, 25);
     QObject::connect(m_buttonSaveMesh, SIGNAL(clicked()), this, SLOT(saveMesh()));
@@ -75,20 +84,29 @@ Window::Window()
     m_globalLayout->addWidget(m_glViewer);
 
 
+    buildVisDialogBox();
+
+    buildGeomDialogBox();
+
+}
+
+
+void Window::buildVisDialogBox()
+{
     /*******************************************************************************************/
-    /*************************************** Dialog Box ****************************************/
+    /************************************* Vis Dialog Box **************************************/
     /*******************************************************************************************/
 
-    m_dialogBox = new QDialog(this);
-    m_dialogBox->move(400, 300);
-    m_dialogBox->setModal(false);
-    m_dialogBox->setVisible(false);
-    m_dialogBox->setGeometry(this->geometry().x(), this->geometry().y(), 250, 400);
-    m_dialogBox->setWindowTitle("Toolbox");
-    QObject::connect(m_dialogBox, SIGNAL(rejected()), this, SLOT(rejectDialog()));
+    m_visDialogBox = new QDialog(this);
+    m_visDialogBox->move(400, 300);
+    m_visDialogBox->setModal(false);
+    m_visDialogBox->setVisible(false);
+    m_visDialogBox->setGeometry(this->geometry().x(), this->geometry().y(), 250, 400);
+    m_visDialogBox->setWindowTitle("Vis Toolbox");
+    QObject::connect(m_visDialogBox, SIGNAL(rejected()), this, SLOT(rejectVisDialog()));
 
     // Main dialog box layout
-    m_boxGlobalLayout = new QVBoxLayout;
+    m_visBoxGlobalLayout = new QVBoxLayout;
 
 
     /*************************************** Scene setup ****************************************/
@@ -103,10 +121,10 @@ Window::Window()
     // Background color button
     m_backColLayout = new QHBoxLayout;
     m_backColLayout->setAlignment(Qt::AlignRight);
-    m_backColLabel = new QLabel("background color");
+    m_backColLabel = new QLabel("Background color");
     m_backColLayout->addWidget(m_backColLabel);
     m_buttonBackCol = new QPushButton(this);
-    m_buttonBackCol->setToolTip("change background color");
+    m_buttonBackCol->setToolTip("Change background color");
     m_buttonBackCol->setFixedSize(100, 25);
     m_backCol = QColor(0, 0, 0);
     QString styleSheet("background: #" + QString(m_backCol.red() < 16 ? "0" : "") + QString::number(m_backCol.red(), 16)
@@ -121,7 +139,7 @@ Window::Window()
     // Light color
     m_lightColLayout = new QHBoxLayout;
     m_lightColLayout->setAlignment(Qt::AlignRight);
-    m_lightColLabel = new QLabel("light color");
+    m_lightColLabel = new QLabel("Light color");
     m_lightColLayout->addWidget(m_lightColLabel);
     m_buttonLightCol = new QPushButton(this);
     m_lightCol = QColor(255, 255, 255);
@@ -138,7 +156,7 @@ Window::Window()
 
     // Render surface
     m_toggleShowSurf = new QCheckBox;
-    m_toggleShowSurf->setText("show surface");
+    m_toggleShowSurf->setText("Show surface");
     m_toggleShowSurf->setChecked(true);
     QObject::connect(m_toggleShowSurf, SIGNAL(clicked()), m_glViewer, SLOT(toggleRenderSurf()));
     m_boxSceneLayout->addWidget(m_toggleShowSurf);
@@ -147,14 +165,14 @@ Window::Window()
     m_wireLayout = new QHBoxLayout;
     // Render edges button
     m_toggleShowLines = new QCheckBox;
-    m_toggleShowLines->setText("show wireframe");
+    m_toggleShowLines->setText("Show wireframe");
     m_toggleShowLines->setChecked(false);
     QObject::connect(m_toggleShowLines, SIGNAL(clicked()), m_glViewer, SLOT(toggleRenderLines()));
     QObject::connect(m_toggleShowLines, SIGNAL(clicked()), this, SLOT(toggleLines()));
     m_wireLayout->addWidget(m_toggleShowLines);
     m_wireLayout->addStretch();
     //Edge color
-    m_wireLabel = new QLabel("edges color");
+    m_wireLabel = new QLabel("Edges color");
     m_wireLabel->setEnabled(false);
     m_wireLayout->addWidget(m_wireLabel);
     m_buttonWireColor = new QPushButton(this);
@@ -172,7 +190,7 @@ Window::Window()
     // Edges shading
     m_wireShadingLayout = new QHBoxLayout;
     m_toggleShadingLines = new QCheckBox;
-    m_toggleShadingLines->setText("wireframe shading");
+    m_toggleShadingLines->setText("Wireframe shading");
     m_toggleShadingLines->setChecked(true);
     m_toggleShadingLines->setEnabled(false);
     QObject::connect(m_toggleShadingLines, SIGNAL(clicked()), m_glViewer, SLOT(toggleShadingLines()));
@@ -181,7 +199,7 @@ Window::Window()
     m_boxSceneLayout->addLayout(m_wireShadingLayout);
 
     m_groupBoxScene->setLayout(m_boxSceneLayout);
-    m_boxGlobalLayout->addWidget(m_groupBoxScene);
+    m_visBoxGlobalLayout->addWidget(m_groupBoxScene);
 
     /************************************* Shading options **************************************/
     // GroupBox Shading
@@ -193,14 +211,14 @@ Window::Window()
     // Toggle Ambient button
     m_ambientLayout = new QHBoxLayout;
     m_toggleAmbient = new QCheckBox;
-    m_toggleAmbient->setText("ambient shading");
+    m_toggleAmbient->setText("Ambient shading");
     m_toggleAmbient->setChecked(true);
     QObject::connect(m_toggleAmbient, SIGNAL(clicked()), m_glViewer, SLOT(toggleAmbient()));
     QObject::connect(m_toggleAmbient, SIGNAL(clicked()), this, SLOT(toggleAmbient()));
     m_ambientLayout->addWidget(m_toggleAmbient);
     // Select ambient color
     m_ambientLayout->addStretch();
-    m_ambientLabel = new QLabel("ambient color");
+    m_ambientLabel = new QLabel("Ambient color");
     m_ambientLayout->addWidget(m_ambientLabel);
     m_buttonAmbientCol = new QPushButton(this);
     m_ambientCol = QColor(10, 10, 15);
@@ -216,14 +234,14 @@ Window::Window()
     // Toggle Diffuse button
     m_diffuseLayout = new QHBoxLayout;
     m_toggleDiffuse = new QCheckBox;
-    m_toggleDiffuse->setText("diffuse shading");
+    m_toggleDiffuse->setText("Diffuse shading");
     m_toggleDiffuse->setChecked(true);
     QObject::connect(m_toggleDiffuse, SIGNAL(clicked()), m_glViewer, SLOT(toggleDiffuse()));
     QObject::connect(m_toggleDiffuse, SIGNAL(clicked()), this, SLOT(toggleDiffuse()));
     m_diffuseLayout->addWidget(m_toggleDiffuse);
     // Select diffuse color
     m_diffuseLayout->addStretch();
-    m_diffuseLabel = new QLabel("diffuse color");
+    m_diffuseLabel = new QLabel("Diffuse color");
     m_diffuseLayout->addWidget(m_diffuseLabel);
     m_buttonDiffuseCol = new QPushButton(this);
     m_diffuseCol = QColor(210, 170, 110);
@@ -239,14 +257,14 @@ Window::Window()
     // Toggle Specular button
     m_specularLayout = new QHBoxLayout;
     m_toggleSpecular = new QCheckBox;
-    m_toggleSpecular->setText("specular shading");
+    m_toggleSpecular->setText("Specular shading");
     m_toggleSpecular->setChecked(true);
     QObject::connect(m_toggleSpecular, SIGNAL(clicked()), m_glViewer, SLOT(toggleSpecular()));
     QObject::connect(m_toggleSpecular, SIGNAL(clicked()), this, SLOT(toggleSpecular()));
     m_specularLayout->addWidget(m_toggleSpecular);
     // Select specular color
     m_specularLayout->addStretch();
-    m_specularLabel = new QLabel("specular color");
+    m_specularLabel = new QLabel("Specular color");
     m_specularLayout->addWidget(m_specularLabel);
     m_buttonSpecularCol = new QPushButton(this);
     m_specularCol = QColor(230, 230, 230);
@@ -261,7 +279,7 @@ Window::Window()
 
     // Specular power SpinBox
     m_specPowLayout = new QHBoxLayout;
-    m_specPowLabel = new QLabel("specular power");
+    m_specPowLabel = new QLabel("Specular power");
     m_specPowLayout->addWidget(m_specPowLabel);
     m_specPowSpinBox = new QDoubleSpinBox(this);
     m_specPowSpinBox->setMinimum(0.1);
@@ -280,7 +298,7 @@ Window::Window()
 
     // Toggle use mesh colors button
     m_toggleMeshCol = new QCheckBox;
-    m_toggleMeshCol->setText("use mesh colors");
+    m_toggleMeshCol->setText("Use mesh colors");
     m_toggleMeshCol->setChecked(false);
     m_toggleMeshCol->setEnabled(true);
     QObject::connect(m_toggleMeshCol, SIGNAL(clicked()), m_glViewer, SLOT(toggleMeshCol()));
@@ -290,7 +308,7 @@ Window::Window()
 
     // Toggle show normals button
     m_toggleShowNormals = new QCheckBox;
-    m_toggleShowNormals->setText("show normals");
+    m_toggleShowNormals->setText("Show normals");
     m_toggleShowNormals->setChecked(false);
     QObject::connect(m_toggleShowNormals, SIGNAL(clicked()), m_glViewer, SLOT(toggleShowNormals()));
     QObject::connect(m_toggleShowNormals, SIGNAL(clicked()), this, SLOT(toggleShowNormals()));
@@ -300,7 +318,7 @@ Window::Window()
 
     // Toggle flat shading button
     m_toggleFlatShading = new QCheckBox;
-    m_toggleFlatShading->setText("flat shading");
+    m_toggleFlatShading->setText("Flat shading");
     m_toggleFlatShading->setChecked(false);
     m_toggleFlatShading->setEnabled(false);
     QObject::connect(m_toggleFlatShading, SIGNAL(clicked()), m_glViewer, SLOT(toggleFlatShading()));
@@ -308,13 +326,13 @@ Window::Window()
 
     // Toggle gamma correction button
     m_toggleGammaCorrec = new QCheckBox;
-    m_toggleGammaCorrec->setText("gamma correction");
+    m_toggleGammaCorrec->setText("Gamma correction");
     m_toggleGammaCorrec->setChecked(true);
     QObject::connect(m_toggleGammaCorrec, SIGNAL(clicked()), m_glViewer, SLOT(toggleGammaCorrec()));
     m_boxShadingLayout->addWidget(m_toggleGammaCorrec);
 
     m_groupBoxShading->setLayout(m_boxShadingLayout);
-    m_boxGlobalLayout->addWidget(m_groupBoxShading);
+    m_visBoxGlobalLayout->addWidget(m_groupBoxShading);
 
 
     /************************************* Texture mapping **************************************/
@@ -325,12 +343,12 @@ Window::Window()
 
     // Load texture button
     m_texLayout = new QHBoxLayout;
-    m_buttonLoadTex = new QPushButton("load texture", this);
+    m_buttonLoadTex = new QPushButton("Load texture", this);
     m_buttonLoadTex->setFixedSize(150, 20);
     QObject::connect(m_buttonLoadTex, SIGNAL(clicked()), this, SLOT(openTexDialog()));
     m_texLayout->addWidget(m_buttonLoadTex);
     m_toggleTex = new QCheckBox;
-    m_toggleTex->setText("use texture");
+    m_toggleTex->setText("Use texture");
     m_toggleTex->setChecked(false);
     m_toggleTex->setEnabled(false);
     QObject::connect(m_toggleTex, SIGNAL(clicked()), m_glViewer, SLOT(toggleTex()));
@@ -340,12 +358,12 @@ Window::Window()
 
     // Load Normal map button
     m_normalMapLayout = new QHBoxLayout;
-    m_buttonLoadNormalMap = new QPushButton("load normal map", this);
+    m_buttonLoadNormalMap = new QPushButton("Load normal map", this);
     m_buttonLoadNormalMap->setFixedSize(150, 20);
     QObject::connect(m_buttonLoadNormalMap, SIGNAL(clicked()), this, SLOT(openNormalMapDialog()));
     m_normalMapLayout->addWidget(m_buttonLoadNormalMap);
     m_toggleNormalMap = new QCheckBox;
-    m_toggleNormalMap->setText("use normal map");
+    m_toggleNormalMap->setText("Use normal map");
     m_toggleNormalMap->setChecked(false);
     m_toggleNormalMap->setEnabled(false);
     QObject::connect(m_toggleNormalMap, SIGNAL(clicked()), m_glViewer, SLOT(toggleNormalMap()));
@@ -355,7 +373,31 @@ Window::Window()
     m_boxTexLayout->addStretch();
 
     m_groupBoxTex->setLayout(m_boxTexLayout);
-    m_boxGlobalLayout->addWidget(m_groupBoxTex);
+    m_visBoxGlobalLayout->addWidget(m_groupBoxTex);
+
+
+    m_visDialogBox->setLayout(m_visBoxGlobalLayout);
+
+    m_globalLayout->addWidget(m_visDialogBox);
+}
+   
+
+void Window::buildGeomDialogBox()
+{
+    /*******************************************************************************************/
+    /************************************* Geom Dialog Box *************************************/
+    /*******************************************************************************************/
+
+    m_geomDialogBox = new QDialog(this);
+    m_geomDialogBox->move(800, 300);
+    m_geomDialogBox->setModal(false);
+    m_geomDialogBox->setVisible(false);
+    m_geomDialogBox->setGeometry(this->geometry().x(), this->geometry().y(), 250, 150);
+    m_geomDialogBox->setWindowTitle("Geom Toolbox");
+    QObject::connect(m_geomDialogBox, SIGNAL(rejected()), this, SLOT(rejectGeomDialog()));
+
+    // Main dialog box layout
+    m_geomBoxGlobalLayout = new QVBoxLayout;
 
 
     /************************************* Geometry tools ***************************************/
@@ -365,20 +407,20 @@ Window::Window()
     m_boxGeomLayout = new QVBoxLayout;
 
     // Duplicate vertices button
-    m_buttonDuplVertices = new QPushButton("duplicate vertices", this);
+    m_buttonDuplVertices = new QPushButton("Duplicate vertices", this);
     m_buttonDuplVertices->setFixedSize(200, 20);
     QObject::connect(m_buttonDuplVertices, SIGNAL(clicked()), m_glViewer, SLOT(duplVertices()));
     m_boxGeomLayout->addWidget(m_buttonDuplVertices);
 
     // Recompute normals button
-    m_buttonCompNormals = new QPushButton("recompute normals", this);
+    m_buttonCompNormals = new QPushButton("Recompute normals", this);
     m_buttonCompNormals->setFixedSize(200, 20);
     QObject::connect(m_buttonCompNormals, SIGNAL(clicked()), m_glViewer, SLOT(compNormals()));
     QObject::connect(m_buttonCompNormals, SIGNAL(clicked()), this, SLOT(compNormals()));
     m_boxGeomLayout->addWidget(m_buttonCompNormals);
 
     // Compute tangents + bitangents button
-    m_buttonCompTB = new QPushButton("compute tangents and bitangents", this);
+    m_buttonCompTB = new QPushButton("Compute tangents and bitangents", this);
     m_buttonCompTB->setFixedSize(200, 20);
     QObject::connect(m_buttonCompTB, SIGNAL(clicked()), m_glViewer, SLOT(compTBs()));
     m_boxGeomLayout->addWidget(m_buttonCompTB);
@@ -401,7 +443,7 @@ Window::Window()
     m_nbIterSpinBox->setFixedWidth(40);
     m_nbIterSpinBox->setFixedHeight(20);
     m_smoothParamLayout->addWidget(m_nbIterSpinBox);
-    m_nbIterLabel = new QLabel("iterations");
+    m_nbIterLabel = new QLabel("Iterations");
     m_nbIterLabel->setVisible(false);
     m_smoothParamLayout->addWidget(m_nbIterLabel);
     m_factorSpinBox = new QDoubleSpinBox(this);
@@ -413,7 +455,7 @@ Window::Window()
     m_factorSpinBox->setFixedWidth(45);
     m_factorSpinBox->setFixedHeight(20);
     m_smoothParamLayout->addWidget(m_factorSpinBox);
-    m_factorLabel = new QLabel("factor");
+    m_factorLabel = new QLabel("Factor");
     m_factorLabel->setVisible(false);
     m_smoothParamLayout->addWidget(m_factorLabel);
     m_smoothParamLayout->setAlignment(Qt::AlignRight);
@@ -434,23 +476,19 @@ Window::Window()
     QObject::connect(m_buttonSurfVar, SIGNAL(clicked()), m_glViewer, SLOT(compSurfVar()));
     m_boxGeomLayout->addWidget(m_buttonSurfVar);
 
-    //m_boxGeomLayout->addStretch();
 
     m_groupBoxGeom->setLayout(m_boxGeomLayout);
-    m_boxGlobalLayout->addWidget(m_groupBoxGeom);
+    m_geomBoxGlobalLayout->addWidget(m_groupBoxGeom);
 
+    m_geomDialogBox->setLayout(m_geomBoxGlobalLayout);
 
-    m_dialogBox->setLayout(m_boxGlobalLayout);
-
-    m_globalLayout->addWidget(m_dialogBox);
-
+    m_globalLayout->addWidget(m_geomDialogBox);
 }
-
 
 
 Window::~Window()
 {
-    //--- Delete tool box widgets ------------
+    //--- Delete vis tool box widgets --------
 
     // Delete scene setup
     delete m_backColLabel;
@@ -501,6 +539,15 @@ Window::~Window()
     delete m_normalMapLayout;
     delete m_boxTexLayout;
     delete m_groupBoxTex;
+
+
+    //--- Delete vis tool box ----------------
+    delete m_visBoxGlobalLayout;
+    delete m_visDialogBox;
+
+
+    //--- Delete geom tool box widgets -------
+
     // Delete geometry tools
     delete m_buttonDuplVertices;
     delete m_buttonCompNormals;
@@ -517,13 +564,15 @@ Window::~Window()
     delete m_groupBoxGeom;
 
 
-    //--- Delete tool box --------------------
-    delete m_boxGlobalLayout;
-    delete m_dialogBox;
+    //--- Delete geom tool box ---------------
+    delete m_geomBoxGlobalLayout;
+    delete m_geomDialogBox;
+
 
     //--- Delete other main window widgets ---
     delete m_glViewer;
-    delete m_buttonShowDB;
+    delete m_buttonShowVisDB;
+    delete m_buttonShowGeomDB;
     delete m_buttonLoadMeshHE;
     delete m_buttonLoadMeshSoup;
     delete m_buttonSaveMesh;
@@ -541,10 +590,21 @@ void Window::moveEvent(QMoveEvent* e)
     positionDialog(&geom);
 }
 
+
+void Window::resizeEvent(QResizeEvent* e)
+{
+    QWidget::resizeEvent(e);
+
+    QRect geom = this->geometry();
+    positionDialog(&geom);
+}
+
+
 void Window::positionDialog(QRect* _mainWinGeom)
 {
-    // Move dialog box to the top left corner of the main window
-    m_dialogBox->move(_mainWinGeom->x() + 20, _mainWinGeom->y() + 50);
+    // Move dialog boxes to the top left corner of the main window
+    m_visDialogBox->move(_mainWinGeom->x() + 20, _mainWinGeom->y() + 50);
+    m_geomDialogBox->move(_mainWinGeom->x() + _mainWinGeom->width() - 270, _mainWinGeom->y() + 50);
 }
 
 
@@ -554,25 +614,46 @@ void Window::positionDialog(QRect* _mainWinGeom)
 |                                                   SLOTS                                                     |
 +-------------------------------------------------------------------------------------------------------------*/
 
-void Window::popDialog()
+void Window::popVisDialog()
 {
-    if (m_buttonShowDB->isChecked())
+    if (m_buttonShowVisDB->isChecked())
     {
-        m_dialogBox->setVisible(true);
-        m_buttonShowDB->setText("hide Toolbox");
+        m_visDialogBox->setVisible(true);
+        m_buttonShowVisDB->setText("hide visToolbox");
     }
     else
     {
-        m_dialogBox->setVisible(false);
-        m_buttonShowDB->setText("show Toolbox");
+        m_visDialogBox->setVisible(false);
+        m_buttonShowVisDB->setText("show visToolbox");
     }
 }
 
-void Window::rejectDialog()
+void Window::rejectVisDialog()
 {
-    m_dialogBox->setVisible(false);
-    m_buttonShowDB->setText("show Toolbox");
-    m_buttonShowDB->setChecked(false);
+    m_visDialogBox->setVisible(false);
+    m_buttonShowVisDB->setText("show visToolbox");
+    m_buttonShowVisDB->setChecked(false);
+}
+
+void Window::popGeomDialog()
+{
+    if (m_buttonShowGeomDB->isChecked())
+    {
+        m_geomDialogBox->setVisible(true);
+        m_buttonShowGeomDB->setText("hide geomToolbox");
+    }
+    else
+    {
+        m_geomDialogBox->setVisible(false);
+        m_buttonShowGeomDB->setText("geomToolbox");
+    }
+}
+
+void Window::rejectGeomDialog()
+{
+    m_geomDialogBox->setVisible(false);
+    m_buttonShowGeomDB->setText("show geomToolbox");
+    m_buttonShowGeomDB->setChecked(false);
 }
 
 void Window::loadMeshHE()

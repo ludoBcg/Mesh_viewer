@@ -67,8 +67,8 @@ class Mesh
         |                                               OTHER METHODS                                                 |
         +-------------------------------------------------------------------------------------------------------------*/
 
-        virtual bool readFile(std::string _filename) = 0;
-        virtual bool writeFile(std::string _filename) = 0;
+        virtual bool readFile(const std::string& _filename) = 0;
+        virtual bool writeFile(const std::string& _filename) = 0;
         virtual void computeAABB() = 0;
         virtual void duplicateVertices() = 0;
         virtual void computeNormals() = 0;
