@@ -283,16 +283,26 @@ bool TriMeshHE::writeFile(const std::string& _filename)
     // write options
     OpenMesh::IO::Options wOpt;
 
+    // Note: 
+    // - Wavefront exporter does not support vertex colors
+    // - STL exporter does not support vertex attributes (normals,texCoords, and colors)
+
     // add read options for vertex normals, colors, and texcoords
-    if(m_mesh.has_vertex_normals())
-        wOpt += OpenMesh::IO::Options::VertexNormal;
-    if(m_mesh.has_vertex_texcoords2D())
-        wOpt += OpenMesh::IO::Options::VertexTexCoord;
-    if (m_mesh.has_vertex_colors()
-        && _filename.substr(_filename.find_last_of(".") + 1) != "obj")
+    if (_filename.substr(_filename.find_last_of(".") + 1) != "stl")
     {
-        // Note: Wavefront exporter does not support vertex colors
-        wOpt += OpenMesh::IO::Options::VertexColor;
+        if (m_mesh.has_vertex_normals())
+        {
+            wOpt += OpenMesh::IO::Options::VertexNormal;
+        }
+        if (m_mesh.has_vertex_texcoords2D())
+        {
+            wOpt += OpenMesh::IO::Options::VertexTexCoord;
+        }
+        if (m_mesh.has_vertex_colors()
+            && _filename.substr(_filename.find_last_of(".") + 1) != "obj")
+        {
+            wOpt += OpenMesh::IO::Options::VertexColor;
+        }
     }
 
     // read mesh from stdin
