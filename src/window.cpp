@@ -73,6 +73,13 @@ Window::Window()
     QObject::connect(m_buttonSaveMesh, SIGNAL(clicked()), this, SLOT(saveMesh()));
     m_toolbarLayout->addWidget(m_buttonSaveMesh);
 
+    // Help button
+    m_buttonHelp = new QPushButton("?", this);
+    m_buttonHelp->setToolTip("Help");
+    m_buttonHelp->setFixedSize(25, 25);
+    QObject::connect(m_buttonHelp, SIGNAL(clicked()), this, SLOT(help()));
+    m_toolbarLayout->addWidget(m_buttonHelp);
+
     m_globalLayout->addLayout(m_toolbarLayout);
 
 
@@ -576,6 +583,7 @@ Window::~Window()
     delete m_buttonLoadMeshHE;
     delete m_buttonLoadMeshSoup;
     delete m_buttonSaveMesh;
+    delete m_buttonHelp;
     delete m_toolbarLayout;
     //--- Delete main window layout-----------
     delete m_globalLayout;
@@ -699,6 +707,22 @@ void Window::saveMesh()
     QString file = QFileDialog::getSaveFileName(this, "save file", "../../results", "Mesh (*.obj *.off *.ply *.stl)");
     if (!file.isEmpty())
         m_glViewer->saveMesh(file);
+}
+
+void Window::help()
+{
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Help");
+    msgBox.setIcon(QMessageBox::Icon::Information);
+    const QString infoText("Mouse controls:\n" 
+                           "- Left button: trackball\n"
+                           "- Left button (double-click): align with main axis\n"
+                           "- Middle button: panning\n"
+                           "- Scroll or right button: camera zoom\n"
+                           "TriMeshSoup: allows multiple attributes (e.g. UVcoords) per vertex\n"
+                           "TriMeshHE: allows curvature calculation and smoothing\n");
+    msgBox.setText(infoText);
+    msgBox.exec();
 }
 
 

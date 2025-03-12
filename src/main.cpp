@@ -44,7 +44,6 @@ int main(int argc, char* argv[])
 {
     originalHandler = qInstallMessageHandler(logToFile);
 
-
     QApplication app(argc, argv);
 
     QSurfaceFormat format;
@@ -53,5 +52,6 @@ int main(int argc, char* argv[])
 
     Window window;
     window.show();
+
     return app.exec();
 }

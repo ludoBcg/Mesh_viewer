@@ -44,7 +44,6 @@ void GLWidget::initializeGL()
 
     std::cout << std::endl
         << "Welcome to Mesh_viewer" << std::endl << std::endl
-        << "Press H for help" << std::endl
         << "OpenGL version: " << glGetString(GL_VERSION) << std::endl
         << "Vendor: " << glGetString(GL_VENDOR) << std::endl << std::endl
         << "Log:" << std::endl;

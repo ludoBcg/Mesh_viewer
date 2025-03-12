@@ -72,6 +72,7 @@ class Window : public QWidget
         QPushButton* m_buttonLoadMeshHE;    /*!< Button to load a TriMeshHE */
         QPushButton* m_buttonLoadMeshSoup;  /*!< Button to load a TriMeshSoup */
         QPushButton* m_buttonSaveMesh;      /*!< Button to save a Mesh */
+        QPushButton* m_buttonHelp;          /*!< Button to show/hide help message box */
 
         GLWidget* m_glViewer;                 /*!< QGLViewer, contains the OpenGL context */
 
@@ -227,6 +228,12 @@ class Window : public QWidget
             * \brief SLOT: open dialog box to save Mesh
             */
             void saveMesh();
+
+            /*!
+            * \fn help
+            * \brief SLOT: open help message box
+            */
+            void help();
 
             /*!
             * \fn selectBackColor
