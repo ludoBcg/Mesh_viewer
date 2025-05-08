@@ -10,7 +10,7 @@ Uses [Qt](https://www.qt.io/) for GUI, and [OpenMesh](https://www.graphics.rwth-
 
 ## Prerequisite
 
-This project has been developped on Windows, using the following setup:
+This project has been developed on Windows, using the following setup:
 
 * [VisualStudio 2022](https://visualstudio.microsoft.com) (community edition)
 * Qt 6.7.0, using the [Qt open source](https://www.qt.io/download-open-source) installer for Windows
